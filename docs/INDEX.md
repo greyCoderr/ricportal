@@ -38,6 +38,22 @@ Each phase file starts with the shared Section 5 intro and the "Order of work in
 | [seed-centers.md](seed-centers.md) | Appendix A: the 28 RIC Children Centers used by the seed |
 | [figma-inventory.md](figma-inventory.md) | Appendix B: Figma screen inventory (to be filled in Phase 0) |
 
+## Working docs
+
+Started empty; later tasks append to them (see blueprint Section 8.1).
+
+| File | Description |
+| --- | --- |
+| [PHASE_LOG.md](PHASE_LOG.md) | One line per task and gate: what was done, decisions, anything left |
+| [DECISIONS.md](DECISIONS.md) | Decision records for choices made and conflicts resolved |
+| [BACKLOG.md](BACKLOG.md) | Deferred ideas, who asked, and the phase they might belong to |
+| [CHANGELOG.md](CHANGELOG.md) | Added, changed and fixed items per tagged version |
+| [DEPLOY.md](DEPLOY.md) | Hostinger deployment steps that worked, errors met and fixes |
+| [API.md](API.md) | Endpoints that exist now: method, path, role, request, response, errors |
+| [DATA_MODEL.md](DATA_MODEL.md) | Current tables and columns with a Mermaid ERD |
+| [UI_MAP.md](UI_MAP.md) | Screens that exist now: ID, route, role, status, spec link |
+| [BUSINESS_RULES.md](BUSINESS_RULES.md) | Changes to the business rules register (blueprint section 4.6) |
+
 ## Other
 
 | File | Description |
