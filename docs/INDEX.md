@@ -52,7 +52,7 @@ Started empty; later tasks append to them (see blueprint Section 8.1).
 | [API.md](API.md) | Endpoints that exist now: method, path, role, request, response, errors |
 | [DATA_MODEL.md](DATA_MODEL.md) | Current tables and columns with a Mermaid ERD |
 | [UI_MAP.md](UI_MAP.md) | Screens that exist now: ID, route, role, status, spec link |
-| [BUSINESS_RULES.md](BUSINESS_RULES.md) | Changes to the business rules register (blueprint section 4.6) |
+| [BUSINESS_RULES.md](BUSINESS_RULES.md) | Changes and new decisions for the business rules (BR-xx, blueprint section 4.6) and assumptions (A-xx, section 4.7) |
 
 ## Other
 
