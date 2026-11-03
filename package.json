@@ -11,15 +11,17 @@
     "client"
   ],
   "scripts": {
-    "build:shared": "tsc -b shared",
-    "dev:server": "npm run build:shared && concurrently -n shared,server \"tsc -b shared -w --preserveWatchOutput\" \"npm run dev -w @ricportal/server\"",
-    "typecheck": "tsc -b",
-    "lint": "npm run build:shared && eslint .",
+    "codegen": "npm run prisma:generate -w @ricportal/server && tsc -b shared",
+    "dev:server": "npm run codegen && concurrently -n shared,server \"tsc -b shared -w --preserveWatchOutput\" \"npm run dev -w @ricportal/server\"",
+    "typecheck": "npm run codegen && tsc -b",
+    "lint": "npm run codegen && eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "test": "npm run build:shared && vitest run",
-    "build": "tsc -b",
+    "test": "npm run codegen && vitest run",
+    "build": "npm run codegen && tsc -b",
     "clean": "tsc -b --clean",
+    "db:migrate": "npm run db:migrate -w @ricportal/server --",
+    "db:seed": "npm run db:seed -w @ricportal/server",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build"
   },
   "devDependencies": {

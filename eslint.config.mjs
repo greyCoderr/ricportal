@@ -12,6 +12,7 @@ export default tseslint.config(
       ".claude/**",
       "private/**",
       "uploads/**",
+      "server/src/generated/**",
     ],
   },
   js.configs.recommended,

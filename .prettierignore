@@ -8,3 +8,5 @@ coverage
 private
 uploads
 *.tsbuildinfo
+server/src/generated
+server/prisma/migrations

@@ -51,6 +51,9 @@ npm run db:seed      admin, 28 centers, settings
 - If anything is unclear or two documents disagree: STOP and ask. Do not guess.
 - No any, no console.log, no commented-out code. Ask before adding a dependency.
 - Never read or edit .env, uploads, private/, or applied migrations.
+- Never run any tidb:* script, never read .env.tidb, never connect to the TiDB cluster.
+  Only the Developer runs them and pastes redacted output (DEC-016).
+- Install Prisma packages only with an exact version (npm latest is the 8.0 RC; DEC-016).
 - After each task: run npm run check, update docs (PHASE_LOG, API, DATA_MODEL, UI_MAP,
   DECISIONS as needed), then summarize files changed and how I can verify by hand.
 - Never add "Co-Authored-By", "Claude-Session", "Generated with Claude Code" or any AI

@@ -4,9 +4,18 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch --env-file=../.env src/server.ts"
+    "dev": "tsx watch --env-file=../.env src/server.ts",
+    "prisma:generate": "node ../node_modules/prisma/build/index.js generate --config prisma/prisma.config.ts",
+    "db:migrate": "node --env-file=../.env ../node_modules/prisma/build/index.js migrate dev --config prisma/prisma.config.ts",
+    "db:seed": "node --env-file=../.env --import tsx prisma/seed.ts",
+    "db:check": "node --env-file=../.env --import tsx prisma/db-check.ts",
+    "tidb:deploy": "node --env-file=../.env.tidb ../node_modules/prisma/build/index.js migrate deploy --config prisma/prisma.config.ts",
+    "tidb:seed": "node --env-file=../.env.tidb --import tsx prisma/seed.ts",
+    "tidb:check": "node --env-file=../.env.tidb --import tsx prisma/db-check.ts"
   },
   "dependencies": {
+    "@prisma/adapter-mariadb": "7.10.1",
+    "@prisma/client": "7.10.1",
     "compression": "1.8.2",
     "cookie-parser": "1.4.7",
     "express": "5.3.0",
@@ -22,6 +31,7 @@
     "@types/node": "22.20.5",
     "@types/supertest": "7.2.1",
     "pino-pretty": "13.2.0",
+    "prisma": "7.10.1",
     "supertest": "7.3.1"
   }
 }

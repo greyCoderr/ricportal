@@ -32,10 +32,15 @@ Never commit `.env` files.
 | `npm run test` | Runs all tests (Vitest) |
 | `npm run lint` | ESLint with type information |
 | `npm run format` | Formats code with Prettier (never Markdown) |
+| `npm run db:migrate` | Applies migrations to the local database in `.env` (prisma migrate dev). New migration: `npm run db:migrate -- --name <name>` |
+| `npm run db:seed` | Upserts the default settings (safe to run again) |
+| `npm run db:check -w @ricportal/server` | Local database check: SELECT 1, TLS status, settings row count |
 | `npm run check` | Typecheck, lint, format check, tests and build. Must pass before every commit |
 
 If a variable in `.env` is missing or invalid, the server prints which ones and exits with code 1.
 It never prints the values.
+
+The `tidb:deploy`, `tidb:seed` and `tidb:check` scripts in `server/package.json` read `.env.tidb`. Only the Developer runs them (DEC-016).
 
 Production build and start are added in P0-T15.
 

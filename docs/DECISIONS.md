@@ -145,3 +145,56 @@ Decision:
 - A rate-limited request goes to `RateLimitedError`, so it gets the standard 429 shape. express-rate-limit sets `Retry-After` and the draft-8 `RateLimit` headers first. The key is `req.ip`, which follows `X-Forwarded-For` only when `TRUST_PROXY` is above 0, so a client cannot dodge the limit by sending a fake header.
 Versions (pinned, 2026-11-03): helmet 8.3.0 (Node >=18), compression 1.8.2, express-rate-limit 8.7.3 (Node >=16; peer express >=4.11), cookie-parser 1.4.7, @types/compression 1.8.1, @types/cookie-parser 1.4.10.
 Consequence: the deployment checklist (P0-T15) sets `TRUST_PROXY` to the number of proxies in front of the app on Hostinger (usually 1). The helmet default Content-Security-Policy is checked against the built client in P0-T15.
+
+## DEC-016: Database layer is Prisma 7.10.1 with @prisma/adapter-mariadb (Option A)
+
+Context: the database-layer check before P0-T07 (DEC-006). Local: XAMPP MariaDB 10.4.32 (`mysqld --version`). Production: TiDB Cloud free plan (TLS, port 4000), schema changed only with `migrate deploy` (DEC-005). Hosting: Hostinger Node.js, postponed. Context7 was not available; sources are the npm registry and the official docs, all read 2026-11-03 (the pages show no publish date).
+Evidence:
+- npm registry: `prisma` dist-tags have `latest` = **8.0.0-rc.29** (a release candidate, engines `node ^22.18.0 || ^24.11.0 || >=26.0.0`) and `prev` = 7.10.1 (released 2026-10-15). `prisma`, `@prisma/client` and `@prisma/adapter-mariadb` 7.10.1 accept Node `^20.19 || ^22.12 || >=24.0` and TypeScript `>=5.4.0`. The adapter depends on `mariadb` 3.5.4 (Node >= 20). The last 6.x is 6.19.3 (2026-04-01; Node >=18.18, TypeScript >=5.1.0).
+- Prisma v7 docs (prisma.io/docs/orm/v7/reference/system-requirements, /docs/guides/upgrade-prisma-orm/v7, /docs/orm/v7/core-concepts/supported-databases/mysql and /database-drivers, /docs/orm/v7/reference/supported-databases):
+  - Node `^20.19.0, ^22.12.0, or ^24.0.0`; TypeScript 5.4+.
+  - Supported: MySQL 5.6, 5.7, 8.0, 8.4 and MariaDB 10.0+. TiDB is not listed (only a community adapter, `@tidbcloud/prisma-adapter`).
+  - "require a driver adapter for all databases". The classic engine is gone (removed env vars include `PRISMA_QUERY_ENGINE_BINARY` and `PRISMA_QUERY_ENGINE_LIBRARY`). MySQL and MariaDB use `@prisma/adapter-mariadb` (`PrismaMariaDb`).
+  - "Prisma ORM now ships as an ES module". The `prisma-client` generator needs an `output` path.
+  - "environment variables are not loaded by default". The CLI reads the datasource URL (and `shadowDatabaseUrl`) from `prisma.config.ts`.
+- `@prisma/adapter-mariadb` 7.10.1 type file (unpkg): `constructor(poolOrConfig: mariadb.Pool | mariadb.PoolConfig | string, options?: PrismaMariadbOptions)`.
+- MariaDB Node.js connector docs (mariadb.com/docs/connectors/mariadb-connector-nodejs/node-js-connection-options): `ssl` is a boolean or an object (`ca`, `rejectUnauthorized`, ...). "By default, Node.js trusts the well-known root Certificate Authorities (CA), based on Mozilla."
+- TiDB docs (docs.pingcap.com, v8.5 stable and TiDB Cloud Starter pages):
+  - "TiDB Cloud only allows TLS connections"; TLS 1.2 and 1.3 only; certificates from Let's Encrypt.
+  - Up to 400 concurrent connections on Starter. Connections "might be terminated" after 30 minutes (start with a 5-minute lifetime). AWS idle timeout 340 s. Transactions at most 30 minutes.
+  - Foreign keys supported since v6.6.0 and GA in v8.5.0, but not on BLOB or TEXT columns.
+  - AUTO_INCREMENT values are unique and "only be monotonic on a per TiDB server basis… not the same guarantee as consecutive".
+  - The user name needs the cluster prefix.
+- TiDB's Prisma sample (github.com/tidb-samples/tidb-nodejs-prisma-quickstart): Prisma `^5.1.1`, `provider = "mysql"`, no adapter, `mysql://<user>:<password>@<host>:4000/test?sslaccept=strict`, `prisma migrate dev`, real foreign keys ("recommended… instead of Prisma Relation Mode").
+Options: A, Prisma 7.10.1 with `@prisma/adapter-mariadb` (pure JavaScript at runtime). B, Prisma 6.19.3 with the classic native query engine (the setup in TiDB's guide).
+Decision (Developer): **Option A, Prisma 7.10.1 exactly**: `@prisma/client` 7.10.1, `@prisma/adapter-mariadb` 7.10.1, `prisma` 7.10.1 (dev).
+Rules:
+- Never install `prisma`, `@prisma/client` or `@prisma/adapter-*` without an exact version. npm `latest` is the 8.0 release candidate, which also breaks our Node floor.
+- TLS mapping: the runtime connects through the `mariadb` driver, which does not understand Prisma's `sslaccept`. `core/db.ts` maps `sslaccept=strict` to `ssl: { rejectUnauthorized: true, minVersion: "TLSv1.2" }`, using Node's bundled Mozilla CAs (no CA file).
+- Migrations: `migrate dev` and `migrate deploy` use Prisma's schema engine with the URL from `prisma.config.ts` (`sslaccept=strict` applies there, as in TiDB's guide). `migrate dev` and its shadow database run only against local MariaDB, never against TiDB.
+- Pool: about 5 connections, idle timeout under 5 minutes (TiDB limits above).
+- Real foreign keys (no `relationMode = "prisma"`), never on TEXT or BLOB columns. Never rely on IDs being consecutive (DEC-005).
+- Claude never runs any `tidb:*` script, never reads `.env.tidb` and never connects to the Developer's TiDB cluster. Only the Developer runs them and pastes redacted output.
+Unverified (checked later):
+- Whether the Prisma 7 schema engine is a native binary downloaded at install. `@prisma/engines` 7.10.1 still has a `postinstall` and depends on `@prisma/fetch-engine`; check `node_modules` in P0-T07.
+- That the generated client compiles under NodeNext; checked in P0-T07.
+- TLS, `migrate deploy` and the seed against TiDB; checked by the Developer in P0-T07b.
+- DECIMAL and SAVEPOINT behavior on TiDB through the adapter: Prisma's TiDB page returned 404 and TiDB's Prisma guide page was empty. Checked when money arrives in P5.
+Fallback: if P0-T07b fails and cannot be fixed quickly, switch to Option B (Prisma 6.19.3) and redo P0-T07. `db.ts` stays one small module so this remains cheap.
+Consequence: no native query engine runs on Hostinger. `prisma` (CLI) is a devDependency, and migrations run from the laptop or CI.
+
+## DEC-017: Database tools in server/prisma, and no env file loading in prisma.config.ts
+
+Context: CLAUDE.md says Prisma is used only in repositories and `db.ts`. P0-T07 adds a seed and a database check script, which use the Prisma client but are not application code. Separately, Prisma 7 does not load `.env` by itself.
+Decision:
+- Files in `server/prisma/` (`seed.ts`, `db-check.ts`, `script-output.ts`) are database tools, like the migrations next to them. They may use the client from `core/db.ts`. Application code under `server/src` still reaches the database only through `*.repository.ts` and `db.ts`.
+- `server/prisma/prisma.config.ts` never loads any env file. Scripts that need a database pass one explicitly with `node --env-file`: `db:migrate`, `db:seed` and `db:check` use `../.env`; `tidb:deploy`, `tidb:seed` and `tidb:check` use `../.env.tidb` (run only by the Developer, DEC-016). `prisma generate` needs no database and runs with no env file, so tests and `npm run check` never read `.env`. This is stricter than "load `.env` only when `DATABASE_URL` is unset", and was accepted by the Developer's go.
+- The generated client lives in `server/src/generated/prisma` (gitignored, ignored by ESLint and Prettier). It is compiled as normal server source, so it ships in `server/dist`. `npm run codegen` (prisma generate, then build shared) runs before typecheck, lint, test, build and dev:server, so a fresh clone and CI work without extra steps.
+Consequence: a seed or check never prints error messages, only an error code, because driver messages can contain the host.
+
+## DEC-016 follow-up (P0-T07 findings)
+
+- Native engine: after install, `node_modules/@prisma/engines/schema-engine-windows.exe` exists (the migration tool is a native binary), while the query compiler used at runtime ships as WebAssembly (`node_modules/prisma/build/query_compiler_*.mysql.wasm`). Only the devDependency CLI is native.
+- NodeNext: verified in three steps. (1) `prisma generate` with no `DATABASE_URL`, generator `prisma-client`, `moduleFormat = "esm"`, `importFileExtension = "js"`. (2) `tsc -p server/tsconfig.json --noEmit` includes the 9 generated files and exits 0 under strict, `noUncheckedIndexedAccess` and the unused-variable checks; generated imports use `.js`. (3) After `npm run build`, plain Node (no tsx) imports `server/dist/generated/prisma/client.js` (PrismaClient is a function) and `server/dist/core/db.js`.
+- Local MariaDB 10.4.32: `migrate dev --name init_settings` created and applied `20261103103141_init_settings` (Prisma made its own temporary shadow database). The seed ran twice with 2 rows, values `"25.00"` and `"2026-2027"`. `db:check` gave `SELECT 1: ok`, `TLS: off`, `settings rows: 2`.
+- The Prisma CLI prints "Update available 7.10.1 -> 8.0.0-rc.29 … npm i prisma@latest". Ignore it: the exact-version rule above applies.
