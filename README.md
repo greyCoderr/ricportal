@@ -5,7 +5,7 @@ Libmanan, Camarines Sur. Roles: Administrator (MAO), RIC Teacher, Parent.
 
 ## Requirements
 
-- Node.js 22.12 or newer (`.nvmrc` pins 22)
+- Node.js 22.13 or newer (`.nvmrc` pins 22)
 - Local database: XAMPP MariaDB at `127.0.0.1:3306` with databases `ricportal` and `ricportal_test`
 - Production database: TiDB Cloud (MySQL-compatible, TLS required)
 

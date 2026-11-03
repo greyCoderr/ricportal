@@ -46,7 +46,7 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 | P0-T17 | POSTPONED (deploy before the defense). Decision gate: if Prisma failed or exceeded limits on Hostinger, switch the data layer now (Drizzle or Kysely) and redo P0-T07 to P0-T09 | prisma or data layer | Production health check is green with the chosen data layer |
 | P0-T18 | Verify the project files that the Developer prepared (CLAUDE.md, docs/, `.claude/skills`, `.claude/agents`, hooks, connectors). Read them, report anything missing or contradictory, and fill the screen inventory (Appendix B) from the Figma file | CLAUDE.md, docs, .claude | A fresh session can state the architecture rules and the current phase without being told; the inventory lists every Figma screen with its phase |
 
-**Details.** Node target: 22 (`.nvmrc` 22, engines `>=22.12.0`, CI on Node 22). Server time zone: set `TZ=Asia/Manila` in the environment, and still never rely on it for calendar days (BR-09). The UI kit follows the Figma design exactly; where Figma has no variant (disabled, loading, error), add it using the same tokens. Mobile first: every component works at 360 px width.
+**Details.** Node target: 22 (`.nvmrc` 22, engines `>=22.13.0` (DEC-009), CI on Node 22). Server time zone: set `TZ=Asia/Manila` in the environment, and still never rely on it for calendar days (BR-09). The UI kit follows the Figma design exactly; where Figma has no variant (disabled, loading, error), add it using the same tokens. Mobile first: every component works at 360 px width.
 
 **Tests required:** health endpoint (up and down), env validation (missing variable fails), error handler shape, pagination helper.
 

@@ -17,7 +17,7 @@ Liquidation. No AI features. Scope authority: Agreement GD-2026-001, Annex A.
 TypeScript strict. client: React + Vite + Tailwind + React Router + TanStack Query + React
 Hook Form + Zod + FullCalendar. server: Node + Express + Prisma + MySQL + Zod.
 shared/: Zod schemas and enums used by both. One Node app serves /api and the built client.
-Node target: 22 (engines >=22.12.0). Do not use Node-24-only features.
+Node target: 22 (engines >=22.13.0, DEC-009). Do not use Node-24-only features.
 Database and hosting (DEC-005):
 - Local development: XAMPP MariaDB using the Prisma "mysql" provider.
 - Production database: TiDB Cloud free plan (MySQL-compatible). It needs TLS, usually

@@ -78,3 +78,25 @@ Rule for P0-T03 (record only, not implemented in T02):
 - Shared must be built before anything uses it. The scripts run `tsc -b` (or build shared) before typecheck, lint with type information, tests and dev.
 - Dev mode must rebuild shared on change. The dev script starts `tsc -b -w` for shared.
 Consequence: one resolution path for TypeScript, Node, Vite and tsx, which works the same on Windows. A fresh clone has no `shared/dist` until the first build.
+
+## DEC-009: Lint, format and test tool versions; Node floor raised to 22.13.0
+
+Context: P0-T03 adds ESLint, Prettier and Vitest. Peer-dependency and engine check (`npm view <pkg> version peerDependencies engines`, 2026-11-03):
+
+| Package | Version | Peers | Node engines |
+| --- | --- | --- | --- |
+| eslint | 10.14.0 | jiti (optional) | ^20.19.0 \|\| ^22.13.0 \|\| >=24 |
+| @eslint/js | 10.0.1 | eslint ^10.0.0 | ^20.19.0 \|\| ^22.13.0 \|\| >=24 |
+| typescript-eslint | 8.72.1 | eslint ^8.57.0 \|\| ^9 \|\| ^10; typescript >=4.8.4 <6.1.0 | ^18.18.0 \|\| ^20.9.0 \|\| >=21.1.0 |
+| eslint-config-prettier | 10.1.8 | eslint >=7.0.0 | none |
+| prettier | 3.9.10 | none | >=14 |
+| vitest | 5.1.0 | vite ^6.4.0 \|\| ^7 \|\| ^8 (required); others optional | ^22.12.0 \|\| ^24.0.0 \|\| >=26.0.0 |
+| vite | 8.3.5 | all optional | ^20.19.0 \|\| >=22.12.0 |
+
+Conflict: ESLint 10 needs Node ^22.13.0, but `engines.node` was `>=22.12.0` with `engine-strict=true`.
+Options: (a) ESLint 10 and raise the floor to `>=22.13.0`; (b) ESLint 9.39.5 and keep `>=22.12.0`.
+Decision (Developer): (a). `engines.node` = `>=22.13.0`; `.nvmrc` stays 22; CI uses the latest Node 22. All seven packages pinned exactly in the root devDependencies. `vite` is listed explicitly, because it is a required peer of Vitest and must not be installed unpinned.
+Updated to match: package.json, CLAUDE.md (Stack), docs/phases/phase-0.md (Details), README.md. This supersedes the `>=22.12.0` in DEC-006.
+Audit: `npm audit` reports one moderate advisory (GHSA-g3hv-75wg-m249, minimatch <11.0.1), reached only through ESLint's internals. It runs at lint time only and never ships. The suggested `npm audit fix --force` would install eslint 4.0.0, so it is not applied. Re-check at the Phase 8 dependency audit.
+Deferred to the task that first needs them: tsx and concurrently (P0-T04), eslint-plugin-react-hooks (P0-T10).
+Consequence: `npm run check` = typecheck, lint, format:check, test, build. Shared is built before lint and test (DEC-008); `tsc -b` builds it first for typecheck and build. The `tsc -b -w` dev watcher arrives with the first dev script (P0-T04).
