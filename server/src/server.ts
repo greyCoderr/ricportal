@@ -24,7 +24,7 @@ function main(): void {
   }
 
   const logger = createLogger(env);
-  const app = createApp();
+  const app = createApp({ logger });
 
   const server = app.listen(env.PORT, (error?: Error) => {
     if (error) {

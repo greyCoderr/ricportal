@@ -110,3 +110,21 @@ Evidence (2026-11-03):
 - expressjs.com/en/guide/migrating-5.html: wildcards must be named (`/{*splat}`); `req.query` is a read-only getter; `req.body` is `undefined` until parsed; `app.listen` passes start errors (for example EADDRINUSE) to its callback.
 Decision: express 5.3.0 with @types/express 5.0.6, pinned exactly. Other T04 versions: zod 4.6.7, pino 10.4.0, pino-pretty 13.2.0 (development only), @types/node 22.20.5 (matches the Node 22 target), tsx 4.23.15, concurrently 10.0.6.
 Consequence: async handlers need no wrapper for errors. P0-T05 lists `asyncHandler`; whether it is still needed is decided when T05 is planned. The SPA fallback in P0-T15 must use the Express 5 wildcard syntax.
+
+## DEC-011: No asyncHandler
+
+Context: the blueprint (4.4 folder list `core/asyncHandler.ts`, and task P0-T05) asks for an `asyncHandler` wrapper. That wrapper exists to pass rejected promises to `next` in Express 4.
+Decision: the blueprint item is dropped. Express 5 (DEC-010) passes rejected promises and errors thrown in async handlers to the error handler by itself. `asyncHandler.ts` is not created.
+Consequence: route handlers may be `async` and simply throw an `AppError`. A test in `core/middleware/error-handler.test.ts` proves a rejected async handler reaches the error handler.
+
+## DEC-012: File names are kebab-case
+
+Context: blueprint 4.4 says "Files `kebab-case.ts`", but the folder tree in the same section lists `errorHandler.ts`, `requireRole.ts`, `rateLimit.ts` and `asyncHandler.ts`.
+Decision: the explicit naming rule wins. Middleware files are `error-handler.ts`, `not-found.ts` and `request-id.ts`; later ones are `require-role.ts`, `rate-limit.ts` and `validate.ts`. React component files stay `PascalCase.tsx`.
+Consequence: the folder tree in 4.4 is read with kebab-case names.
+
+## DEC-013: pageSize over 100 is rejected, not lowered
+
+Context: blueprint 4.4 sets list defaults (20) and a maximum (100) but does not say what happens above the maximum.
+Decision: `parsePagination` rejects page or pageSize values that are not whole numbers, are below 1, or (for pageSize) are over 100, with VALIDATION_ERROR and details naming the field. The limits live in `server/src/config/limits.ts`.
+Consequence: clients get a clear 400 instead of silently receiving fewer rows than they asked for.
