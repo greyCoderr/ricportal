@@ -198,3 +198,16 @@ Consequence: a seed or check never prints error messages, only an error code, be
 - NodeNext: verified in three steps. (1) `prisma generate` with no `DATABASE_URL`, generator `prisma-client`, `moduleFormat = "esm"`, `importFileExtension = "js"`. (2) `tsc -p server/tsconfig.json --noEmit` includes the 9 generated files and exits 0 under strict, `noUncheckedIndexedAccess` and the unused-variable checks; generated imports use `.js`. (3) After `npm run build`, plain Node (no tsx) imports `server/dist/generated/prisma/client.js` (PrismaClient is a function) and `server/dist/core/db.js`.
 - Local MariaDB 10.4.32: `migrate dev --name init_settings` created and applied `20261103103141_init_settings` (Prisma made its own temporary shadow database). The seed ran twice with 2 rows, values `"25.00"` and `"2026-2027"`. `db:check` gave `SELECT 1: ok`, `TLS: off`, `settings rows: 2`.
 - The Prisma CLI prints "Update available 7.10.1 -> 8.0.0-rc.29 … npm i prisma@latest". Ignore it: the exact-version rule above applies.
+
+## DEC-018: TiDB check passed; migrations need connect_timeout=30
+
+Context: P0-T07b. The Developer ran `tidb:deploy`, `tidb:seed` (twice) and `tidb:check` from their laptop against a scratch database on TiDB Cloud Starter (ap-southeast-1). Claude did not run them and did not read `.env.tidb` (DEC-016).
+Result (reported by the Developer): PASSED.
+- `prisma migrate deploy` applied `20261103103141_init_settings`.
+- The seed ran twice with no duplicates.
+- `tidb:check`: `SELECT 1: ok`, `TLS: on (TLS_AES_128_GCM_SHA256)`, `settings rows: 2`.
+Finding: `prisma migrate deploy` first failed with P1001 (cannot reach the database server) until `connect_timeout=30` was added to the `DATABASE_URL` query string. The app's `mariadb` driver connected without it. `core/db.ts` reads only `sslaccept` from the query string and ignores other parameters, so the same URL works for both.
+Decision:
+- The production `DATABASE_URL` keeps `connect_timeout=30`, for example `mysql://USER:PASSWORD@HOST:4000/DBNAME?sslaccept=strict&connect_timeout=30`. Any CI secret that runs migrations uses the same form.
+- Migrations against TiDB run only with `prisma migrate deploy`, from the Developer's laptop or CI. Never from the running app (no migrate on start), and never `migrate dev` (DEC-005, DEC-016).
+Consequence: Option A (DEC-016) stands; the Option B fallback is not needed. Still unverified: DECIMAL and SAVEPOINT behavior on TiDB (P5).
