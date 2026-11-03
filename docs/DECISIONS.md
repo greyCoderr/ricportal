@@ -211,3 +211,14 @@ Decision:
 - The production `DATABASE_URL` keeps `connect_timeout=30`, for example `mysql://USER:PASSWORD@HOST:4000/DBNAME?sslaccept=strict&connect_timeout=30`. Any CI secret that runs migrations uses the same form.
 - Migrations against TiDB run only with `prisma migrate deploy`, from the Developer's laptop or CI. Never from the running app (no migrate on start), and never `migrate dev` (DEC-005, DEC-016).
 Consequence: Option A (DEC-016) stands; the Option B fallback is not needed. Still unverified: DECIMAL and SAVEPOINT behavior on TiDB (P5).
+
+## DEC-019: Test database rules
+
+Context: P0-T09. Tests that need a database must never touch the dev database or TiDB. Accepted by the Developer's go with the recommended answers.
+Decision:
+- Vitest has two groups (`vitest.config.mjs` projects): `unit` (no database) and `db` (files in `server/test/db/`, run one file at a time against one shared database).
+- Env: `.env.test` is loaded with Node's `process.loadEnvFile` only if the file exists; variables already set (CI) are not overwritten. No dotenv.
+- Guard (`server/test/db/test-database.ts`), checked before any connection and again before every reset: `NODE_ENV=test`, the database name ends with `_test`, and the host is `127.0.0.1`, `localhost` or `::1`. Refusals use fixed messages and never show the URL.
+- The `db` group's global setup runs `prisma migrate deploy` on the test database on every run (never `migrate dev` or `migrate reset`). Prisma's output is hidden; on failure only the Prisma error code is shown.
+- `resetDatabase(prisma)` empties every table except `_prisma_migrations` with `DELETE` inside one transaction, with foreign-key checks off. Tables added later are covered automatically. AUTO_INCREMENT counters are not reset (DEC-005: never rely on consecutive IDs).
+- `npm run test` and `npm run check` need the local test database (XAMPP running locally, the mysql:8 service in CI) and fail with a clear message without it. `npm run test:unit` runs only the `unit` group. Database tests are never skipped silently.

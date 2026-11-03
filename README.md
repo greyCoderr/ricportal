@@ -29,7 +29,8 @@ Never commit `.env` files.
 | Command | What it does |
 | --- | --- |
 | `npm run dev:server` | Builds `shared`, then runs the `shared` watcher and the server (tsx watch, reads `.env`) |
-| `npm run test` | Runs all tests (Vitest) |
+| `npm run test` | Runs all tests (Vitest). Needs XAMPP MySQL running and `.env.test` (see Tests below) |
+| `npm run test:unit` | Runs only the tests that need no database |
 | `npm run lint` | ESLint with type information |
 | `npm run format` | Formats code with Prettier (never Markdown) |
 | `npm run db:migrate` | Applies migrations to the local database in `.env` (prisma migrate dev). New migration: `npm run db:migrate -- --name <name>` |
@@ -39,6 +40,15 @@ Never commit `.env` files.
 
 If a variable in `.env` is missing or invalid, the server prints which ones and exits with code 1.
 It never prints the values.
+
+## Tests
+
+Database tests use only the `ricportal_test` database (DEC-019):
+
+- Create `.env.test` from `.env.test.example`. Keep `NODE_ENV=test` and a database name ending in `_test`.
+- Before the database tests, `prisma migrate deploy` brings `ricportal_test` up to date. Each test file empties the tables it uses with `resetDatabase`.
+- A guard refuses to run unless `NODE_ENV=test`, the database name ends with `_test` and the host is `127.0.0.1`, `localhost` or `::1`. The dev database and TiDB are never touched.
+- If MySQL is not running, `npm run test` fails with "Test database is not reachable…". `npm run test:unit` still works.
 
 The `tidb:deploy`, `tidb:seed` and `tidb:check` scripts in `server/package.json` read `.env.tidb`. Only the Developer runs them (DEC-016).
 

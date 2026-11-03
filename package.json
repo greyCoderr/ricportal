@@ -18,6 +18,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run codegen && vitest run",
+    "test:unit": "npm run codegen && vitest run --project unit",
     "build": "npm run codegen && tsc -b",
     "clean": "tsc -b --clean",
     "db:migrate": "npm run db:migrate -w @ricportal/server --",

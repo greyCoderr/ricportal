@@ -159,3 +159,20 @@ describe("createPrismaClient", () => {
     await client.$disconnect();
   });
 });
+
+describe("parseDatabaseUrl with the production URL form (DEC-018)", () => {
+  it("accepts connect_timeout=30 next to sslaccept=strict and keeps TLS on", () => {
+    expect(
+      parseDatabaseUrl(
+        "mysql://4abc.root:pw@gateway.example.com:4000/ricportal?sslaccept=strict&connect_timeout=30",
+      ),
+    ).toEqual({
+      host: "gateway.example.com",
+      port: 4000,
+      user: "4abc.root",
+      password: "pw",
+      database: "ricportal",
+      tls: true,
+    });
+  });
+});
