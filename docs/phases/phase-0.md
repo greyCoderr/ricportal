@@ -10,7 +10,7 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 
 | Item | Value |
 | --- | --- |
-| Goal | An empty but production-shaped system: client, server, database, CI, design tokens, and a live health check on Hostinger |
+| Goal | An empty but production-shaped system: client, server, database, CI, design tokens, and a health check, deployment-ready locally (Hostinger deploy POSTPONED, DEC-006) |
 | Depends on | Signed agreement, Hostinger Node.js plan, Figma link, GitHub repo |
 | Branch and tag | `phase-0-foundation`, tag `v0.0.1` |
 
@@ -32,7 +32,8 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 | P0-T04 | Server skeleton: `server.ts`, `app.ts`, `config/env.ts` (Zod-validated env; exit on invalid), `core/logger.ts` (pino, redact password and cookie fields) | server/src | Server starts with a valid `.env`; with a missing variable it exits with a readable message |
 | P0-T05 | Core helpers: error classes, `errorHandler`, 404 handler, `asyncHandler`, response helpers (`ok`, `created`, `paginated`), request id | server/src/core | A route that throws returns the standard error shape; unknown route returns 404 shape |
 | P0-T06 | Security middleware: helmet, compression, JSON body limit, global rate limit, cookie-parser, trust proxy setting for Hostinger | app.ts | Response headers include helmet defaults; limits are config-driven |
-| P0-T07 | Prisma setup, MySQL connection, `settings` model, first migration, `seed.ts` that upserts default settings | server/prisma | `npm run db:migrate` and `db:seed` succeed on a clean local database |
+| P0-T07 | Prisma setup, MySQL connection, `settings` model, first migration, `seed.ts` that upserts default settings. Waits for the database-layer check (Prisma latest with adapter vs Prisma 6, TiDB TLS) and the Developer's decision (DEC-006) | server/prisma | `npm run db:migrate` and `db:seed` succeed on a clean local database |
+| P0-T07b | Optional: TiDB compatibility check from the Developer's laptop (no Hostinger). The Developer runs `prisma migrate deploy`, the seed and a `SELECT 1` through `db.ts` against a scratch TiDB database; Claude never reads the TiDB env file | PHASE_LOG, DECISIONS | Result recorded in PHASE_LOG.md and DECISIONS.md |
 | P0-T08 | Health endpoint with database ping | modules/health | Returns ok; with the DB stopped it returns 503 |
 | P0-T09 | Test setup: Vitest, Supertest, a separate `ricportal_test` database, a reset helper, first health test | server/test | `npm run test` is green and does not touch the dev database |
 | P0-T10 | Frontend scaffold: Vite, React, Tailwind, router shell, providers (QueryClient, Toast), `lib/api.ts` (fetch wrapper, credentials, error normalization), `lib/labels.ts` | client/src | The page loads and calls `/api/health`, showing the result |
@@ -41,12 +42,12 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 | P0-T13 | Layout shells per role (sidebar and top bar on desktop, bottom or collapsible nav on phones) with placeholder navigation, 403 and 404 pages | client/src/app/layouts | Shells match Figma at desktop and 360 px width |
 | P0-T14 | CI workflow: install, typecheck, lint, test, build on every push and pull request | .github/workflows/ci.yml | A pushed branch shows a green check |
 | P0-T15 | Production build and start: root `build` and `start` scripts; Express serves `client/dist` and falls back to `index.html` for non-API paths | server/src/app.ts, root scripts | `npm run build && npm start` serves the app and API from one port |
-| P0-T16 | Deploy the skeleton to Hostinger: create the Node.js app and MySQL database, set environment variables, run `prisma migrate deploy` and seed, check logs. Record every step in docs/DEPLOY.md | docs/DEPLOY.md | The public URL shows the app and `/api/health` is ok |
-| P0-T17 | Decision gate: if Prisma failed or exceeded limits on Hostinger, switch the data layer now (Drizzle or Kysely) and redo P0-T07 to P0-T09 | prisma or data layer | Production health check is green with the chosen data layer |
+| P0-T16 | POSTPONED (deploy before the defense). Deploy the skeleton to Hostinger: create the Node.js app and MySQL database, set environment variables, run `prisma migrate deploy` and seed, check logs. Record every step in docs/DEPLOY.md | docs/DEPLOY.md | The public URL shows the app and `/api/health` is ok |
+| P0-T17 | POSTPONED (deploy before the defense). Decision gate: if Prisma failed or exceeded limits on Hostinger, switch the data layer now (Drizzle or Kysely) and redo P0-T07 to P0-T09 | prisma or data layer | Production health check is green with the chosen data layer |
 | P0-T18 | Verify the project files that the Developer prepared (CLAUDE.md, docs/, `.claude/skills`, `.claude/agents`, hooks, connectors). Read them, report anything missing or contradictory, and fill the screen inventory (Appendix B) from the Figma file | CLAUDE.md, docs, .claude | A fresh session can state the architecture rules and the current phase without being told; the inventory lists every Figma screen with its phase |
 
-**Details.** Server time zone: set `TZ=Asia/Manila` in the environment, and still never rely on it for calendar days (BR-09). The UI kit follows the Figma design exactly; where Figma has no variant (disabled, loading, error), add it using the same tokens. Mobile first: every component works at 360 px width.
+**Details.** Node target: 22 (`.nvmrc` 22, engines `>=22.12.0`, CI on Node 22). Server time zone: set `TZ=Asia/Manila` in the environment, and still never rely on it for calendar days (BR-09). The UI kit follows the Figma design exactly; where Figma has no variant (disabled, loading, error), add it using the same tokens. Mobile first: every component works at 360 px width.
 
 **Tests required:** health endpoint (up and down), env validation (missing variable fails), error handler shape, pagination helper.
 
-**Gate additions:** production skeleton live; CI green; CLAUDE.md verified; the Prisma-or-alternative decision is recorded in PHASE_LOG.md.
+**Gate additions:** deployment-ready locally (`npm run build && npm start` works on one port); CI green; CLAUDE.md verified; the database-layer decision (before P0-T07) is recorded in PHASE_LOG.md.

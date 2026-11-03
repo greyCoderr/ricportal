@@ -8,7 +8,8 @@ process.stdin
         .join("/");
       const f = raw.toLowerCase();
       const isEnv =
-        /(^|\/)\.env(\.|$)/.test(f) && !/(^|\/)\.env\.example$/.test(f);
+        /(^|\/)\.env(\.|$)/.test(f) &&
+        !/(^|\/)\.env(\.[a-z0-9-]+)?\.example$/.test(f);
       if (
         isEnv ||
         /(^|\/)uploads\//.test(f) ||
