@@ -190,8 +190,8 @@ Each default is configurable or isolated so a client answer changes one place. T
 | Base | `/api`, JSON, cookie auth. Same origin, so no CORS |
 | Success | `{ "data": ..., "meta": { ... } }` (meta holds page, pageSize, total) |
 | Error | `{ "error": { "code": "VALIDATION_ERROR", "message": "...", "details": [ { "field": "birthdate", "message": "..." } ] } }` |
-| Status codes | 200 OK, 201 Created, 204 No Content, 400 validation, 401 not logged in, 403 role not allowed, 404 not found (also used when a row belongs to another center), 409 conflict (version, duplicate, wrong state), 413 file too large, 422 business rule failed, 429 throttled, 500 unexpected |
-| Error codes | `VALIDATION_ERROR`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `STATE_INVALID`, `RULE_VIOLATION`, `RATE_LIMITED`, `INTERNAL` |
+| Status codes | 200 OK, 201 Created, 204 No Content, 400 validation, 401 not logged in, 403 role not allowed, 404 not found (also used when a row belongs to another center), 409 conflict (version, duplicate, wrong state), 413 payload too large (request body or uploaded file), 422 business rule failed, 429 throttled, 500 unexpected |
+| Error codes | `VALIDATION_ERROR`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `STATE_INVALID`, `PAYLOAD_TOO_LARGE` (413, DEC-014), `RULE_VIOLATION`, `RATE_LIMITED`, `INTERNAL` |
 | IDs | Integer auto-increment internally; never expose password hashes, token_version or storage_key |
 | Lists | `?page=1&pageSize=20&sort=field:asc&q=search` |
 | Dates | `YYYY-MM-DD` for days; ISO 8601 UTC for timestamps. Week parameter is the Monday date |

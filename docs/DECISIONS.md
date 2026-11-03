@@ -128,3 +128,20 @@ Consequence: the folder tree in 4.4 is read with kebab-case names.
 Context: blueprint 4.4 sets list defaults (20) and a maximum (100) but does not say what happens above the maximum.
 Decision: `parsePagination` rejects page or pageSize values that are not whole numbers, are below 1, or (for pageSize) are over 100, with VALIDATION_ERROR and details naming the field. The limits live in `server/src/config/limits.ts`.
 Consequence: clients get a clear 400 instead of silently receiving fewer rows than they asked for.
+
+## DEC-014: Tenth error code PAYLOAD_TOO_LARGE (413)
+
+Context: blueprint 4.8 lists status 413 ("file too large") but has no error code for it, and P0-T06 adds a JSON body limit.
+Decision: add `PAYLOAD_TOO_LARGE` (413) to `ERROR_CODES` in shared, to blueprint 4.8 (codes and status line, now "payload too large (request body or uploaded file)"), to docs/phases/phase-3.md P3-T06, and to docs/API.md. A JSON body over `BODY_LIMIT` (body-parser type `entity.too.large`) returns `{ error: { code: "PAYLOAD_TOO_LARGE", message: "Request body is too large.", details: [] } }`. The parser's own message is never sent.
+Consequence: Phase 3 upload errors (multer file size, BR-20) use the same code.
+
+## DEC-015: Security middleware order and configuration
+
+Context: P0-T06 adds helmet, compression, a JSON body limit, a global rate limit, cookie-parser and trust proxy.
+Decision:
+- Order in `createApp`: request id, trust proxy, helmet, compression, rate limit, `express.json`, cookie-parser, then routes, 404, error handler. The middle part lives in `core/middleware/pipeline.ts` (`applyRequestPipeline`), so tests can use the real pipeline.
+- New env variable `RATE_LIMIT_ENABLED` (true or false, default true). Limits come from `BODY_LIMIT` (at most 10mb), `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX` and `TRUST_PROXY` (0 to 10 hops, default 0). `createApp` receives these as `config`. There is no `NODE_ENV` check.
+- Tests pass their own config through `server/test/test-config.ts`, with rate limiting off unless a test turns it on. `.env.test.example` sets `RATE_LIMIT_ENABLED=false`.
+- A rate-limited request goes to `RateLimitedError`, so it gets the standard 429 shape. express-rate-limit sets `Retry-After` and the draft-8 `RateLimit` headers first. The key is `req.ip`, which follows `X-Forwarded-For` only when `TRUST_PROXY` is above 0, so a client cannot dodge the limit by sending a fake header.
+Versions (pinned, 2026-11-03): helmet 8.3.0 (Node >=18), compression 1.8.2, express-rate-limit 8.7.3 (Node >=16; peer express >=4.11), cookie-parser 1.4.7, @types/compression 1.8.1, @types/cookie-parser 1.4.10.
+Consequence: the deployment checklist (P0-T15) sets `TRUST_PROXY` to the number of proxies in front of the app on Hostinger (usually 1). The helmet default Content-Security-Policy is checked against the built client in P0-T15.

@@ -2,12 +2,14 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "./app.js";
 import { createLogger } from "./core/logger.js";
+import { testConfig } from "../test/test-config.js";
 
 const UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 const app = createApp({
   logger: createLogger({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
+  config: testConfig(),
 });
 
 describe("createApp", () => {

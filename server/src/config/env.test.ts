@@ -31,6 +31,11 @@ describe("parseEnv", () => {
       LOG_LEVEL: "warn",
       TZ: "Asia/Manila",
       DATABASE_URL: DB,
+      BODY_LIMIT: "100kb",
+      RATE_LIMIT_ENABLED: true,
+      RATE_LIMIT_WINDOW_MS: 900_000,
+      RATE_LIMIT_MAX: 300,
+      TRUST_PROXY: 0,
     });
   });
 
@@ -96,5 +101,87 @@ describe("parseEnv", () => {
     expect(error.message).toContain("NODE_ENV");
     expect(error.message).toContain("PORT");
     expect(error.message).toContain("DATABASE_URL");
+  });
+});
+
+describe("parseEnv security settings", () => {
+  it("applies safe defaults", () => {
+    const env = parseEnv({ DATABASE_URL: DB });
+
+    expect(env.BODY_LIMIT).toBe("100kb");
+    expect(env.RATE_LIMIT_ENABLED).toBe(true);
+    expect(env.RATE_LIMIT_WINDOW_MS).toBe(900_000);
+    expect(env.RATE_LIMIT_MAX).toBe(300);
+    expect(env.TRUST_PROXY).toBe(0);
+  });
+
+  it("parses valid values", () => {
+    const env = parseEnv({
+      DATABASE_URL: DB,
+      BODY_LIMIT: "1mb",
+      RATE_LIMIT_ENABLED: "false",
+      RATE_LIMIT_WINDOW_MS: "60000",
+      RATE_LIMIT_MAX: "50",
+      TRUST_PROXY: "2",
+    });
+
+    expect(env.BODY_LIMIT).toBe("1mb");
+    expect(env.RATE_LIMIT_ENABLED).toBe(false);
+    expect(env.RATE_LIMIT_WINDOW_MS).toBe(60_000);
+    expect(env.RATE_LIMIT_MAX).toBe(50);
+    expect(env.TRUST_PROXY).toBe(2);
+  });
+
+  it.each([
+    [
+      "BODY_LIMIT",
+      "20mb",
+      "BODY_LIMIT must be a size such as 100kb or 1mb, at most 10mb",
+    ],
+    [
+      "BODY_LIMIT",
+      "abc",
+      "BODY_LIMIT must be a size such as 100kb or 1mb, at most 10mb",
+    ],
+    [
+      "BODY_LIMIT",
+      "0kb",
+      "BODY_LIMIT must be a size such as 100kb or 1mb, at most 10mb",
+    ],
+    ["RATE_LIMIT_ENABLED", "yes", "RATE_LIMIT_ENABLED must be true or false"],
+    [
+      "RATE_LIMIT_WINDOW_MS",
+      "10",
+      "RATE_LIMIT_WINDOW_MS must be a whole number from 1000 to 86400000",
+    ],
+    [
+      "RATE_LIMIT_MAX",
+      "0",
+      "RATE_LIMIT_MAX must be a whole number from 1 to 100000",
+    ],
+    ["TRUST_PROXY", "11", "TRUST_PROXY must be a whole number from 0 to 10"],
+    ["TRUST_PROXY", "-1", "TRUST_PROXY must be a whole number from 0 to 10"],
+    ["TRUST_PROXY", "true", "TRUST_PROXY must be a whole number from 0 to 10"],
+  ])("names %s=%s without printing the value", (key, value, problem) => {
+    const error = errorFrom({ DATABASE_URL: DB, [key]: value });
+
+    expect(error.problems).toEqual([problem]);
+    expect(error.message).not.toContain(`=${value}`);
+    expect(error.message).not.toContain(`"${value}"`);
+  });
+
+  it("never prints a secret-looking bad value", () => {
+    const secret = "secret-marker-987";
+    const error = errorFrom({
+      DATABASE_URL: DB,
+      BODY_LIMIT: secret,
+      RATE_LIMIT_ENABLED: secret,
+      RATE_LIMIT_WINDOW_MS: secret,
+      RATE_LIMIT_MAX: secret,
+      TRUST_PROXY: secret,
+    });
+
+    expect(error.problems).toHaveLength(5);
+    expect(error.message).not.toContain(secret);
   });
 });

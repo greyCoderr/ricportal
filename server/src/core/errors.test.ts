@@ -5,6 +5,7 @@ import {
   ForbiddenError,
   InternalError,
   NotFoundError,
+  PayloadTooLargeError,
   RateLimitedError,
   RuleViolationError,
   StateInvalidError,
@@ -21,6 +22,7 @@ const cases = [
   { Cls: StateInvalidError, code: "STATE_INVALID", status: 409 },
   { Cls: RuleViolationError, code: "RULE_VIOLATION", status: 422 },
   { Cls: RateLimitedError, code: "RATE_LIMITED", status: 429 },
+  { Cls: PayloadTooLargeError, code: "PAYLOAD_TOO_LARGE", status: 413 },
   { Cls: InternalError, code: "INTERNAL", status: 500 },
 ] as const;
 

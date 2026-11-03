@@ -1,24 +1,36 @@
 import type { ErrorRequestHandler } from "express";
 import type { Logger } from "pino";
-import { AppError, InternalError, ValidationError } from "../errors.js";
+import {
+  AppError,
+  InternalError,
+  PayloadTooLargeError,
+  ValidationError,
+} from "../errors.js";
 
-function isJsonParseError(error: unknown): boolean {
-  return (
+function bodyParserType(error: unknown): string | null {
+  if (
     typeof error === "object" &&
     error !== null &&
     "type" in error &&
-    error.type === "entity.parse.failed"
-  );
+    typeof error.type === "string"
+  ) {
+    return error.type;
+  }
+  return null;
 }
 
 function toAppError(error: unknown): AppError | null {
   if (error instanceof AppError) {
     return error;
   }
-  if (isJsonParseError(error)) {
-    return new ValidationError("Request body is not valid JSON.");
+  switch (bodyParserType(error)) {
+    case "entity.parse.failed":
+      return new ValidationError("Request body is not valid JSON.");
+    case "entity.too.large":
+      return new PayloadTooLargeError();
+    default:
+      return null;
   }
-  return null;
 }
 
 // Unknown errors are logged in full but answered with a generic INTERNAL

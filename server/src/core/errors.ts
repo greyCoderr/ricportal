@@ -7,6 +7,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   NOT_FOUND: 404,
   CONFLICT: 409,
   STATE_INVALID: 409,
+  PAYLOAD_TOO_LARGE: 413,
   RULE_VIOLATION: 422,
   RATE_LIMITED: 429,
   INTERNAL: 500,
@@ -81,6 +82,15 @@ export class StateInvalidError extends AppError {
     details: ErrorDetail[] = [],
   ) {
     super("STATE_INVALID", message, details);
+  }
+}
+
+export class PayloadTooLargeError extends AppError {
+  constructor(
+    message = "Request body is too large.",
+    details: ErrorDetail[] = [],
+  ) {
+    super("PAYLOAD_TOO_LARGE", message, details);
   }
 }
 
