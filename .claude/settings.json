@@ -19,6 +19,9 @@
       "Read(./.env.production)",
       "Read(./.env.tidb)",
       "Bash(rm -rf:*)",
+      "Bash(npm run tidb:*)",
+      "Bash(*env.tidb*)",
+      "Bash(node --env-file=*)",
       "Bash(git push --force:*)"
     ]
   },
