@@ -100,3 +100,13 @@ Updated to match: package.json, CLAUDE.md (Stack), docs/phases/phase-0.md (Detai
 Audit: `npm audit` reports one moderate advisory (GHSA-g3hv-75wg-m249, minimatch <11.0.1), reached only through ESLint's internals. It runs at lint time only and never ships. The suggested `npm audit fix --force` would install eslint 4.0.0, so it is not applied. Re-check at the Phase 8 dependency audit.
 Deferred to the task that first needs them: tsx and concurrently (P0-T04), eslint-plugin-react-hooks (P0-T10).
 Consequence: `npm run check` = typecheck, lint, format:check, test, build. Shared is built before lint and test (DEC-008); `tsc -b` builds it first for typecheck and build. The `tsc -b -w` dev watcher arrives with the first dev script (P0-T04).
+
+## DEC-010: Express 5
+
+Context: P0-T04 needs an HTTP framework. The Developer asked for Express 5 if it is stable and async errors reach the error handler, otherwise Express 4 with an asyncHandler. The Context7 connector was not available in this session, so the evidence comes from npm and the official docs.
+Evidence (2026-11-03):
+- `npm view express dist-tags` gives `latest` 5.3.0 and `latest-4` 4.22.3. Engines: `node >= 18`.
+- expressjs.com/en/guide/error-handling.html: "Route handlers and middleware that return a Promise call `next(value)` automatically when they reject or throw an error."
+- expressjs.com/en/guide/migrating-5.html: wildcards must be named (`/{*splat}`); `req.query` is a read-only getter; `req.body` is `undefined` until parsed; `app.listen` passes start errors (for example EADDRINUSE) to its callback.
+Decision: express 5.3.0 with @types/express 5.0.6, pinned exactly. Other T04 versions: zod 4.6.7, pino 10.4.0, pino-pretty 13.2.0 (development only), @types/node 22.20.5 (matches the Node 22 target), tsx 4.23.15, concurrently 10.0.6.
+Consequence: async handlers need no wrapper for errors. P0-T05 lists `asyncHandler`; whether it is still needed is decided when T05 is planned. The SPA fallback in P0-T15 must use the Express 5 wildcard syntax.

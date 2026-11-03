@@ -26,7 +26,18 @@ Never commit `.env` files.
 
 ## Run, test, build
 
-Added in P0-T03 (scripts) and P0-T15 (production build and start).
+| Command | What it does |
+| --- | --- |
+| `npm run dev:server` | Builds `shared`, then runs the `shared` watcher and the server (tsx watch, reads `.env`) |
+| `npm run test` | Runs all tests (Vitest) |
+| `npm run lint` | ESLint with type information |
+| `npm run format` | Formats code with Prettier (never Markdown) |
+| `npm run check` | Typecheck, lint, format check, tests and build. Must pass before every commit |
+
+If a variable in `.env` is missing or invalid, the server prints which ones and exits with code 1.
+It never prints the values.
+
+Production build and start are added in P0-T15.
 
 ## Deploy
 

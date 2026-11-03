@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "build:shared": "tsc -b shared",
+    "dev:server": "npm run build:shared && concurrently -n shared,server \"tsc -b shared -w --preserveWatchOutput\" \"npm run dev -w @ricportal/server\"",
     "typecheck": "tsc -b",
     "lint": "npm run build:shared && eslint .",
     "format": "prettier --write .",
@@ -23,9 +24,11 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "concurrently": "10.0.6",
     "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "prettier": "3.9.10",
+    "tsx": "4.23.15",
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.1",
     "vite": "8.3.5",
