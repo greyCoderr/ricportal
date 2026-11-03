@@ -28,6 +28,8 @@ Never commit `.env` files.
 
 | Command | What it does |
 | --- | --- |
+| `npm run dev` | Builds `shared`, then runs the `shared` watcher, the server and the client together. Open http://localhost:5173; `/api` is proxied to the server on port 3000. If you change `PORT` in `.env`, also set `API_PORT` to the same number |
+| `npm run dev -w @ricportal/client` | Only the client (Vite dev server on 5173) |
 | `npm run dev:server` | Builds `shared`, then runs the `shared` watcher and the server (tsx watch, reads `.env`) |
 | `npm run test` | Runs all tests (Vitest). Needs XAMPP MySQL running and `.env.test` (see Tests below) |
 | `npm run test:unit` | Runs only the tests that need no database |

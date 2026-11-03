@@ -1,3 +1,4 @@
+import { DEFAULT_SERVER_PORT } from "@ricportal/shared";
 import { describe, expect, it } from "vitest";
 import { EnvError, parseEnv } from "./env.js";
 
@@ -183,5 +184,12 @@ describe("parseEnv security settings", () => {
 
     expect(error.problems).toHaveLength(5);
     expect(error.message).not.toContain(secret);
+  });
+});
+
+describe("PORT default (shared with the client dev proxy)", () => {
+  it("defaults PORT to DEFAULT_SERVER_PORT from shared", () => {
+    expect(DEFAULT_SERVER_PORT).toBe(3000);
+    expect(parseEnv({ DATABASE_URL: DB }).PORT).toBe(DEFAULT_SERVER_PORT);
   });
 });

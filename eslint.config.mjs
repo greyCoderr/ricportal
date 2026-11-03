@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
+import reactHooks from "eslint-plugin-react-hooks";
 
 export default tseslint.config(
   {
@@ -28,6 +29,10 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "error",
       "no-console": "error",
     },
+  },
+  {
+    files: ["client/**/*.{ts,tsx}"],
+    extends: [reactHooks.configs.flat.recommended],
   },
   {
     files: ["**/*.mjs"],

@@ -1,3 +1,4 @@
+import { DEFAULT_SERVER_PORT } from "@ricportal/shared";
 import { z } from "zod";
 
 const NODE_ENVS = ["development", "test", "production"] as const;
@@ -36,7 +37,7 @@ function wholeNumber(min: number, max: number) {
 
 const envSchema = z.object({
   NODE_ENV: z.enum(NODE_ENVS).default("development"),
-  PORT: wholeNumber(1, 65535).default(3000),
+  PORT: wholeNumber(1, 65535).default(DEFAULT_SERVER_PORT),
   LOG_LEVEL: z.enum(LOG_LEVELS).default("info"),
   TZ: z.string().min(1).default("Asia/Manila"),
   DATABASE_URL: z.string().min(1),

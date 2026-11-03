@@ -233,3 +233,18 @@ Decision:
 - Health responses (200 and 503) send `Cache-Control: no-store`.
 - `createApp` takes `health: { repository, timeoutMs? }`, so unit tests stub the database. `server.ts` builds the real Prisma client from `DATABASE_URL` (a bad URL exits with code 1 and a fixed message) and disconnects it on SIGTERM and SIGINT.
 - The route is mounted after the request pipeline (request id, helmet, rate limit apply) and before the 404 handler. No auth code (DEC-001). Blueprint 4.1 and P1-T12 list it as Public.
+
+## DEC-021: Frontend scaffold choices (P0-T10)
+
+Context: P0-T10 adds the Vite + React client. Accepted by the Developer's go with the recommended answers.
+Decision:
+- Versions (exact, each at least 14 days old): react and react-dom 19.3.1, react-router 7.18.4, @tanstack/react-query 5.104.5, @vitejs/plugin-react 6.1.2, tailwindcss and @tailwindcss/vite 4.3.3, @testing-library/react 16.3.3, @testing-library/dom 10.4.2, jsdom 29.1.1, eslint-plugin-react-hooks 7.1.1 (root). Vite 8.3.5 was already at the root.
+- The Node floor stays `>=22.13.0` (DEC-009). react-router 8 needs Node `>=22.22.0` and jsdom 30 needs `^22.22.2`, so the previous majors are used. Revisit when Hostinger's Node version is known.
+- `lib/api.ts` is the only place that calls fetch: `credentials: "same-origin"`, JSON headers, never logs bodies. Every failure is one `ApiError { status, code, message, details }`. A standard error body keeps its code. A failed fetch (status 0) or a response that is not our API's shape (for example the dev proxy's error page) becomes the client-only code `NETWORK_ERROR` with "Cannot reach the server. Please check your connection and try again." `NETWORK_ERROR` is not added to shared `ERROR_CODES`.
+- TanStack Query retries a failed query once, never for a 4xx `ApiError`. Tests use `retry: false`.
+- Toast: a small provider written in the project (polite live region, 5-second auto-dismiss), no library.
+- Dev proxy: `client/vite.config.ts` proxies `/api` to `http://127.0.0.1:<port>`, so the browser sees one origin (cookies, no CORS). The port is shared `DEFAULT_SERVER_PORT` (3000), also the server's `PORT` default; the optional `API_PORT` variable overrides it. The Vite config never reads `.env`.
+- Tests: a third Vitest project `client` (jsdom, React plugin, Testing Library cleanup in `client/test/setup.ts`). No jest-dom or user-event.
+- TypeScript: `client/tsconfig.json` is a solution file referencing `tsconfig.app.json` (src and test, DOM, `vite/client` types) and `tsconfig.node.json` (`vite.config.ts`, node types), so ESLint's project service finds both.
+- ESLint: react-hooks `flat.recommended` for `client/**/*.{ts,tsx}`.
+Consequences: `npm run build` also runs `vite build` into `client/dist`. `tsc -b --clean` does not remove `client/dist` (Vite empties it on each build); the cross-platform clean is still a P0-T15 item. The npm audit advisory (minimatch through ESLint, dev-only, P0-T03) now also reaches through eslint-plugin-react-hooks.

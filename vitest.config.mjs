@@ -1,9 +1,11 @@
+import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
-// Two groups (DEC-019):
-// - unit: no database.
+// Three groups (DEC-019, DEC-021):
+// - unit: shared and server, no database.
 // - db: real ricportal_test database. The global setup checks the guard and
 //   runs `prisma migrate deploy`; files run one at a time.
+// - client: React tests in jsdom with Testing Library.
 const DB_TESTS = "server/test/db/**/*.test.ts";
 
 export default defineConfig({
@@ -15,7 +17,6 @@ export default defineConfig({
           include: [
             "shared/{src,test}/**/*.test.ts",
             "server/{src,test}/**/*.test.ts",
-            "client/{src,test}/**/*.test.{ts,tsx}",
           ],
           exclude: ["**/node_modules/**", "**/dist/**", DB_TESTS],
         },
@@ -29,6 +30,16 @@ export default defineConfig({
           fileParallelism: false,
           testTimeout: 15_000,
           hookTimeout: 60_000,
+        },
+      },
+      {
+        plugins: [react()],
+        test: {
+          name: "client",
+          environment: "jsdom",
+          include: ["client/{src,test}/**/*.test.{ts,tsx}"],
+          exclude: ["**/node_modules/**", "**/dist/**"],
+          setupFiles: ["client/test/setup.ts"],
         },
       },
     ],
