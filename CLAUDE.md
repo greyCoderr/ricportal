@@ -44,6 +44,8 @@ npm run db:seed      admin, 28 centers, settings
 - Never read or edit .env, uploads, private/, or applied migrations.
 - After each task: run npm run check, update docs (PHASE_LOG, API, DATA_MODEL, UI_MAP,
   DECISIONS as needed), then summarize files changed and how I can verify by hand.
+- Never add "Co-Authored-By", "Claude-Session", "Generated with Claude Code" or any AI
+  attribution line to commit messages or pull requests. Commits are authored only by me.
  
 ## Current phase
 Phase: 0   (update this line at the start of every phase)
