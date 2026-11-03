@@ -9,5 +9,8 @@
     "shared",
     "server",
     "client"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "6.0.3"
+  }
 }

@@ -55,3 +55,26 @@ Edits made to `docs/phases/phase-0.md` to match:
 - Details state the Node 22 target.
 - The gate additions say "deployment-ready locally" and "the database-layer decision", instead of "production skeleton live" and "the Prisma-or-alternative decision".
 Consequence: Phase 0 ends with no Hostinger deployment. The 02-rules gate items about staging deployment do not apply to Phase 0.
+
+## DEC-007: TypeScript 6.0.3 (exact)
+
+Context: `typescript@latest` is 7.0.2 (the native compiler), and its programmatic API is published only under `unstable/` exports. ESLint with type information (P0-T03) needs a supported TypeScript API.
+Evidence (2026-11-03):
+- `npm view typescript-eslint@8.72.1 peerDependencies` gives `{ "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0", "typescript": ">=4.8.4 <6.1.0" }`.
+- `npm view vitest@5.1.0 peerDependencies` lists vite, jsdom, @types/node and others, but no `typescript`.
+- `npm view tsx@4.23.15 peerDependencies dependencies` gives only `{ "esbuild": "~0.28.0" }`, with no `typescript`.
+Options: 7.0.2 (latest, outside the typescript-eslint range), 6.0.3 (newest inside the range), 5.9.3 (older).
+Decision: `typescript` 6.0.3, pinned exactly (no `^`) in the root devDependencies.
+Consequence: revisit only when typescript-eslint supports 7.x, and never during the build (blueprint 3.6, pinned dependencies). TS 6 defaults are not relied on: every option is set explicitly in `tsconfig.base.json`, including `"types": []`.
+
+## DEC-008: ES modules and the `@ricportal/shared` alias
+
+Context: P0-T02 asks for path aliases. `baseUrl` and `paths` are deprecated in TS 6, and Node at runtime does not read `paths`.
+Decision:
+- All workspaces are ES modules (`"type": "module"`).
+- `@ricportal/shared` is the real package name. It resolves through the npm workspace link (`node_modules/@ricportal/shared`) and `shared/package.json` `exports` (`types` goes to `dist/index.d.ts`, `default` goes to `dist/index.js`). No `paths` and no `baseUrl`.
+- The server uses NodeNext, so relative imports need the `.js` extension. The client uses Bundler resolution with `noEmit`.
+Rule for P0-T03 (record only, not implemented in T02):
+- Shared must be built before anything uses it. The scripts run `tsc -b` (or build shared) before typecheck, lint with type information, tests and dev.
+- Dev mode must rebuild shared on change. The dev script starts `tsc -b -w` for shared.
+Consequence: one resolution path for TypeScript, Node, Vite and tsx, which works the same on Windows. A fresh clone has no `shared/dist` until the first build.
