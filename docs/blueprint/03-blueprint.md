@@ -8,6 +8,7 @@ A = Administrator (MAO), T = RIC Teacher, P = Parent. "Own" means the user's own
 
 | Capability | A | T | P | Built in |
 | --- | --- | --- | --- | --- |
+| Check service health (`GET /api/health`), no login | Public | Public | Public | P0 |
 | Log in, log out, change own password | Yes | Yes | Yes | P1 |
 | Manage RIC Children Centers | Yes | No | No | P1 |
 | Create, edit, disable Teacher accounts; reset Teacher password | Yes | No | No | P1 |
@@ -26,6 +27,8 @@ A = Administrator (MAO), T = RIC Teacher, P = Parent. "Own" means the user's own
 | Set per-child daily rate | Yes | No | No | P5 |
 | Generate liquidation PDFs; Submit Report | View/download | Own | No | P6 |
 | Dashboard and monitoring | Yes | No | No | P7 |
+
+Health is the only route that is public with no login (DEC-001). It returns only `status`, `db` and `time`. The permission matrix test (P1-T12) lists it as Public and expects 200, or 503 when the database is down, for every role and with no login.
 
 ## 4.2 Glossary and labels
 
@@ -190,8 +193,8 @@ Each default is configurable or isolated so a client answer changes one place. T
 | Base | `/api`, JSON, cookie auth. Same origin, so no CORS |
 | Success | `{ "data": ..., "meta": { ... } }` (meta holds page, pageSize, total) |
 | Error | `{ "error": { "code": "VALIDATION_ERROR", "message": "...", "details": [ { "field": "birthdate", "message": "..." } ] } }` |
-| Status codes | 200 OK, 201 Created, 204 No Content, 400 validation, 401 not logged in, 403 role not allowed, 404 not found (also used when a row belongs to another center), 409 conflict (version, duplicate, wrong state), 413 payload too large (request body or uploaded file), 422 business rule failed, 429 throttled, 500 unexpected |
-| Error codes | `VALIDATION_ERROR`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `STATE_INVALID`, `PAYLOAD_TOO_LARGE` (413, DEC-014), `RULE_VIOLATION`, `RATE_LIMITED`, `INTERNAL` |
+| Status codes | 200 OK, 201 Created, 204 No Content, 400 validation, 401 not logged in, 403 role not allowed, 404 not found (also used when a row belongs to another center), 409 conflict (version, duplicate, wrong state), 413 payload too large (request body or uploaded file), 422 business rule failed, 429 throttled, 500 unexpected, 503 a dependency such as the database is not answering (DEC-020) |
+| Error codes | `VALIDATION_ERROR`, `UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `STATE_INVALID`, `PAYLOAD_TOO_LARGE` (413, DEC-014), `RULE_VIOLATION`, `RATE_LIMITED`, `INTERNAL`, `SERVICE_UNAVAILABLE` (503, DEC-020) |
 | IDs | Integer auto-increment internally; never expose password hashes, token_version or storage_key |
 | Lists | `?page=1&pageSize=20&sort=field:asc&q=search` |
 | Dates | `YYYY-MM-DD` for days; ISO 8601 UTC for timestamps. Week parameter is the Monday date |

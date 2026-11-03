@@ -11,6 +11,7 @@ export const ERROR_STATUS: Record<ErrorCode, number> = {
   RULE_VIOLATION: 422,
   RATE_LIMITED: 429,
   INTERNAL: 500,
+  SERVICE_UNAVAILABLE: 503,
 };
 
 // The message of an AppError is written for the user and is sent to the client.
@@ -118,5 +119,15 @@ export class InternalError extends AppError {
     details: ErrorDetail[] = [],
   ) {
     super("INTERNAL", message, details);
+  }
+}
+
+// A dependency such as the database is not answering (health check, DEC-020).
+export class ServiceUnavailableError extends AppError {
+  constructor(
+    message = "The service is temporarily unavailable. Please try again.",
+    details: ErrorDetail[] = [],
+  ) {
+    super("SERVICE_UNAVAILABLE", message, details);
   }
 }

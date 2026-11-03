@@ -222,3 +222,14 @@ Decision:
 - The `db` group's global setup runs `prisma migrate deploy` on the test database on every run (never `migrate dev` or `migrate reset`). Prisma's output is hidden; on failure only the Prisma error code is shown.
 - `resetDatabase(prisma)` empties every table except `_prisma_migrations` with `DELETE` inside one transaction, with foreign-key checks off. Tables added later are covered automatically. AUTO_INCREMENT counters are not reset (DEC-005: never rely on consecutive IDs).
 - `npm run test` and `npm run check` need the local test database (XAMPP running locally, the mysql:8 service in CI) and fail with a clear message without it. `npm run test:unit` runs only the `unit` group. Database tests are never skipped silently.
+
+## DEC-020: SERVICE_UNAVAILABLE (503) and the health check design
+
+Context: P0-T08. The phase says `/api/health` returns 503 when the database is down, but blueprint 4.8 had no 503 code. Accepted by the Developer's go on the T08 plan.
+Decision:
+- An 11th error code `SERVICE_UNAVAILABLE` (503), fixed message "The service is temporarily unavailable. Please try again.", `details` always `[]`. Added to shared `ERROR_CODES`, `ERROR_STATUS`, `ServiceUnavailableError`, blueprint 4.8 and API.md.
+- `modules/health` follows routes > controller > service > repository. The repository runs `SELECT 1` and is the only file that touches the database. The service races the ping against `HEALTH_TIMEOUT_MS` (2000 ms) and always clears its timer.
+- On failure the service logs `warn` "health check: database down" with only the driver error code or `timeout`, never the message (driver messages contain the host).
+- Health responses (200 and 503) send `Cache-Control: no-store`.
+- `createApp` takes `health: { repository, timeoutMs? }`, so unit tests stub the database. `server.ts` builds the real Prisma client from `DATABASE_URL` (a bad URL exits with code 1 and a fixed message) and disconnects it on SIGTERM and SIGINT.
+- The route is mounted after the request pipeline (request id, helmet, rate limit apply) and before the 404 handler. No auth code (DEC-001). Blueprint 4.1 and P1-T12 list it as Public.

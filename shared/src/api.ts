@@ -9,6 +9,7 @@ export const ERROR_CODES = [
   "RULE_VIOLATION",
   "RATE_LIMITED",
   "INTERNAL",
+  "SERVICE_UNAVAILABLE",
 ] as const;
 
 export type ErrorCode = (typeof ERROR_CODES)[number];
@@ -29,6 +30,13 @@ export type ApiError = {
 export type ApiSuccess<T, M = Record<string, never>> = {
   data: T;
   meta: M;
+};
+
+// GET /api/health (P0-T08). Public; holds no database or host details.
+export type HealthStatus = {
+  status: "ok";
+  db: "up";
+  time: string;
 };
 
 export type PageMeta = {

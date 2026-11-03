@@ -3,6 +3,7 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../../app.js";
 import type { AppConfig } from "../../config/app-config.js";
+import { upRepository } from "../../../test/stub-health.js";
 import { testConfig } from "../../../test/test-config.js";
 import { createLogger } from "../logger.js";
 import { createErrorHandler } from "./error-handler.js";
@@ -12,7 +13,11 @@ import { requestId } from "./request-id.js";
 const logger = createLogger({ NODE_ENV: "test", LOG_LEVEL: "silent" });
 
 function appWith(overrides: Partial<AppConfig> = {}): express.Express {
-  return createApp({ logger, config: testConfig(overrides) });
+  return createApp({
+    logger,
+    config: testConfig(overrides),
+    health: { repository: upRepository() },
+  });
 }
 
 // A test-only app that uses the real pipeline plus routes that do not exist

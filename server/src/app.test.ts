@@ -2,6 +2,7 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "./app.js";
 import { createLogger } from "./core/logger.js";
+import { upRepository } from "../test/stub-health.js";
 import { testConfig } from "../test/test-config.js";
 
 const UUID =
@@ -10,6 +11,7 @@ const UUID =
 const app = createApp({
   logger: createLogger({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
   config: testConfig(),
+  health: { repository: upRepository() },
 });
 
 describe("createApp", () => {

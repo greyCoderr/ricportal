@@ -6,5 +6,6 @@ export {
   type ApiSuccess,
   type ErrorCode,
   type ErrorDetail,
+  type HealthStatus,
   type PageMeta,
 } from "./api.js";

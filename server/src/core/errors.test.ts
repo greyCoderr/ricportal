@@ -8,6 +8,7 @@ import {
   PayloadTooLargeError,
   RateLimitedError,
   RuleViolationError,
+  ServiceUnavailableError,
   StateInvalidError,
   UnauthenticatedError,
   ValidationError,
@@ -24,6 +25,7 @@ const cases = [
   { Cls: RateLimitedError, code: "RATE_LIMITED", status: 429 },
   { Cls: PayloadTooLargeError, code: "PAYLOAD_TOO_LARGE", status: 413 },
   { Cls: InternalError, code: "INTERNAL", status: 500 },
+  { Cls: ServiceUnavailableError, code: "SERVICE_UNAVAILABLE", status: 503 },
 ] as const;
 
 describe("AppError subclasses", () => {
@@ -36,6 +38,16 @@ describe("AppError subclasses", () => {
     expect(error.status).toBe(status);
     expect(error.message.length).toBeGreaterThan(0);
     expect(error.details).toEqual([]);
+  });
+
+  it("SERVICE_UNAVAILABLE has the fixed public message", () => {
+    expect(new ServiceUnavailableError().toBody()).toEqual({
+      error: {
+        code: "SERVICE_UNAVAILABLE",
+        message: "The service is temporarily unavailable. Please try again.",
+        details: [],
+      },
+    });
   });
 
   it("keeps a custom message and details", () => {

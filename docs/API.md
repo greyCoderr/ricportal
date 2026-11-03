@@ -4,7 +4,33 @@ Every endpoint that exists now: method and path, role, request fields, response 
 
 ## Endpoints
 
-None yet. The first one, `GET /api/health`, comes in P0-T08.
+### GET /api/health
+
+| Item | Value |
+| --- | --- |
+| Role | Public, no login (DEC-001). The only public route. The global rate limit applies |
+| Added | P0-T08 |
+| Request | No body, no query |
+| Checks | The database answers `SELECT 1` within 2 seconds (`HEALTH_TIMEOUT_MS`) |
+| Headers | `X-Request-Id` (as on every response), `Cache-Control: no-store` (on 200 and 503) |
+
+200 when the database answers:
+
+```json
+{ "data": { "status": "ok", "db": "up", "time": "2026-11-03T02:30:00.000Z" }, "meta": {} }
+```
+
+`time` is the server time in ISO 8601 UTC.
+
+503 when the database fails or does not answer within 2 seconds:
+
+```json
+{ "error": { "code": "SERVICE_UNAVAILABLE", "message": "The service is temporarily unavailable. Please try again.", "details": [] } }
+```
+
+The response never contains the database name, host, version, user, URL, uptime or any driver message. The server logs one `warn` line, "health check: database down", with only the driver error code (for example `ECONNREFUSED`) or `timeout`.
+
+Other errors: 429 RATE_LIMITED. Any other method, such as POST, returns 404 NOT_FOUND.
 
 ## Conventions in force (blueprint 4.8)
 
@@ -24,6 +50,7 @@ None yet. The first one, `GET /api/health`, comes in P0-T08.
 | RULE_VIOLATION | 422 | Business rule failed |
 | RATE_LIMITED | 429 | Throttled ("Too many requests. Please wait and try again."), with a `Retry-After` header in seconds |
 | INTERNAL | 500 | Any unexpected error. The message is always "Something went wrong. Please try again." Stack, SQL and raw messages are never sent; they are logged with the request id |
+| SERVICE_UNAVAILABLE | 503 | The database is down or slow during a health check ("The service is temporarily unavailable. Please try again."). No driver text is sent (DEC-020) |
 
 **Pagination query:** `?page=1&pageSize=20`. Defaults are page 1 and pageSize 20; the maximum pageSize is 100. Values that are not whole numbers, are below 1, or are a pageSize over 100 return VALIDATION_ERROR with `details` naming `page` or `pageSize`.
 
