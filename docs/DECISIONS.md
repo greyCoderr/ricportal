@@ -248,3 +248,65 @@ Decision:
 - TypeScript: `client/tsconfig.json` is a solution file referencing `tsconfig.app.json` (src and test, DOM, `vite/client` types) and `tsconfig.node.json` (`vite.config.ts`, node types), so ESLint's project service finds both.
 - ESLint: react-hooks `flat.recommended` for `client/**/*.{ts,tsx}`.
 Consequences: `npm run build` also runs `vite build` into `client/dist`. `tsc -b --clean` does not remove `client/dist` (Vite empties it on each build); the cross-platform clean is still a P0-T15 item. The npm audit advisory (minimatch through ESLint, dev-only, P0-T03) now also reaches through eslint-plugin-react-hooks.
+
+## DEC-022: Design tokens, fonts and CSP for P0-T11
+
+Context: P0-T11 puts the Figma tokens into the Tailwind theme. The Developer answered the plan questions on 2026-11-04. Values and node ids are in docs/tokens.md.
+Decision:
+- One theme for all roles, not one per role. `primary` #D32F2F (buttons, links, title). `accent` #025B02 (Admin dashboard cards and tiles; the same value as `success` for the Approved badge). `danger` #FF0000 (Rejected badge) is a separate token from `primary`. Note: two reds (#D32F2F and #FF0000), confirm with the client.
+- Colors live only in `client/src/styles/tokens.css`. Tailwind's default palette is reset; the client uses semantic classes only, and a test fails on any hex value, color function or default palette class elsewhere.
+- Montserrat is self-hosted from `@fontsource/montserrat` 5.3.0 (exact version): latin subset only, weights 300, 400, 500, 600 and 700. No external font host.
+- Three shadow tokens only: header, card and panel. The other one-off Figma shadows are not tokenized (BACKLOG). Spacing uses Tailwind's default scale; Figma's hand-placed pixel gaps are not copied.
+- CSP: helmet's defaults with `font-src 'self'` and `style-src 'self' 'unsafe-inline'`. Inline styles stay allowed because React and FullCalendar need them.
+Consequences: the CSP can only be checked in a real browser once Express serves `client/dist` (P0-T15).
+- The file-scan tests in `client/test` (contrast, fonts, colors, tokens and their helpers) read files with Node APIs. They run in Vitest's `node` environment (`// @vitest-environment node`) and are type-checked by `client/tsconfig.node.json` (Node types) instead of `tsconfig.app.json` (DOM types). No new dependency.
+- The token sample elements live only in `client/test/tokens.test.ts`, which compiles `src/styles/index.css` with the installed `tailwindcss` compiler; nothing is added to the bundle.
+
+## DEC-023: Accessible text tokens next to the client's hues
+
+Context: in P0-T11 several Figma text colors fail WCAG AA (contrast table in docs/tokens.md). Decided by the Developer on 2026-11-04. Replaces the earlier plan to only list failing pairs as known failures.
+Decision:
+- The client's hue tokens stay for fills, borders and icons. Badge pills keep the 24% tint fills.
+- New text tokens that pass AA: `warning-text` #6B5900, `info-text` #1F4E96, `danger-text` #A30000, `text-placeholder` #757575, `border-subtle` #949494.
+- The selected nav item uses black text on #FF8282.
+- The warning hue #EDF902 is never used as text.
+- docs/tokens.md shows "Client original (Figma)" and "RICPortal adjusted" columns with contrast ratios.
+- The contrast test expects zero known failures and fails if any listed pair falls below its minimum.
+Consequences: screens differ from Figma in these text colors only. The Developer raises the change with the client.
+
+## DEC-024: Parent home is the My Schedule calendar
+
+Context: A-18 gave Parents a "Today's Feeding" card. Decided by the Developer on 2026-11-04.
+Decision:
+- The Parent home is the My Schedule calendar only (Figma PARENT CALENDAR 393:1133, read in Phase 5). The calendar highlights today. Parents get no "Today's Feeding" card; the Teacher home keeps it.
+- In Phase 1 the Parent home is a placeholder: "Welcome, {name}. Your schedule will appear here once your teacher assigns you."
+Consequences: A-18 in blueprint 4.7, P5 Build, P5-T15, P5-T17, the P1 Figma list, P1-T14 and P1-T17 are updated. Recorded in BUSINESS_RULES.md.
+
+## DEC-025: Developer-designed screens and the design language
+
+Context: Annex A needs Parent screens the client's Figma does not contain. Decided by the Developer on 2026-11-04.
+Decision:
+- docs/DESIGN_LANGUAGE.md fills gaps and details Figma leaves open; the client's Figma wins on every screen it contains.
+- docs/DESIGN_GAPS.md is the process for missing screens, used through the `ricportal-design-gap` skill. CLAUDE.md says never invent UI.
+- First specs: docs/ui-specs/parent-screens.md with S-P1-02 Parent sign-up, S-P1-07 Request sent and S-P5-04 Parent day screen, marked "Designed by the Developer with Claude; no client Figma frame; client approval requested". Reference images in docs/ui-specs/images/ are only references; the text wins.
+Consequences: rows added to UI_MAP.md and figma-inventory.md. Open questions are listed at the end of the spec.
+
+## DEC-026: Parent data, lockout response, units and screen ids
+
+Context: open questions from docs/ui-specs/parent-screens.md. Decided by the Developer on 2026-11-04.
+Decision:
+- The Parent response of `GET /api/purchase-requests/:date` leaves out `budget`, `enrolledCount` and `ratePerChild` on the server, not only on screen. Teacher and Admin responses keep them. Phase 5 test: a Parent response never contains those fields; a Teacher response does.
+- Locked account: every login attempt while locked, with the right or a wrong password, returns 429 RATE_LIMITED with "Too many attempts. Try again in 15 minutes." and a `Retry-After` header giving the remaining seconds (confirmed by the Developer). The login rate limiter returns the same status, message and header, also for unknown usernames, so existence is never revealed. Pending, declined and disabled messages appear only after correct credentials. BR-19, P1-T04, P1-T07 and the Phase 1 tests are updated.
+- The Unit select reads the shared `UNITS` constant in `shared/src` (kg, g, pcs, bottle, pack, can, liter, bundle, tray, other), created in Phase 5. No API call; the server validates against the same constant.
+- Screen ids: S-P1-02 stays Parent sign-up and S-P1-06 is removed. S-P1-07 and S-P5-04 stay. S-P5-02 Purchase Request editor is Teacher only.
+- Type sizes 15 and 40 are added to the tokens (P0-T11).
+- The details Claude added to the spec (wireframes, focus handling, cell labels such as "Qty for Rice", the "Request sent" reload behavior) are kept and listed in the spec's change notes for review.
+Consequences: no Phase 1 or Phase 5 code is written now. The Developer confirmed 429 with `Retry-After` for the locked response.
+
+## DEC-027: Startup test timeout and the lint memory limit
+
+Context: during P0-T11, `server/test/startup.test.ts` timed out (6 to 9 s against the 5 s default) with and without the T11 change, and ESLint crashed twice with out-of-memory errors. Decided by the Developer on 2026-11-04.
+Decision:
+- The startup test gets a 15 second timeout, for that one test only. Reason: it starts `server.ts` through tsx in a child process, and tsx startup is slow on this machine. The global test timeout stays at 5 seconds.
+- ESLint memory: BACKLOG item for P0-T14 to give the lint script a larger memory limit with a Node flag (for example `--max-old-space-size`), no new dependency.
+

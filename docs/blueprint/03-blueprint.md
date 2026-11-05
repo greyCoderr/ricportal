@@ -156,7 +156,7 @@ Tasks cite these by ID. If a rule changes, change it here first.
 | BR-16 | Submitting a liquidation requires every feeding day in the range to be LOCKED or NO_FEEDING. It creates an immutable snapshot, and the days become submitted-locked. NEED_REVISION unlocks those days; APPROVED is final |
 | BR-17 | PDFs follow the official layouts. Signature lines are blank except printed names set in Settings (A-10). PR No. comes from the import |
 | BR-18 | Summary of Disbursement total = sum of daily PR subtotals; each row shows date, menu, PR No. and amount |
-| BR-19 | bcrypt cost 12; login throttled (5 failures lock the account 15 minutes); httpOnly, SameSite=Lax cookie, Secure in production; one generic login error; every route has an explicit role guard and scope |
+| BR-19 | bcrypt cost 12; login throttled (5 failures lock the account 15 minutes); httpOnly, SameSite=Lax cookie, Secure in production; one generic login error; every route has an explicit role guard and scope. While an account is locked, every login attempt (right or wrong password) returns 429 RATE_LIMITED with "Too many attempts. Try again in 15 minutes." and a `Retry-After` header giving the remaining seconds; the login rate limiter returns the same status, message and header, also for unknown usernames, so existence is never revealed. Pending, declined and disabled messages appear only after correct credentials (DEC-026) |
 | BR-20 | Uploads: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG up to 10 MB (A-08); extension and magic bytes must both match; random storage names; stored outside the web root; downloaded only through an authorized endpoint |
 | BR-21 | Development and test data are fake. No personal data or passwords in logs. Students are archived, not deleted. Real data exists only in production |
 | BR-22 | Child's Record entries are soft-deleted (deleted_at). The Teacher of the center creates, edits and deletes them. The Admin has read-only access (A-16). Parents never see them |
@@ -184,7 +184,7 @@ Each default is configurable or isolated so a client answer changes one place. T
 | A-15 | Enrollment Form is generated as a PDF; the signed copy is uploaded through Reports (ENROLLMENT) | Reports | Confirm |
 | A-16 | Admin has read-only access to Student lists and Child's Records, as the paper's Level 0 diagram shows ("Child's Record Information" goes to the Admin) | Students service | Confirm with the MAO |
 | A-17 | Optional Child's Record fields (birth order, number of siblings, religion, ethnicity) are included because the paper's ERD lists them; the Figma form is the final authority on fields | Student schema | Confirm against the Figma form |
-| A-18 | Teacher and Parent home pages show a "Today's Feeding" card (the paper's "Check Today's Event" process) | Home pages | None |
+| A-18 | The Teacher home page shows a "Today's Feeding" card (the paper's "Check Today's Event" process). The Parent home page is the My Schedule calendar only (Figma PARENT CALENDAR 393:1133), with today highlighted; Parents get no "Today's Feeding" card (DEC-024) | Home pages | None |
 
 ## 4.8 API conventions
 

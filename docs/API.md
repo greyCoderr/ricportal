@@ -32,6 +32,11 @@ The response never contains the database name, host, version, user, URL, uptime 
 
 Other errors: 429 RATE_LIMITED. Any other method, such as POST, returns 404 NOT_FOUND.
 
+## Notes for planned endpoints (not built yet)
+
+- `POST /api/auth/login` (Phase 1, DEC-026): while an account is locked, every attempt returns 429 RATE_LIMITED with "Too many attempts. Try again in 15 minutes." and a `Retry-After` header (remaining seconds), right or wrong password. The login rate limiter returns the same status, message and header, also for unknown usernames. Pending, declined and disabled messages only after correct credentials.
+- `GET /api/purchase-requests/:date` (Phase 5, DEC-026): the Parent response leaves out `budget`, `enrolledCount` and `ratePerChild`. Teacher and Admin responses include them.
+
 ## Conventions in force (blueprint 4.8)
 
 **Success:** `{ "data": ..., "meta": { ... } }`. `meta` is always present (`{}` when empty). Lists use `meta: { page, pageSize, total }`.

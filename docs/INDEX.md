@@ -54,6 +54,15 @@ Started empty; later tasks append to them (see blueprint Section 8.1).
 | [UI_MAP.md](UI_MAP.md) | Screens that exist now: ID, route, role, status, spec link |
 | [BUSINESS_RULES.md](BUSINESS_RULES.md) | Changes and new decisions for the business rules (BR-xx, blueprint section 4.6) and assumptions (A-xx, section 4.7) |
 
+## Design
+
+| File | Description |
+| --- | --- |
+| [tokens.md](tokens.md) | Design tokens: values, Figma node ids, source, contrast (client original and RICPortal adjusted) |
+| [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) | RICPortal design language: fills gaps Figma leaves open; the client's Figma always wins |
+| [DESIGN_GAPS.md](DESIGN_GAPS.md) | What to do when Annex A needs a screen, state or object the client's Figma lacks |
+| [ui-specs/](ui-specs/) | Developer-designed screen specs for screens with no client Figma frame (client approval requested) |
+
 ## Other
 
 | File | Description |

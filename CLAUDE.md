@@ -49,6 +49,8 @@ npm run db:seed      admin, 28 centers, settings
 - Plan first (list files and questions), then wait for approval.
 - Write tests with the code. Never delete or weaken a test to make it pass.
 - If anything is unclear or two documents disagree: STOP and ask. Do not guess.
+- Never invent UI. If Figma lacks a screen or state, use the ricportal-design-gap skill
+  (docs/DESIGN_GAPS.md). Follow docs/DESIGN_LANGUAGE.md for any detail Figma leaves open.
 - No any, no console.log, no commented-out code. Ask before adding a dependency.
 - Never read or edit .env, uploads, private/, or applied migrations.
 - Never run any tidb:* script, never read .env.tidb, never connect to the TiDB cluster.

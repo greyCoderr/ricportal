@@ -15,11 +15,11 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 | Branch and tag | `phase-5-purchase`, tag `v0.5.0` |
 | Rules | BR-10 to BR-15, BR-08 guard, BR-14, A-03, A-05, A-06, A-14 |
 
-**Build:** a "Today's Feeding" card on the Teacher and Parent home pages (today's menu and status), weekly assignment board, Parent calendar (assigned days only), Purchase Request per feeding day, ingredient rows, auto-save with conflict handling, lock, unlock and no-feeding, budget display, per-child rate setting, Admin read-only view by center, the replace-import guard.
+**Build:** a "Today's Feeding" card on the Teacher home page (today's menu and status), weekly assignment board, Parent home = My Schedule calendar (assigned days only, today highlighted; DEC-024), Purchase Request per feeding day, ingredient rows, auto-save with conflict handling, lock, unlock and no-feeding, budget display, per-child rate setting, Admin read-only view by center, the replace-import guard.
 
 **Do NOT build:** PDF forms, Submit Report, liquidation snapshots, dashboard numbers, receipt or photo uploads, "copy last week", recipes or an ingredient database, notifications.
 
-**Figma screens to read:** Teacher: Weekly Assignment board, Calendar day panel with tabs (Details, Assigned Parents, Purchase Request); Parent: My Schedule calendar and day panel; Admin: calendar with center selector; Admin: Settings (rate).
+**Figma screens to read:** Teacher: Weekly Assignment board, Calendar day panel with tabs (Details, Assigned Parents, Purchase Request); Parent: My Schedule calendar (PARENT CALENDAR 393:1133; the day screen has no client frame, see S-P5-04 in docs/ui-specs/parent-screens.md); Admin: calendar with center selector; Admin: Settings (rate).
 
 **Data:** `feeding_assignments`, `purchase_requests`, `purchase_items`; settings key `perChildDailyRate`. Add the foreign key from `purchase_requests` to `menu_days`.
 
@@ -29,7 +29,7 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 | GET /api/assignments?week=YYYY-MM-DD | Teacher | Seven days with menu, assigned Parents, PR status |
 | PUT /api/assignments/:date | Teacher | Body: parentIds. Replaces the set for that day |
 | GET /api/calendar?from=&to= | Admin, Teacher, Parent | Parents receive only assigned days (BR-14). Admin passes centerId |
-| GET /api/purchase-requests/:date | Teacher, assigned Parent, Admin (read) | PR with items, totals, budget, status |
+| GET /api/purchase-requests/:date | Teacher, assigned Parent, Admin (read) | PR with items, totals, budget, status. The Parent response never contains `budget`, `enrolledCount` or `ratePerChild` (left out by the server, not hidden on screen; DEC-026) |
 | POST /api/purchase-requests/:date/open | Teacher | Creates the PR for that day (idempotent) |
 | POST /api/purchase-requests/:date/items | Teacher | Add an ingredient row (description) |
 | PATCH /api/purchase-items/:id | Teacher, assigned Parent | Body includes version. Field rights per BR-12 |
@@ -53,9 +53,9 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 | P5-T12 | Frontend Weekly Assignment board (layout below) | features/assignments | Assign and remove update instantly and persist |
 | P5-T13 | Frontend calendar day panel for Teachers with tabs: Details, Assigned Parents, Purchase Request | features/calendar | Tabs match Figma |
 | P5-T14 | Frontend Purchase Request editor (layout below) with debounced auto-save, per-row status, conflict handling | features/purchase-requests | Reload shows saved values; conflict message appears when forced |
-| P5-T15 | Frontend Parent: My Schedule calendar showing only assigned days, day panel with the ingredient list and the editable cells for unit, quantity and cost | features/purchase-requests | Parent cannot edit when the day is LOCKED |
+| P5-T15 | Frontend Parent: My Schedule calendar as the Parent home page (Figma PARENT CALENDAR 393:1133), showing only assigned days with today highlighted; Parent day screen S-P5-04 (docs/ui-specs/parent-screens.md) with the ingredient list and the editable cells for unit, quantity and cost | features/purchase-requests | Parent cannot edit when the day is LOCKED; matches the spec |
 | P5-T16 | Frontend Admin: center selector on the calendar and a read-only Purchase Request view; Admin Settings field for the rate | features/calendar, features/settings | Admin changes nothing on Purchase Requests |
-| P5-T17 | Frontend "Today's Feeding" card on the Teacher and Parent home pages: today's menu, assigned status and a link to the day panel; empty state "No feeding scheduled today" | features/calendar, app/layouts | Shows the right menu for today (Asia/Manila) and nothing for unassigned Parents |
+| P5-T17 | Frontend "Today's Feeding" card on the Teacher home page: today's menu, status and a link to the day panel; empty state "No feeding scheduled today". Parents get no card: their home is the My Schedule calendar (P5-T15, DEC-024) | features/calendar, app/layouts | Shows the right menu for today (Asia/Manila); the Parent home shows no card |
 | P5-T18 | Polish and gate | all | Gate checklist ticked |
 
 **Weekly Assignment board layout.** A week selector (previous, next, "This week", date range text) sits at the top. Seven day cards (Monday to Sunday) follow. Each card shows the date, the formatted menu name (or "No menu" and disabled if the date has no menu), assigned Parent chips with a remove (x) button, an "Assign parents" button that opens a searchable multi-select of approved Parents, and a small status badge (No PR, Open, Locked, No feeding). Changes save immediately with an optimistic update and a toast; a failure rolls back and shows the error. On phones the cards stack vertically.
@@ -66,6 +66,8 @@ Each phase follows the same layout: summary, Build, Do NOT build, Figma screens,
 
 **Edge cases to test:** two editors on one row; a Parent removed from the day while editing; locking while a Parent's request is in flight; rate changed while a day is OPEN; zero students (budget 0); extremely long descriptions; decimal quantity 0.125; unit cost left empty (total shows a dash and does not count); copy-paste of values with commas; a week that crosses a month end.
 
-**Tests required:** money vectors, budget, state machine, field-level rights per role, conflict, scoping, assignment rules, Parent calendar filter, replace-import guard.
+**Units.** The Unit field uses the shared `UNITS` constant in `shared/src` (kg, g, pcs, bottle, pack, can, liter, bundle, tray, other), created in this phase. The Parent day screen's Unit select reads it directly, with no API call; the server validates units against the same constant (DEC-026).
+
+**Tests required:** money vectors, budget, state machine, field-level rights per role, conflict, scoping, assignment rules, Parent calendar filter, replace-import guard, a Parent's GET /api/purchase-requests/:date response never contains `budget`, `enrolledCount` or `ratePerChild` while a Teacher's response does (DEC-026), unit values outside `UNITS` are rejected.
 
 **Gate additions:** a two-browser concurrency check done by hand (Teacher and Parent editing the same day).
