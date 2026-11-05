@@ -21,9 +21,9 @@ type ToastApi = { show: (toast: { kind: ToastKind; message: string }) => void };
 const ToastContext = createContext<ToastApi | null>(null);
 
 const KIND_CLASSES: Record<ToastKind, string> = {
-  success: "border-green-300 bg-green-50 text-green-900",
-  error: "border-red-300 bg-red-50 text-red-800",
-  info: "border-gray-300 bg-white text-gray-900",
+  success: "border-success bg-success-soft text-text",
+  error: "border-danger bg-danger-soft text-danger-text",
+  info: "border-border-subtle bg-surface text-text",
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -66,7 +66,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`rounded border px-3 py-2 shadow ${KIND_CLASSES[toast.kind]}`}
+            className={`rounded-control border px-3 py-2 shadow-panel ${KIND_CLASSES[toast.kind]}`}
           >
             {toast.message}
           </div>

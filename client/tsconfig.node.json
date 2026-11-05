@@ -7,6 +7,14 @@
     "types": ["node"],
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo"
   },
-  "include": ["vite.config.ts"],
+  "include": [
+    "vite.config.ts",
+    "test/contrast.ts",
+    "test/contrast.test.ts",
+    "test/fonts.test.ts",
+    "test/no-hardcoded-colors.test.ts",
+    "test/source-files.ts",
+    "test/tokens.test.ts"
+  ],
   "references": [{ "path": "../shared" }]
 }

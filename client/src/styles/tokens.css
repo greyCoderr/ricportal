@@ -1,0 +1,74 @@
+/*
+ * RICPortal design tokens (P0-T11, DEC-022, DEC-023).
+ * The only file in the client that may hold color values. Each value, its
+ * Figma node id and its contrast ratio are listed in docs/tokens.md.
+ * Tailwind's default colors, font sizes, radii and shadows are reset, so
+ * only these tokens exist. Spacing uses Tailwind's default scale.
+ */
+@theme {
+  --color-*: initial;
+
+  /* Hues (fills, borders, icons) */
+  --color-primary: #d32f2f;
+  --color-primary-contrast: #ffffff;
+  --color-accent: #025b02;
+  --color-accent-soft: #025b023d;
+  --color-success: #025b02;
+  --color-success-soft: #025b023d;
+  --color-warning: #edf902;
+  --color-warning-soft: #edf9023d;
+  --color-info: #2d69c7;
+  --color-info-soft: #2d69c73d;
+  --color-danger: #ff0000;
+  --color-danger-soft: #ff00003d;
+
+  /* Text that passes WCAG AA (DEC-023). Never use the warning hue as text. */
+  --color-text: #000000;
+  --color-text-secondary: #3c3c3c;
+  --color-text-muted: #757575;
+  --color-text-placeholder: #757575;
+  --color-warning-text: #6b5900;
+  --color-info-text: #1f4e96;
+  --color-danger-text: #a30000;
+
+  /* Structure */
+  --color-surface: #ffffff;
+  --color-border: #000000;
+  --color-border-subtle: #949494;
+  --color-header: #f0f0f0;
+  --color-nav: #000000;
+  --color-nav-text: #ffffff;
+  --color-nav-selected: #ff8282;
+  --color-nav-selected-text: #000000;
+  --color-overlay: #00000059;
+
+  /* Type */
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --text-*: initial;
+  --text-10: 10px;
+  --text-11: 11px;
+  --text-12: 12px;
+  --text-13: 13px;
+  --text-15: 15px;
+  --text-16: 16px;
+  --text-18: 18px;
+  --text-20: 20px;
+  --text-24: 24px;
+  --text-40: 40px;
+  --text-42: 42px;
+  --text-48: 48px;
+  --tracking-label: 0.1em;
+
+  /* Radius */
+  --radius-*: initial;
+  --radius-cell: 2px;
+  --radius-control: 8px;
+  --radius-card: 10px;
+  --radius-icon: 15px;
+
+  /* Shadows: only these three (DESIGN_LANGUAGE rule 7) */
+  --shadow-*: initial;
+  --shadow-header: 0 4px 20px 4px #00000040;
+  --shadow-card: 1px 1px 10px 1px #00000040;
+  --shadow-panel: 2px 2px 8px 1px #00000040;
+}

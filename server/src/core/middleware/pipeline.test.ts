@@ -45,6 +45,26 @@ describe("helmet", () => {
     expect(res.headers["content-security-policy"]).toBeDefined();
     expect(res.headers["x-powered-by"]).toBeUndefined();
   });
+
+  it("CSP: fonts from the same origin only, styles from the same origin plus inline (DEC-022)", async () => {
+    const res = await request(appWith()).get("/api/health");
+    const csp = String(res.headers["content-security-policy"]);
+    const directives = new Map(
+      csp.split(";").map((part) => {
+        const [name = "", ...values] = part.trim().split(/\s+/);
+        return [name, values] as const;
+      }),
+    );
+
+    expect(directives.get("default-src")).toEqual(["'self'"]);
+    expect(directives.get("font-src")).toEqual(["'self'"]);
+    // React and FullCalendar set inline styles, so 'unsafe-inline' stays.
+    expect(directives.get("style-src")).toEqual(["'self'", "'unsafe-inline'"]);
+    expect(directives.get("script-src")).toEqual(["'self'"]);
+    expect(csp).not.toContain("https:");
+    expect(csp).not.toContain("fonts.googleapis.com");
+    expect(csp).not.toContain("fonts.gstatic.com");
+  });
 });
 
 describe("JSON body limit", () => {

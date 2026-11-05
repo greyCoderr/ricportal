@@ -10,5 +10,13 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo"
   },
   "include": ["src", "test"],
+  "exclude": [
+    "test/contrast.ts",
+    "test/contrast.test.ts",
+    "test/fonts.test.ts",
+    "test/no-hardcoded-colors.test.ts",
+    "test/source-files.ts",
+    "test/tokens.test.ts"
+  ],
   "references": [{ "path": "../shared" }]
 }

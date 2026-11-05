@@ -10,7 +10,19 @@ import { createGlobalRateLimit } from "./rate-limit.js";
 // handler after it.
 export function applyRequestPipeline(app: Express, config: AppConfig): void {
   app.set("trust proxy", config.TRUST_PROXY);
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        // Helmet defaults, except (DEC-022): fonts only from this origin, and
+        // styles from this origin plus inline styles, which React and
+        // FullCalendar need.
+        directives: {
+          "font-src": ["'self'"],
+          "style-src": ["'self'", "'unsafe-inline'"],
+        },
+      },
+    }),
+  );
   app.use(compression());
   if (config.RATE_LIMIT_ENABLED) {
     app.use(createGlobalRateLimit(config));

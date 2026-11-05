@@ -30,5 +30,7 @@ describe("server startup", () => {
     );
     expect(result.stderr).not.toContain("secret-value-123");
     expect(result.stdout).not.toContain("secret-value-123");
-  });
+    // tsx startup is slow on the Developer's machine, so only this test gets
+    // 15 seconds (DEC-027).
+  }, 15_000);
 });

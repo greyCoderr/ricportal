@@ -3,16 +3,16 @@ import { LABELS } from "../../../lib/labels";
 import { useHealth } from "../hooks";
 
 // Placeholder page for Phase 0: shows the result of GET /api/health.
-// Plain Tailwind utilities only; Figma tokens arrive in P0-T11.
+// Semantic token classes only (DEC-022).
 export function HealthPage() {
   const health = useHealth();
 
   return (
-    <main className="mx-auto max-w-md p-4">
-      <h1 className="mb-4 text-2xl font-semibold">{LABELS.appName}</h1>
+    <main className="mx-auto max-w-md bg-surface p-4 text-text">
+      <h1 className="mb-4 text-24 font-semibold">{LABELS.appName}</h1>
 
       {health.isPending && (
-        <p role="status" className="text-gray-600">
+        <p role="status" className="text-text-muted">
           Checking the server…
         </p>
       )}
@@ -20,12 +20,12 @@ export function HealthPage() {
       {health.isError && (
         <div
           role="alert"
-          className="rounded border border-red-300 bg-red-50 p-3 text-red-800"
+          className="rounded-control border border-danger bg-danger-soft p-3 text-danger-text"
         >
           <p>{health.error.message}</p>
           <button
             type="button"
-            className="mt-2 rounded bg-red-700 px-3 py-1 text-white disabled:opacity-60"
+            className="mt-2 rounded-control bg-primary px-3 py-1 text-primary-contrast disabled:opacity-60"
             disabled={health.isFetching}
             onClick={() => {
               void health.refetch();
@@ -39,11 +39,11 @@ export function HealthPage() {
       {health.isSuccess && (
         <section
           aria-label="System status"
-          className="rounded border border-green-300 bg-green-50 p-3 text-green-900"
+          className="rounded-control border border-success bg-success-soft p-3 text-text"
         >
           <p>Server: {health.data.status}</p>
           <p>Database: {health.data.db}</p>
-          <p className="text-sm">
+          <p className="text-13">
             Checked at {formatDateTimeManila(health.data.time)}
           </p>
         </section>
