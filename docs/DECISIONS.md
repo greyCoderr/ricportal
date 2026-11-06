@@ -384,7 +384,7 @@ Consequences: each removed element is listed in docs/SPRINT_SHORTCUTS.md, so the
 Context: on 2026-11-06 the system stopped a typecheck and test run because memory was critically low. Decided by the Developer.
 Decision:
 - `test.maxWorkers: 2` in `vitest.config.mjs`, at the root, so every inline project inherits it (Vitest 5 docs, read through Context7: option `maxWorkers`; inline projects inherit the root config by default).
-- ESLint heap 3072 MB instead of 4096, to be verified by the next full `npm run check`.
+- ESLint heap 3072 MB instead of 4096. Verified: two full runs at the end of S2 finished lint without running out of memory.
 - One command at a time, in the foreground. No `npm run dev` during tests or lint.
 - While working: `tsc -b`, then vitest on the changed files or project, then `npx eslint --cache` on the changed files only. The full `npm run check` runs only at the end of S2, S4 and S6 (this replaces "at the end of each stage" in the sprint plan).
 - A run killed for memory is reported and work stops; at most one automatic retry.

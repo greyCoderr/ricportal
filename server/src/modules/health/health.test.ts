@@ -121,7 +121,10 @@ describe("GET /api/health", () => {
 
     expect(res.status).toBe(503);
     expect(res.body).toEqual(UNAVAILABLE);
-    expect(Date.now() - started).toBeLessThan(1000);
+    // Raised from 1000 after a 1450 ms run under full-suite load (sprint log).
+    // Still shorter than the 2000 ms production timeout; the repository hangs
+    // forever, so only the 100 ms timeout can end this request.
+    expect(Date.now() - started).toBeLessThan(1900);
   });
 
   it.each([

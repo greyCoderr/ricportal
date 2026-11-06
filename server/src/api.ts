@@ -18,6 +18,22 @@ import { createHealthController } from "./modules/health/health.controller.js";
 import type { HealthRepository } from "./modules/health/health.repository.js";
 import { createHealthRouter } from "./modules/health/health.routes.js";
 import { createHealthService } from "./modules/health/health.service.js";
+import { createChildRecordsController } from "./modules/child-records/child-records.controller.js";
+import { createChildRecordsRepository } from "./modules/child-records/child-records.repository.js";
+import {
+  createConferencesRouter,
+  createHomeVisitsRouter,
+  createProgressRouter,
+} from "./modules/child-records/child-records.routes.js";
+import { createChildRecordsService } from "./modules/child-records/child-records.service.js";
+import { createSettingsRepository } from "./modules/settings/settings.repository.js";
+import { createStudentsController } from "./modules/students/students.controller.js";
+import { createStudentsRepository } from "./modules/students/students.repository.js";
+import {
+  createEnrollmentFormRouter,
+  createStudentsRouter,
+} from "./modules/students/students.routes.js";
+import { createStudentsService } from "./modules/students/students.service.js";
 import { createUsersController } from "./modules/users/users.controller.js";
 import { createUsersRepository } from "./modules/users/users.repository.js";
 import {
@@ -75,7 +91,46 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
     }),
   );
 
+  const settings = createSettingsRepository(prisma);
+  const studentsService = createStudentsService({
+    repository: createStudentsRepository(prisma),
+    settings,
+    now,
+  });
+  const studentsController = createStudentsController(studentsService);
+  const childRecordsController = createChildRecordsController(
+    createChildRecordsService({
+      repository: createChildRecordsRepository(prisma),
+      students: studentsService,
+      now,
+    }),
+  );
+
   mounts.push(
+    {
+      path: "/api/students",
+      router: createStudentsRouter(
+        studentsController,
+        childRecordsController,
+        authenticate,
+      ),
+    },
+    {
+      path: "/api/enrollment-form.pdf",
+      router: createEnrollmentFormRouter(studentsController, authenticate),
+    },
+    {
+      path: "/api/conferences",
+      router: createConferencesRouter(childRecordsController, authenticate),
+    },
+    {
+      path: "/api/home-visits",
+      router: createHomeVisitsRouter(childRecordsController, authenticate),
+    },
+    {
+      path: "/api/progress",
+      router: createProgressRouter(childRecordsController, authenticate),
+    },
     {
       path: "/api/auth",
       router: createAuthRouter(authController, authenticate),

@@ -85,3 +85,21 @@ Session: httpOnly cookie `rp_session` (HS256, 8 hours, SameSite=Lax, Secure from
 | POST /api/parents/:id/reset-password | Teacher | Temporary password returned once |
 
 No response contains a password hash, `token_version`, the failed-login count or the lock time.
+
+## Students and Child's Record (sprint S2)
+
+| Method and path | Role | Purpose and failures |
+| --- | --- | --- |
+| GET /api/students | Teacher (own), Admin (any) | Filters: schoolYear (default current), q, gender, status, centerId, pagination. A Teacher asking for another center gets 404 |
+| GET /api/students/summary | Teacher, Admin | Counts by age bucket (2, 3, 4, Other) and gender. Active children only. schoolYear, centerId |
+| POST /api/students | Teacher | Create in the current school year. 400 field errors (future date, older than 10), 409 same name and birthdate in the center and year |
+| GET /api/students/:id | Teacher (own), Admin | One student with the computed age and `ageWarning` |
+| PATCH /api/students/:id | Teacher | Edit. 409 duplicate, 422 a row of an earlier school year |
+| POST /api/students/:id/archive, /restore | Teacher | Status change. 422 for an earlier school year |
+| GET, POST /api/students/:id/conferences | GET: Teacher (own), Admin. POST: Teacher | Newest first |
+| GET, POST /api/students/:id/home-visits | Same | Newest first |
+| GET, POST /api/students/:id/progress | Same | Newest first. No screen in the sprint |
+| PATCH, DELETE /api/conferences/:id, /api/home-visits/:id, /api/progress/:id | Teacher | Edit and soft delete (BR-22). Another center or a deleted entry is 404 |
+| GET /api/enrollment-form.pdf | Teacher (own), Admin (needs centerId) | Query: schoolYear, dateStarted, centerId. Streams a PDF |
+
+Weight and height travel as decimal strings. Age is computed on every read and never stored (BR-01).

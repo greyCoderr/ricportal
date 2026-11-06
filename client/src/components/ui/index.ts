@@ -25,3 +25,4 @@ export { Drawer } from "./Drawer";
 export { Modal, type OverlayProps } from "./Modal";
 export { Pagination } from "./Pagination";
 export { Table, type TableColumn } from "./Table";
+export { Tabs, type TabItem } from "./Tabs";

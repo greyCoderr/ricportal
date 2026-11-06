@@ -26,3 +26,13 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 | S4 | Autosave retry polish | Per-row Saving, Saved and Failed with one Retry button | Backoff and retry-all |
 | S5 | Transmittal Checklist beyond the placeholder | A clean page titled "layout pending the official copy" (A-09) | The real layout from a clear copy |
 | S5 | Admin queue filters | The full list, newest first | Filters by status, center and month |
+
+## Student screens compared with Figma (258:5447, 78:260)
+
+| Figma element | Instead | To restore |
+| --- | --- | --- |
+| Add enroll form: facility location, nickname, Jr/Sr, birth registered, birth place, home address, family members, disabilities, past ECCD experience, participation fee and other sections | Only the blueprint's student fields (4.5, field rules in phase 2). The blueprint wins on business rules, and A-17 asks to confirm the fields with the client | Confirm with the client, then add columns by migration |
+| Student ID column (RIC 25-001) | Not shown; the blueprint has no such field | Decide a numbering rule with the client |
+| Export List button | Not built; not in the sprint scope. The Enrollment Form PDF lists the children | A CSV or PDF export |
+| Lists of earlier years (Student List for 2025, 2024...) | Previous school year view cut (above) | A school year select |
+| Site footer with contact and quick links | Not built | A footer in the layout |

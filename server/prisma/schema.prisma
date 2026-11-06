@@ -41,6 +41,7 @@ model Center {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   users     User[]
+  students  Student[]
 
   @@map("centers")
 }
@@ -77,4 +78,92 @@ model ParentProfile {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("parent_profiles")
+}
+
+enum Gender {
+  M
+  F
+}
+
+enum StudentStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+model Student {
+  id                 Int              @id @default(autoincrement())
+  centerId           Int              @map("center_id")
+  schoolYear         String           @map("school_year") @db.VarChar(9)
+  lastName           String           @map("last_name") @db.VarChar(60)
+  firstName          String           @map("first_name") @db.VarChar(60)
+  middleName         String?          @map("middle_name") @db.VarChar(60)
+  gender             Gender
+  birthdate          DateTime         @db.Date
+  weightKg           Decimal          @map("weight_kg") @db.Decimal(5, 2)
+  heightCm           Decimal          @map("height_cm") @db.Decimal(5, 1)
+  parentGuardianName String           @map("parent_guardian_name") @db.VarChar(100)
+  enrolledOn         DateTime         @map("enrolled_on") @db.Date
+  status             StudentStatus    @default(ACTIVE)
+  birthOrder         Int?             @map("birth_order")
+  numberOfSiblings   Int?             @map("number_of_siblings")
+  religion           String?          @db.VarChar(40)
+  ethnicity          String?          @db.VarChar(40)
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  center             Center           @relation(fields: [centerId], references: [id])
+  conferenceNotes    ConferenceNote[]
+  homeVisits         HomeVisit[]
+  progressEntries    ChildProgress[]
+
+  @@unique([centerId, schoolYear, lastName, firstName, birthdate])
+  @@index([centerId, schoolYear, status])
+  @@map("students")
+}
+
+model ConferenceNote {
+  id        Int       @id @default(autoincrement())
+  studentId Int       @map("student_id")
+  noteDate  DateTime  @map("note_date") @db.Date
+  noteTime  String?   @map("note_time") @db.VarChar(5)
+  notes     String    @db.Text
+  createdBy Int       @map("created_by")
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  student   Student   @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, noteDate])
+  @@map("conference_notes")
+}
+
+model HomeVisit {
+  id          Int       @id @default(autoincrement())
+  studentId   Int       @map("student_id")
+  visitDate   DateTime  @map("visit_date") @db.Date
+  observation String    @db.Text
+  parentInfo  String?   @map("parent_info") @db.Text
+  remarks     String?   @db.Text
+  createdBy   Int       @map("created_by")
+  deletedAt   DateTime? @map("deleted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  student     Student   @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, visitDate])
+  @@map("home_visits")
+}
+
+model ChildProgress {
+  id            Int       @id @default(autoincrement())
+  studentId     Int       @map("student_id")
+  noteDate      DateTime  @map("note_date") @db.Date
+  progressNotes String    @map("progress_notes") @db.Text
+  createdBy     Int       @map("created_by")
+  deletedAt     DateTime? @map("deleted_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  student       Student   @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, noteDate])
+  @@map("child_progress")
 }

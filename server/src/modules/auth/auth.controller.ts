@@ -25,7 +25,7 @@ export function createAuthController(
   }
 
   return {
-    async login(req: Request, res: Response) {
+    login: async (req: Request, res: Response) => {
       const { user, token } = await service.login(
         parseWith(loginSchema, req.body),
       );
@@ -33,7 +33,7 @@ export function createAuthController(
       ok(res, user);
     },
 
-    logout(_req: Request, res: Response) {
+    logout: (_req: Request, res: Response) => {
       res.clearCookie(SESSION_COOKIE, {
         httpOnly: true,
         sameSite: "lax",
@@ -43,12 +43,12 @@ export function createAuthController(
       ok(res, { loggedOut: true });
     },
 
-    async me(req: Request, res: Response) {
+    me: async (req: Request, res: Response) => {
       res.set("Cache-Control", "no-store");
       ok(res, await service.me(currentUser(req).id));
     },
 
-    async changePassword(req: Request, res: Response) {
+    changePassword: async (req: Request, res: Response) => {
       const { user, token } = await service.changePassword(
         currentUser(req).id,
         parseWith(changePasswordSchema, req.body),
@@ -57,14 +57,14 @@ export function createAuthController(
       ok(res, user);
     },
 
-    async parentSignup(req: Request, res: Response) {
+    parentSignup: async (req: Request, res: Response) => {
       created(
         res,
         await service.parentSignup(parseWith(parentSignupSchema, req.body)),
       );
     },
 
-    async publicCenters(_req: Request, res: Response) {
+    publicCenters: async (_req: Request, res: Response) => {
       ok(res, await service.publicCenters());
     },
   };

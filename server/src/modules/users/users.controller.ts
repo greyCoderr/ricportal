@@ -18,8 +18,8 @@ const parentQuerySchema = z.object({
 
 export function createUsersController(service: UsersService) {
   return {
-    async listTeachers(req: Request, res: Response) {
-      const page = parsePagination(req.query as Record<string, unknown>);
+    listTeachers: async (req: Request, res: Response) => {
+      const page = parsePagination(req.query);
       const { rows, total } = await service.listTeachers({
         skip: page.skip,
         take: page.take,
@@ -27,14 +27,14 @@ export function createUsersController(service: UsersService) {
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },
 
-    async createTeacher(req: Request, res: Response) {
+    createTeacher: async (req: Request, res: Response) => {
       created(
         res,
         await service.createTeacher(parseWith(teacherCreateSchema, req.body)),
       );
     },
 
-    async updateTeacher(req: Request, res: Response) {
+    updateTeacher: async (req: Request, res: Response) => {
       ok(
         res,
         await service.updateTeacher(
@@ -44,11 +44,11 @@ export function createUsersController(service: UsersService) {
       );
     },
 
-    async resetTeacherPassword(req: Request, res: Response) {
+    resetTeacherPassword: async (req: Request, res: Response) => {
       ok(res, await service.resetTeacherPassword(parseId(req.params.id)));
     },
 
-    async listParents(req: Request, res: Response) {
+    listParents: async (req: Request, res: Response) => {
       const query = req.query as Record<string, unknown>;
       const page = parsePagination(query);
       const { status } = parseWith(parentQuerySchema, {
@@ -63,7 +63,7 @@ export function createUsersController(service: UsersService) {
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },
 
-    moveParent(action: ParentAction) {
+    moveParent: (action: ParentAction) => {
       return async (req: Request, res: Response) => {
         ok(
           res,
@@ -76,7 +76,7 @@ export function createUsersController(service: UsersService) {
       };
     },
 
-    async resetParentPassword(req: Request, res: Response) {
+    resetParentPassword: async (req: Request, res: Response) => {
       ok(
         res,
         await service.resetParentPassword(

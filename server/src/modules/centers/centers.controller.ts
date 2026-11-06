@@ -7,7 +7,7 @@ import type { CentersService } from "./centers.service.js";
 
 export function createCentersController(service: CentersService) {
   return {
-    async list(req: Request, res: Response) {
+    list: async (req: Request, res: Response) => {
       const query = req.query as Record<string, unknown>;
       const page = parsePagination(query);
       const q = typeof query.q === "string" ? query.q.trim() : "";
@@ -19,14 +19,14 @@ export function createCentersController(service: CentersService) {
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },
 
-    async create(req: Request, res: Response) {
+    create: async (req: Request, res: Response) => {
       created(
         res,
         await service.create(parseWith(centerCreateSchema, req.body)),
       );
     },
 
-    async update(req: Request, res: Response) {
+    update: async (req: Request, res: Response) => {
       ok(
         res,
         await service.update(
