@@ -61,3 +61,13 @@ Migration `20261106141444_menu_batches_days`. The uploaded file is not stored.
 | --- | --- | --- |
 | menu_batches | id, sheet_name, file_name, pr_no, pr_date DATE, period_start DATE, period_end DATE, uploaded_by, created_at, updated_at | One batch per sheet |
 | menu_days | id, batch_id, feeding_date DATE (unique), day_no, day_name, menu_name, created_at, updated_at | The name is stored as in the file; the screen formats it |
+
+## Sprint S4: assignments and Purchase Requests
+
+Migration `20261106142715_assignments_purchase_requests`.
+
+| Table | Columns | Notes |
+| --- | --- | --- |
+| feeding_assignments | id, center_id, feeding_date DATE, parent_id, assigned_by, created_at, updated_at | Unique (center_id, feeding_date, parent_id) |
+| purchase_requests | id, center_id, feeding_date DATE, menu_day_id, pr_no, status (OPEN, LOCKED, NO_FEEDING), enrolled_count, rate_per_child DECIMAL(10,2), budget DECIMAL(12,2), locked_at, locked_by, created_at, updated_at | Unique (center_id, feeding_date). The budget fields are the snapshot set on lock (BR-10) and are null otherwise |
+| purchase_items | id, purchase_request_id, item_no, description, unit, quantity DECIMAL(10,3), unit_cost DECIMAL(10,2), filled_by, version, created_at, updated_at | Totals are computed, never stored. `version` guards against stale edits |

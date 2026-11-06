@@ -25,3 +25,7 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | Server status | `/status` | Public | wired | The former home placeholder (P0-T10) |
 | Menu Imports | `/menu-imports` | Admin | wired | Upload, preview, warnings, overlap, confirm, history |
 | Calendar | `/calendar` | Admin, Teacher | wired | FullCalendar: month on desktop, list on phones; day panel in a Drawer |
+| Assignments | `/assignments` | Teacher | wired | Weekly board, Monday to Sunday; optimistic save with rollback |
+| Calendar day panel | `/calendar` | Teacher | wired | Tabs Details, Assigned Parents, Purchase Request (editor with autosave) |
+| Calendar, center selector | `/calendar` | Admin | wired | Read-only Purchase Request once a center is chosen |
+| My Schedule | `/` | Parent | wired | Figma 393:1133, assigned days only; opens S-P5-04 in a Drawer |

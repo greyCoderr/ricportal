@@ -104,3 +104,27 @@ Summary (S3):
 - Checks: parser 13 tests (real file in TZ=UTC and TZ=Asia/Manila, bad files); database 15 menu and calendar tests, matrix updated; client format and calendar logic; tsc -b clean; eslint on changed files clean. No full check this stage (DEC-035).
 - Not checked: FullCalendar has not been seen in a real browser. It has no jsdom render test, only its pure helpers are tested.
 - Verify by hand: as Admin upload server/test/fixtures/SF_MENU_for_30_days.xlsx, see 2 sheets with 42 days, confirm, open Calendar in September 2026.
+
+## S4 Assignments and Purchase Requests (budget 5 h)
+
+Plan (CUT list applied from the start: no rate setting screen, no Today's Feeding card, simple Retry):
+1. Tests first: money vectors, budget, state machine table, field rights by role, version conflict, assignment rules, Parent filter, no budget fields for Parents, scope, matrix rows.
+2. Data: feeding_assignments, purchase_requests, purchase_items; migration.
+3. core/money.ts on Prisma Decimal; strings out, half-up to 2 decimals.
+4. modules/assignments and modules/purchase-requests.
+5. UI: weekly assignment board; day panel tabs Details, Assigned Parents, Purchase Request; LedgerTable; editor with 600 ms autosave and per-row state.
+6. Admin: center selector on the calendar and a read-only Purchase Request view.
+7. Parent: My Schedule calendar (Figma 393:1133) and day screen S-P5-04.
+8. Targeted checks, then the full npm run check at the end of S4 (DEC-035).
+9. Commit, log.
+10. Not needed: the replace-import guard, because overlapping dates are refused outright in S3.
+
+Test note (S4): the money and Purchase Request API tests were seen failing first (43 of 44 database tests failed, the money test file could not load). The autosave hook tests, LedgerTable tests and ParentDayScreen tests were written with their code in the same step and were not seen failing first.
+Flaky test (S4): `server/test/startup.test.ts` timed out at 15 s under full-suite load and passed alone in 8 s. The server now imports exceljs and pdfmake, so tsx takes longer to start it. Limit raised to 30 s for that test only, matching its child process timeout (amends DEC-027).
+
+Summary (S4):
+- Done: assignments, Parent schedule, Purchase Requests, items with field rights and version conflict, budget with freeze on lock, state machine; weekly board; Teacher day panel with tabs and the editor with 600 ms autosave; Admin center selector and read-only view; Parent My Schedule and day screen; LedgerTable.
+- Cut (from the start): rate setting screen, Today's Feeding card, retry polish. Other simplifications are in docs/SPRINT_SHORTCUTS.md.
+- Check at the end of S4: the single `npm run check` run passed typecheck, lint and format, but Vitest could not start 2 workers ("Timeout waiting for worker to respond") with the machine under heavy load (625 s). One retry of the remaining steps, separately in the foreground: tests 55 files, 880 tests, exit 0; build ok.
+- Not checked: none of the screens has been opened in a real browser yet. The two-browser concurrency check (phase 5 gate) is for the Developer.
+- Verify by hand: as a Teacher open Assignments and assign a Parent; open Calendar, a day, Purchase Request; add Rice; as the Parent open the day and enter 2, 38.00; the total shows PHP 76.00; lock as the Teacher; the Parent sees the banner.

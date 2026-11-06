@@ -112,3 +112,22 @@ Weight and height travel as decimal strings. Age is computed on every read and n
 | POST /api/menu/imports/confirm | Admin | Body `{ token }`. Saves all batches in one transaction. 409 used, expired or unknown token, or an overlap that appeared after the preview |
 | GET /api/menu/batches | Admin | Import history, paginated |
 | GET /api/calendar?from=&to= | Admin, Teacher | Feeding days in the range (at most 62 days): date, dayNo, dayName, menuName, prNo, prDate. A Parent gets 403 |
+
+## Assignments and Purchase Requests (sprint S4)
+
+Money travels as decimal strings, computed on the server with half-up rounding to 2 decimals (BR-11).
+
+| Method and path | Role | Purpose and failures |
+| --- | --- | --- |
+| GET /api/parents/approved | Teacher | Approved Parents of the own center |
+| GET /api/assignments?week= | Teacher | Seven days from the Monday given: menu, assigned Parents, status. 400 if it is not a Monday |
+| PUT /api/assignments/:date | Teacher | Body `{ parentIds }`, replaces the set. 422 no menu that day, or a Parent who is not approved or of another center |
+| GET /api/parent-schedule?from=&to= | Parent | Assigned days only (BR-14): date, dayName, menuName, status |
+| GET /api/purchase-requests/:date | Teacher (own), assigned Parent, Admin (needs centerId) | The PR with items and totals. `status` is NOT_OPENED, OPEN, LOCKED or NO_FEEDING. A Parent response has no `budget`, `enrolledCount`, `ratePerChild` or `isOverBudget` (DEC-026). 404 no menu, or a Parent not assigned |
+| POST /api/purchase-requests/:date/open | Teacher | Creates the PR, safe to repeat |
+| POST /api/purchase-requests/:date/items | Teacher | Body `{ description }`; opens the PR if needed. 409 when locked |
+| POST /api/purchase-requests/:date/lock | Teacher | OPEN to LOCKED; freezes the budget. 409 if not opened or No feeding |
+| POST /api/purchase-requests/:date/unlock | Teacher | LOCKED or NO_FEEDING to OPEN; clears the freeze |
+| POST /api/purchase-requests/:date/no-feeding | Teacher | OPEN or not opened to NO_FEEDING. 409 when locked |
+| PATCH /api/purchase-items/:id | Teacher, assigned Parent | Body has `version`, and any of unit, quantity, unitCost (description for the Teacher only: a Parent gets 403). 409 CONFLICT "Updated by someone else. Your change was not saved." on a stale version, 409 STATE_INVALID when locked, 404 another center or not assigned |
+| DELETE /api/purchase-items/:id | Teacher | Renumbers the rest 1 to n. 409 when locked |

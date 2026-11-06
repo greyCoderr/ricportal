@@ -168,6 +168,10 @@ export function createUsersService(deps: {
       return { rows: rows.map(toParentDto), total };
     },
 
+    listApprovedParents(centerId: number) {
+      return repository.listApprovedParents(centerId);
+    },
+
     async moveParent(
       id: number,
       centerId: number,

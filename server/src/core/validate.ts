@@ -1,4 +1,4 @@
-import type { ErrorDetail } from "@ricportal/shared";
+import { isCalendarDate, type ErrorDetail } from "@ricportal/shared";
 import type { z } from "zod";
 import { ValidationError } from "./errors.js";
 
@@ -23,6 +23,14 @@ export function parseWith<S extends z.ZodType>(
     );
   }
   return result.data;
+}
+
+// A calendar day from the address: a real "YYYY-MM-DD" (BR-09).
+export function parseDay(value: unknown): string {
+  if (typeof value !== "string" || !isCalendarDate(value)) {
+    throw new ValidationError("The date in the address is not valid.");
+  }
+  return value;
 }
 
 export function parseId(value: unknown): number {

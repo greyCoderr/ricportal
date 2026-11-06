@@ -4,18 +4,14 @@ import { Card } from "../../components/ui";
 import { LABELS } from "../../lib/labels";
 import { useCurrentUser } from "../auth/components/guards";
 import { NAV_BY_ROLE } from "../../app/layouts/nav";
+import { MySchedulePage } from "../purchase/pages/MySchedulePage";
 
-// Welcome panels. The Parent home becomes the My Schedule calendar in S4.
+// Welcome panels. The Parent home is the My Schedule calendar (DEC-024).
 export function HomePage() {
   const user = useCurrentUser();
 
   if (user.role === "PARENT") {
-    return (
-      <p className="text-16">
-        Welcome, {user.fullName}. Your schedule will appear here once your
-        teacher assigns you.
-      </p>
-    );
+    return <MySchedulePage />;
   }
 
   const links = NAV_BY_ROLE[user.role].filter((item) => item.to !== "/");

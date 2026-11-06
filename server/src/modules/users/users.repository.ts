@@ -148,6 +148,14 @@ export function createUsersRepository(prisma: PrismaClient) {
       return { rows, total };
     },
 
+    listApprovedParents(centerId: number) {
+      return prisma.user.findMany({
+        where: { centerId, role: "PARENT", status: "ACTIVE" },
+        orderBy: { fullName: "asc" },
+        select: { id: true, fullName: true },
+      });
+    },
+
     findParentInCenter(id: number, centerId: number) {
       return prisma.user.findFirst({
         where: { id, centerId, role: "PARENT" },

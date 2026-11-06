@@ -3,6 +3,20 @@ import type { Logger } from "pino";
 import type { AppConfig } from "./config/app-config.js";
 import { createAuthenticate } from "./core/middleware/authenticate.js";
 import type { PrismaClient } from "./generated/prisma/client.js";
+import { createAssignmentsController } from "./modules/assignments/assignments.controller.js";
+import { createAssignmentsRepository } from "./modules/assignments/assignments.repository.js";
+import {
+  createAssignmentsRouter,
+  createParentScheduleRouter,
+} from "./modules/assignments/assignments.routes.js";
+import { createAssignmentsService } from "./modules/assignments/assignments.service.js";
+import { createPurchaseRequestsController } from "./modules/purchase-requests/purchase-requests.controller.js";
+import { createPurchaseRequestsRepository } from "./modules/purchase-requests/purchase-requests.repository.js";
+import {
+  createPurchaseItemsRouter,
+  createPurchaseRequestsRouter,
+} from "./modules/purchase-requests/purchase-requests.routes.js";
+import { createPurchaseRequestsService } from "./modules/purchase-requests/purchase-requests.service.js";
 import { createAuthController } from "./modules/auth/auth.controller.js";
 import { createAuthRepository } from "./modules/auth/auth.repository.js";
 import {
@@ -117,7 +131,34 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
     createMenuService({ repository: createMenuRepository(prisma), now }),
   );
 
+  const purchaseController = createPurchaseRequestsController(
+    createPurchaseRequestsService({
+      repository: createPurchaseRequestsRepository(prisma),
+      settings,
+      now,
+    }),
+  );
+  const assignmentsController = createAssignmentsController(
+    createAssignmentsService(createAssignmentsRepository(prisma)),
+  );
+
   mounts.push(
+    {
+      path: "/api/assignments",
+      router: createAssignmentsRouter(assignmentsController, authenticate),
+    },
+    {
+      path: "/api/parent-schedule",
+      router: createParentScheduleRouter(assignmentsController, authenticate),
+    },
+    {
+      path: "/api/purchase-requests",
+      router: createPurchaseRequestsRouter(purchaseController, authenticate),
+    },
+    {
+      path: "/api/purchase-items",
+      router: createPurchaseItemsRouter(purchaseController, authenticate),
+    },
     {
       path: "/api/menu",
       router: createMenuRouter(menuController, authenticate),

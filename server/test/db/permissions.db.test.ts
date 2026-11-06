@@ -20,6 +20,9 @@ type Row = [
 const A: Role[] = ["ADMIN"];
 const T: Role[] = ["TEACHER"];
 const AT: Role[] = ["ADMIN", "TEACHER"];
+const P: Role[] = ["PARENT"];
+const TP: Role[] = ["TEACHER", "PARENT"];
+const ATP: Role[] = ["ADMIN", "TEACHER", "PARENT"];
 
 // Every API route and who may call it (P1-T12). Ids that do not exist are used,
 // so an allowed role gets 400 or 404 and nothing changes. A route missing from
@@ -69,6 +72,18 @@ export const MATRIX: Row[] = [
   ["post", "/api/menu/imports/confirm", A],
   ["get", "/api/menu/batches", A],
   ["get", "/api/calendar", AT],
+  ["get", "/api/parents/approved", T],
+  ["get", "/api/assignments", T],
+  ["put", "/api/assignments/:date", T],
+  ["get", "/api/parent-schedule", P],
+  ["get", "/api/purchase-requests/:date", ATP],
+  ["post", "/api/purchase-requests/:date/open", T],
+  ["post", "/api/purchase-requests/:date/items", T],
+  ["post", "/api/purchase-requests/:date/lock", T],
+  ["post", "/api/purchase-requests/:date/unlock", T],
+  ["post", "/api/purchase-requests/:date/no-feeding", T],
+  ["patch", "/api/purchase-items/:id", TP],
+  ["delete", "/api/purchase-items/:id", T],
 ];
 
 function routesOf(router: Router): { method: string; path: string }[] {

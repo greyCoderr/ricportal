@@ -63,6 +63,10 @@ export function createUsersController(service: UsersService) {
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },
 
+    listApprovedParents: async (req: Request, res: Response) => {
+      ok(res, await service.listApprovedParents(ownCenterId(currentUser(req))));
+    },
+
     moveParent: (action: ParentAction) => {
       return async (req: Request, res: Response) => {
         ok(

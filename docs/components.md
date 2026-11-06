@@ -24,7 +24,7 @@ Working copy: `EetVyXPcJxatZKCElGlqr6` (docs/figma-link.txt). Token values are i
 | 2026-11-06 | Sprint S0 | `get_design_context` | 166:910 | Teacher sidebar: 290 wide, black; items 262 x 53, Light 16, tracking 0.1em, white; selected #FF8282, radius 10, left strip #D32F2F; labels Home, Enrolled Students, Calendar, Child’s Record, Submit Report, Report Status, Admin Feedback, Profile |
 | 2026-11-06 | Sprint S0 | `get_metadata` | no node, 267:9688 | Page list (0:1 RIC teacher, 393:1101 parent, 267:9688 admin); Admin page structure. Not counted in the sprint limit of 25 reads |
 
-Calls before the sprint: 13. Sprint reads (limit 25): 2 (166:910 sidebar, 241:1732 Login). The Teacher frames 78:260, 258:5447 and 166:1553 were only read for labels from the saved page metadata.
+Calls before the sprint: 13. Sprint reads (limit 25): 3 (166:910 sidebar, 241:1732 Login, 393:1133 PARENT CALENDAR, which returned layout only: a month calendar, a Purchase Request list and a Parents panel; DEC-024 and S-P5-04 decide what a Parent sees). The Teacher frames 78:260, 258:5447 and 166:1553 were only read for labels from the saved page metadata.
 
 ## Values read in step B
 
@@ -122,4 +122,5 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 | Modal, Drawer, ConfirmDialog | `ui/Modal.tsx`, `ui/Drawer.tsx`, `ui/ConfirmDialog.tsx`, `ui/useNativeDialog.ts` | none | Developer-designed from tokens (DEC-028) | Native dialog with showModal; Escape through cancel; backdrop `overlay`; Drawer is a bottom sheet under 768 px and a right panel from md |
 | Table, Pagination | `ui/Table.tsx`, `ui/Pagination.tsx` | 78:260 (ruled lines) | Figma lines, tokens | Caption, scoped headers, sideways scroll inside a focusable region, right-aligned tabular numbers |
 | Tabs | `ui/Tabs.tsx` | none | Developer-designed | tablist with buttons at least 44 px high; only the open panel is rendered |
+| LedgerTable | `ui/LedgerTable.tsx` | none | Developer-designed, approved spec in ui-kit.md | Ruled rows, right-aligned tabular numbers, total row with a single rule above and a double rule below; built in S4 as the sprint plan asks |
 | Toast | `components/toast` | none | Aligned to Banner | Same tone classes and icons as Banner (`tones.ts`), plus `shadow-panel`; API unchanged (success, error uses danger, info) |

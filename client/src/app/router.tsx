@@ -13,6 +13,7 @@ import { HealthPage } from "../features/health/pages/HealthPage";
 import { HomePage } from "../features/home/HomePage";
 import { CalendarPage } from "../features/calendar/pages/CalendarPage";
 import { MenuImportsPage } from "../features/menu/pages/MenuImportsPage";
+import { AssignmentsPage } from "../features/purchase/pages/AssignmentsPage";
 import { StudentProfilePage } from "../features/students/pages/StudentProfilePage";
 import { StudentsPage } from "../features/students/pages/StudentsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
         element: <RequireRole roles={["TEACHER"]} />,
         children: [
           { path: "/parents", element: <ParentsPage /> },
+          { path: "/assignments", element: <AssignmentsPage /> },
           { path: "/students", element: <StudentsPage /> },
           { path: "/students/:id", element: <StudentProfilePage /> },
         ],

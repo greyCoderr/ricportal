@@ -119,3 +119,59 @@ export function expectNoSecrets(body: unknown): void {
     }
   }
 }
+
+// Menu days for a test: [date, menu name] pairs in one batch.
+export async function seedMenuDays(
+  prisma: PrismaClient,
+  uploadedBy: number,
+  days: [string, string][],
+) {
+  const asDate = (day: string) => new Date(`${day}T00:00:00.000Z`);
+  const first = days[0]?.[0] ?? "2026-01-01";
+  const last = days.at(-1)?.[0] ?? first;
+  const batch = await prisma.menuBatch.create({
+    data: {
+      sheetName: "Sheet1",
+      fileName: "test.xlsx",
+      prNo: "SF-2026-TEST",
+      prDate: asDate("2026-10-23"),
+      periodStart: asDate(first),
+      periodEnd: asDate(last),
+      uploadedBy,
+    },
+  });
+  await prisma.menuDay.createMany({
+    data: days.map(([day, menuName], index) => ({
+      batchId: batch.id,
+      feedingDate: asDate(day),
+      dayNo: index + 1,
+      dayName: "Monday",
+      menuName,
+    })),
+  });
+  return batch;
+}
+
+export async function seedStudents(
+  prisma: PrismaClient,
+  centerId: number,
+  count: number,
+  options: { status?: "ACTIVE" | "ARCHIVED"; prefix?: string } = {},
+) {
+  const prefix = options.prefix ?? "Child";
+  await prisma.student.createMany({
+    data: Array.from({ length: count }, (_, index) => ({
+      centerId,
+      schoolYear: "2026-2027",
+      lastName: "Test",
+      firstName: `${prefix}${String(index)}`,
+      gender: "M" as const,
+      birthdate: new Date("2023-01-15T00:00:00.000Z"),
+      weightKg: "14.50",
+      heightCm: "96.5",
+      parentGuardianName: "Rosa Test",
+      enrolledOn: new Date("2026-06-08T00:00:00.000Z"),
+      status: options.status ?? "ACTIVE",
+    })),
+  });
+}

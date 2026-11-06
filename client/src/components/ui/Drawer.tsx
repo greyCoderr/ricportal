@@ -1,6 +1,7 @@
 import { useId } from "react";
 import { IconButton } from "./Button";
 import type { OverlayProps } from "./Modal";
+import { cx } from "./styles";
 import { useNativeDialog } from "./useNativeDialog";
 
 // A bottom sheet under 768 px and a right side panel from md up (S-P5-04).
@@ -10,14 +11,18 @@ export function Drawer({
   title,
   children,
   footer,
-}: OverlayProps) {
+  wide = false,
+}: OverlayProps & { wide?: boolean }) {
   const ref = useNativeDialog(open, onClose);
   const titleId = useId();
   return (
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className="m-0 mt-auto max-h-[85vh] w-full max-w-none rounded-t-card bg-surface text-text shadow-panel backdrop:bg-overlay md:mt-0 md:ml-auto md:h-full md:max-h-full md:w-[32rem] md:rounded-none"
+      className={cx(
+        "m-0 mt-auto max-h-[85vh] w-full max-w-none rounded-t-card bg-surface text-text shadow-panel backdrop:bg-overlay md:mt-0 md:ml-auto md:h-full md:max-h-full md:rounded-none",
+        wide ? "md:w-[56rem]" : "md:w-[32rem]",
+      )}
     >
       {open && (
         <div className="flex h-full max-h-[85vh] flex-col md:max-h-full">

@@ -24,6 +24,7 @@ export function createParentsRouter(
   const router = Router();
   const guard = [authenticate, requireRole("TEACHER")];
   router.get("/", guard, controller.listParents);
+  router.get("/approved", guard, controller.listApprovedParents);
   router.post("/:id/approve", guard, controller.moveParent("approve"));
   router.post("/:id/decline", guard, controller.moveParent("decline"));
   router.post("/:id/disable", guard, controller.moveParent("disable"));
