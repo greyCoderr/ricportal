@@ -18,3 +18,6 @@ Deferred ideas: item, who asked, reason, and the phase it might belong to.
 | Speed up client tests by sharing the jsdom environment (Vitest `pool: "vmThreads"` or `isolate: false`; Vitest reports jsdom setup as about half the run time). Risk: state leaking between test files (DOM, timers, module state) | Developer (P0-T12a) | DEC-029 | P0-T14 (CI) or later |
 | Import the shared status enums into StatusBadge instead of its local list: account status (Declined) in Phase 1, report status (Submitted, Need Revision, Approved) in Phase 3 | Developer (P0-T12a) | DEC-028 | P1 and P3 |
 | npm audit: 2 moderate advisories on `uuid` below 11.1.1, through exceljs 4.4.0 (the latest exceljs). Reached only by the Admin's Excel import; no fix without a major change | Sprint S3 | Re-check before release | P8 |
+| Everything in docs/SPRINT_SHORTCUTS.md: restore after the demo as the client decides, including the Login photo and emblem | Developer (sprint) | Cut for the demo on 2026-11-10 | Hardening |
+| CI workflow (P0-T14), /__ui gallery (T12c) and its production-exclusion check, and the phase gates for phases 0 to 6 | Sprint plan | Out of the sprint scope | After the demo |
+| React Hook Form was not used (DEC-030); decide whether to adopt it or update CLAUDE.md | Developer (sprint) | Not on the approved package list | After the demo |

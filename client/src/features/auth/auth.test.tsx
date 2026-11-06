@@ -91,7 +91,13 @@ describe("route guards", () => {
   it("no session redirects to login with the return path", async () => {
     mockApi({ "/api/auth/me": UNAUTHENTICATED });
     const router = renderApp("/students?page=2");
-    await screen.findByRole("heading", { name: "Welcome Back" });
+    // The first render of the file: its cold start missed the default 1 s wait
+    // once under full-suite load (sprint log).
+    await screen.findByRole(
+      "heading",
+      { name: "Welcome Back" },
+      { timeout: 5000 },
+    );
     expect(router.state.location.pathname).toBe("/login");
     expect(router.state.location.search).toBe(
       `?from=${encodeURIComponent("/students?page=2")}`,

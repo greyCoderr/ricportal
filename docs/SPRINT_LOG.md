@@ -151,3 +151,35 @@ Summary (S5):
 - Tests were seen failing first (both new test files could not load). The Stamp test was written with its component. Checks: 10 PDF tests; database liquidation, purchase and permissions 332 tests; tsc -b clean; eslint on changed files clean. Sample PDFs read by eye. No full check this stage (DEC-035).
 - Not checked: the screens in a real browser; PDFs against the official form photos.
 - Verify by hand: as a Teacher lock the days of a month, open Calendar, Liquidation Forms, Submit Report; as the Admin open Reports, send it back with feedback; the days unlock; fix, lock, resubmit; approve.
+
+S5 committed: 76a2279.
+
+## S6 Demo readiness and QA (budget 3 h)
+
+Plan:
+1. Tests first: the demo path end to end (demo-flow.test.ts), the demo seed twice, the database guard.
+2. prisma/seed-base.ts shared by seed.ts and the demo seed.
+3. prisma/demo-guard.ts: refuses production, a host that is not local, and any database other than ricportal.
+4. prisma/demo-seed.ts: teacher.sibujo, parent1 to parent3, 18 fake children, the menu through the real service, assignments, partly filled Purchase Requests, one locked day. Idempotent.
+5. npm run db:seed:demo. Run it on the dev database and check the result.
+6. docs/DEMO_SCRIPT.md: start, accounts, a 10 minute click path, what is not built, manual browser checks.
+7. Update PHASE_LOG and BACKLOG for the cuts.
+8. Full check, split into foreground steps so no step passes the 10 minute tool limit (typecheck, lint, format, test, build).
+9. Commit. Final summary here.
+10. Stop. Objective 3 is not touched.
+Flaky test (S6): `auth.test.tsx` "no session redirects to login" missed the default 1 s wait for its first render once under full-suite load, and passed alone twice. Wait raised to 5 s for that one query only.
+
+Summary (S6):
+- Done: `npm run db:seed:demo` (guarded: not production, local host, database ricportal; idempotent, run on the dev database and re-run); server/test/db/demo-flow.test.ts walks the whole demo path through the real app and the test database; docs/DEMO_SCRIPT.md; PHASE_LOG and BACKLOG updated.
+- Smoke test on the built app, one port: the page, login for admin, teacher.sibujo and parent1, students, summary, the assignment week and the Enrollment Form PDF all answered as expected, with no error logged.
+- Final check, each step in the foreground so none passes the 10 minute tool limit: typecheck ok; lint ok with the 3072 MB heap; format ok; tests 61 files, 976 tests, exit 0; build ok. One test query was edited after lint and typecheck, and both were re-run for it.
+
+## Sprint result
+
+All stages S0 to S6 are done and committed on demo-sprint. Not pushed.
+
+Not verified, for the Developer before the demo (list in docs/DEMO_SCRIPT.md):
+- No screen has been opened in a real browser. Playwright did not connect in this environment. FullCalendar and the wide Drawer are the riskiest.
+- The PDFs were read by eye as samples, not compared with the official form photos.
+- The two-browser conflict check is covered by API tests only.
+- The migrations have not been run on TiDB (out of scope).

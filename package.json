@@ -25,6 +25,7 @@
     "clean": "tsc -b --clean",
     "db:migrate": "npm run db:migrate -w @ricportal/server --",
     "db:seed": "npm run db:seed -w @ricportal/server",
+    "db:seed:demo": "npm run db:seed:demo -w @ricportal/server",
     "check": "npm run typecheck && npm run lint && npm run format:check && npm run test && npm run build"
   },
   "devDependencies": {

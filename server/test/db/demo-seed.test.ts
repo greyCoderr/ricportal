@@ -1,0 +1,140 @@
+import request from "supertest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { seedDemo } from "../../prisma/demo-seed.js";
+import { seedBase } from "../../prisma/seed-base.js";
+import type { PrismaClient } from "../../src/generated/prisma/client.js";
+import { buildApp, loginAs } from "./api-harness.js";
+import { createTestPrisma, resetDatabase } from "./test-database.js";
+
+const NOW = new Date("2026-11-10T02:00:00Z");
+const OPTIONS = { now: NOW, bcryptCost: 4 };
+
+let prisma: PrismaClient;
+let app: ReturnType<typeof buildApp>;
+
+async function counts() {
+  return {
+    teachers: await prisma.user.count({ where: { role: "TEACHER" } }),
+    parents: await prisma.user.count({ where: { role: "PARENT" } }),
+    students: await prisma.student.count(),
+    menuDays: await prisma.menuDay.count(),
+    assignments: await prisma.feedingAssignment.count(),
+    purchaseRequests: await prisma.purchaseRequest.count(),
+    items: await prisma.purchaseItem.count(),
+    locked: await prisma.purchaseRequest.count({ where: { status: "LOCKED" } }),
+  };
+}
+
+beforeAll(async () => {
+  prisma = createTestPrisma();
+  await resetDatabase(prisma);
+  await seedBase(prisma, {
+    ADMIN_USERNAME: "admin",
+    ADMIN_PASSWORD: "Admin2026!",
+    BCRYPT_COST: 4,
+  });
+  app = buildApp(prisma, { now: () => NOW });
+});
+afterAll(async () => {
+  await prisma.$disconnect();
+});
+
+describe("seedDemo", () => {
+  it("creates the demo state: accounts, 18 children, the menu, a locked day", async () => {
+    await seedDemo(prisma, OPTIONS);
+    const state = await counts();
+    expect(state.teachers).toBe(1);
+    expect(state.parents).toBe(3);
+    expect(state.students).toBe(18);
+    expect(state.menuDays).toBe(84);
+    expect(state.assignments).toBeGreaterThan(0);
+    expect(state.purchaseRequests).toBeGreaterThanOrEqual(3);
+    expect(state.locked).toBe(1);
+
+    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+    expect((await teacher.get("/api/students")).status).toBe(200);
+    const parent = await loginAs(app, "parent1", "Demo2026!");
+    const schedule = await parent.get(
+      "/api/parent-schedule?from=2026-11-09&to=2026-11-15",
+    );
+    expect((schedule.body as { data: unknown[] }).data.length).toBeGreaterThan(
+      0,
+    );
+  });
+
+  it("the partly filled day has rows with and without costs", async () => {
+    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+    const day = await teacher.get("/api/purchase-requests/2026-11-10");
+    const items = (
+      day.body as {
+        data: { status: string; items: { unitCost: string | null }[] };
+      }
+    ).data;
+    expect(items.status).toBe("OPEN");
+    expect(items.items.some((item) => item.unitCost !== null)).toBe(true);
+    expect(items.items.some((item) => item.unitCost === null)).toBe(true);
+  });
+
+  it("re-running restores the state and unlocks the demo accounts", async () => {
+    const before = await counts();
+
+    // Things a rehearsal leaves behind.
+    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+    await teacher.post("/api/students").send({
+      lastName: "Rehearsal",
+      firstName: "Child",
+      gender: "M",
+      birthdate: "2023-01-15",
+      weightKg: "14.00",
+      heightCm: "95.0",
+      parentGuardianName: "Someone Else",
+    });
+    const sibujo = await prisma.center.findUniqueOrThrow({
+      where: { name: "Sibujo" },
+    });
+    await request(app).post("/api/auth/parent-signup").send({
+      fullName: "Rehearsal Parent",
+      username: "rehearsal.parent",
+      mobile: "09171234567",
+      centerId: sibujo.id,
+      password: "Parent2026pw",
+      confirmPassword: "Parent2026pw",
+    });
+    for (let i = 0; i < 6; i += 1) {
+      await request(app)
+        .post("/api/auth/login")
+        .send({ username: "parent2", password: "Wrong2026pw" });
+    }
+    await request(app)
+      .post("/api/auth/login")
+      .send({ username: "admin", password: "Wrong2026pw" });
+    await teacher.post("/api/purchase-requests/2026-11-09/unlock");
+
+    await seedDemo(prisma, OPTIONS);
+
+    expect(await counts()).toEqual(before);
+    await loginAs(app, "parent2", "Demo2026!");
+    const admin = await prisma.user.findUniqueOrThrow({
+      where: { username: "admin" },
+    });
+    expect(admin.failedLoginCount).toBe(0);
+    expect(admin.lockedUntil).toBe(null);
+    expect(
+      await prisma.user.findUnique({ where: { username: "rehearsal.parent" } }),
+    ).toBe(null);
+  });
+
+  it("a submitted report from a rehearsal is cleared too", async () => {
+    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+    const range = { from: "2026-11-09", to: "2026-11-09" };
+    expect(
+      (await teacher.post("/api/liquidation/submit").send(range)).status,
+    ).toBe(201);
+    expect(await prisma.report.count()).toBe(1);
+
+    await seedDemo(prisma, OPTIONS);
+
+    expect(await prisma.report.count()).toBe(0);
+    expect(await prisma.liquidationSnapshot.count()).toBe(0);
+  });
+});

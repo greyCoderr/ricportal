@@ -8,6 +8,7 @@
     "prisma:generate": "node ../node_modules/prisma/build/index.js generate --config prisma/prisma.config.ts",
     "db:migrate": "node --env-file=../.env ../node_modules/prisma/build/index.js migrate dev --config prisma/prisma.config.ts",
     "db:seed": "node --env-file=../.env --import tsx prisma/seed.ts",
+    "db:seed:demo": "node --env-file=../.env --import tsx prisma/seed-demo.ts",
     "db:check": "node --env-file=../.env --import tsx prisma/db-check.ts",
     "tidb:deploy": "node --env-file=../.env.tidb ../node_modules/prisma/build/index.js migrate deploy --config prisma/prisma.config.ts",
     "tidb:seed": "node --env-file=../.env.tidb --import tsx prisma/seed.ts",
