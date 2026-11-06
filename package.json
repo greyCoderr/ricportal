@@ -15,7 +15,7 @@
     "dev": "npm run codegen && concurrently -n shared,server,client \"tsc -b shared -w --preserveWatchOutput\" \"npm run dev -w @ricportal/server\" \"npm run dev -w @ricportal/client\"",
     "dev:server": "npm run codegen && concurrently -n shared,server \"tsc -b shared -w --preserveWatchOutput\" \"npm run dev -w @ricportal/server\"",
     "typecheck": "npm run codegen && tsc -b",
-    "lint": "npm run codegen && node --max-old-space-size=4096 node_modules/eslint/bin/eslint.js .",
+    "lint": "npm run codegen && node --max-old-space-size=3072 node_modules/eslint/bin/eslint.js .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run codegen && vitest run",

@@ -48,3 +48,12 @@ S1 status (in progress, not committed):
 - Written, NOT yet run: S1 client (use-zod-form, guards, Login, Sign-up, Request sent, Change password, Centers, Teachers, Parent Requests, Home, router) and its tests. `tsc -b` result for them is unknown.
 - Stopped: the run of `tsc -b` plus the client tests was stopped by the system because memory was critically low. Not a code failure.
 - Next on resume: run `npx tsc -b`, then `npx vitest run --project client client/src/lib/use-zod-form client/src/features/auth`, then `npm run check`, then commit "feat(sprint): S1 auth, centers, accounts". Then S2.
+
+Resume note (2026-11-06): the system stopped a run for low memory. Developer set memory rules (DEC-035): 2 test workers, one foreground command at a time, targeted checks, full check only at the end of S2, S4 and S6. CUT lists of S2 to S5 apply from the start (docs/SPRINT_SHORTCUTS.md). Demo path step 10 is now an API-only check.
+
+Summary (S1):
+- Done: login, logout, me, change password, sign-up, public centers, centers, teachers, parents; lockout with identical 429s; permission matrix over every route; Login, Sign-up, Request sent, forced change password, Centers, Teachers, Parent Requests, Home, route guards, 401 redirect with return path.
+- Commits: 0ed8f36 (API); the client commit follows this entry.
+- Checks at the client commit: tsc -b clean; client tests for form, auth and layouts 3 files, 23 tests; eslint on changed files clean. No full npm run check since S0 (next at the end of S2, DEC-035).
+- Not checked: the screens have not been opened in a real browser yet.
+- How to verify: `npm run db:seed`, `npm run dev`, then log in as admin / Admin2026!, add a RIC Teacher for Sibujo, log in with the temporary password, change it, sign up as a Parent, approve, log in as the Parent.

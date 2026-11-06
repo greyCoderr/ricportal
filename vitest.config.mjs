@@ -10,6 +10,8 @@ const DB_TESTS = "server/test/db/**/*.test.ts";
 
 export default defineConfig({
   test: {
+    // At most 2 test workers (DEC-035); inline projects inherit this.
+    maxWorkers: 2,
     projects: [
       {
         test: {

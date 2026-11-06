@@ -10,7 +10,6 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: "/", label: "Home", icon: "house" },
     { to: "/centers", label: "Centers", icon: "map-pin" },
     { to: "/teachers", label: "RIC Teachers", icon: "users" },
-    { to: "/admin/students", label: "Enrolled Students", icon: "users" },
     { to: "/menu-imports", label: "Menu Imports", icon: "upload" },
     { to: "/calendar", label: "Calendar", icon: "calendar-days" },
     { to: "/reports", label: "Reports", icon: "file-text" },

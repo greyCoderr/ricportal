@@ -9,3 +9,4 @@ private
 *.log
 .DS_Store
 server/src/generated/
+.eslintcache

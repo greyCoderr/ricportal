@@ -1,0 +1,176 @@
+import { useState, type ReactNode } from "react";
+import type { z } from "zod";
+import {
+  FormField,
+  IconButton,
+  Input,
+  Select,
+  Textarea,
+} from "../../components/ui";
+
+// Field helpers that connect a useZodForm form to the UI kit, so a screen only
+// names the field and its label. `form` is typed loosely on purpose: a field
+// only reads and writes strings by name.
+export type AnyForm = {
+  values: Record<string, unknown>;
+  errors: Record<string, string>;
+  setValue: (name: never, value: never) => void;
+  validateField: (name: never) => void;
+};
+
+type FieldProps = {
+  form: AnyForm;
+  name: string;
+  label: string;
+  hint?: string;
+  required?: boolean;
+};
+
+function bind(form: AnyForm, name: string) {
+  const setValue = form.setValue as (name: string, value: string) => void;
+  const validateField = form.validateField as (name: string) => void;
+  const value = form.values[name];
+  return {
+    name,
+    value: typeof value === "string" ? value : "",
+    onChange: (event: { target: { value: string } }) => {
+      setValue(name, event.target.value);
+    },
+    onBlur: () => {
+      validateField(name);
+    },
+  };
+}
+
+export function TextField({
+  form,
+  name,
+  label,
+  hint,
+  required,
+  type = "text",
+  placeholder,
+  autoComplete,
+  inputMode,
+}: FieldProps & {
+  type?: string;
+  placeholder?: string;
+  autoComplete?: string;
+  inputMode?: "text" | "numeric" | "decimal" | "tel";
+}) {
+  return (
+    <FormField
+      label={label}
+      hint={hint}
+      error={form.errors[name]}
+      required={required}
+    >
+      {(field) => (
+        <Input
+          {...field}
+          {...bind(form, name)}
+          type={type}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          inputMode={inputMode}
+        />
+      )}
+    </FormField>
+  );
+}
+
+export function PasswordField({
+  form,
+  name,
+  label,
+  hint,
+  required,
+  autoComplete = "current-password",
+}: FieldProps & { autoComplete?: string }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <FormField
+      label={label}
+      hint={hint}
+      error={form.errors[name]}
+      required={required}
+    >
+      {(field) => (
+        <div className="relative">
+          <Input
+            {...field}
+            {...bind(form, name)}
+            type={shown ? "text" : "password"}
+            autoComplete={autoComplete}
+            className="pr-12"
+          />
+          <div className="absolute top-0 right-0">
+            <IconButton
+              icon="eye"
+              label={shown ? `Hide ${label}` : `Show ${label}`}
+              onClick={() => {
+                setShown((value) => !value);
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </FormField>
+  );
+}
+
+export function SelectField({
+  form,
+  name,
+  label,
+  hint,
+  required,
+  placeholder,
+  disabled,
+  children,
+}: FieldProps & {
+  placeholder?: string;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <FormField
+      label={label}
+      hint={hint}
+      error={form.errors[name]}
+      required={required}
+    >
+      {(field) => (
+        <Select
+          {...field}
+          {...bind(form, name)}
+          placeholder={placeholder}
+          disabled={disabled}
+        >
+          {children}
+        </Select>
+      )}
+    </FormField>
+  );
+}
+
+export function TextareaField({
+  form,
+  name,
+  label,
+  hint,
+  required,
+}: FieldProps) {
+  return (
+    <FormField
+      label={label}
+      hint={hint}
+      error={form.errors[name]}
+      required={required}
+    >
+      {(field) => <Textarea {...field} {...bind(form, name)} />}
+    </FormField>
+  );
+}
+
+export type SchemaOutput<S extends z.ZodType> = z.output<S>;

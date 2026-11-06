@@ -367,3 +367,25 @@ Decision: S3 copies it to the plan's name and commits that copy. The original st
 
 Context: the Figma desktop sidebar (166:910) uses raster PNG icons; the mobile frames use Lucide (BACKLOG asks the client which style wins).
 Decision: the sidebar uses the Lucide inline icons (single style, no image assets, tokens only). Labels, size, colors and the selected look come from 166:910. Labels not in the Figma Teacher sidebar (Assignments, Parent Requests) follow the phase files. Selected text is black (DEC-023).
+
+## DEC-034: Changes to the Figma Login frame (241:1732)
+
+Context: rule 0 says the client's Figma wins, but this frame shows things the agreed rules do not allow. Decided by the Developer on 2026-11-06. Layout, title, headings and the red button follow the frame.
+Decision, with the reason for each:
+- Username instead of Email Address (241:1108, 241:1106): accounts have usernames and the system sends no email (A-07, A-13). The Parent sign-up fields have no email.
+- No "Forgot password?" link (241:1111): there is no email; the approver resets passwords and shows a temporary password once (BR-05, A-13). A dead link would mislead.
+- No terms checkbox (241:1117, 241:1118): no terms text exists and Annex A does not ask for one. A box with no terms behind it means nothing.
+- No stock photo (241:1101, 241:1102): DESIGN_LANGUAGE rule 7 bars stock illustrations and its license is unknown. The right panel is a plain `nav` panel, hidden on phones.
+- No emblem (241:1100): rule 10 allows the RIC emblem only with client approval, which is not given yet.
+Consequences: each removed element is listed in docs/SPRINT_SHORTCUTS.md, so the photo and emblem can return in hardening if the client wants them.
+
+## DEC-035: Memory limits after the laptop ran out of memory
+
+Context: on 2026-11-06 the system stopped a typecheck and test run because memory was critically low. Decided by the Developer.
+Decision:
+- `test.maxWorkers: 2` in `vitest.config.mjs`, at the root, so every inline project inherits it (Vitest 5 docs, read through Context7: option `maxWorkers`; inline projects inherit the root config by default).
+- ESLint heap 3072 MB instead of 4096, to be verified by the next full `npm run check`.
+- One command at a time, in the foreground. No `npm run dev` during tests or lint.
+- While working: `tsc -b`, then vitest on the changed files or project, then `npx eslint --cache` on the changed files only. The full `npm run check` runs only at the end of S2, S4 and S6 (this replaces "at the end of each stage" in the sprint plan).
+- A run killed for memory is reported and work stops; at most one automatic retry.
+- The CUT lists of S2 to S5 apply from the start (docs/SPRINT_SHORTCUTS.md).

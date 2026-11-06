@@ -236,7 +236,8 @@ this week, opens a Purchase Request, lists ingredients. 7 Parent opens an assign
 unit, quantity and unit cost; totals and subtotal update; the Parent response has no budget.
 8 Teacher locks the day; the Parent can no longer edit. 9 Teacher downloads the Purchase Request and
 Summary PDFs, submits the month; Admin sees the submission, sends it back, the days unlock, the
-Teacher resubmits, the Admin approves. 10 Admin opens the students by center (read only).
+Teacher resubmits, the Admin approves. 10 API-only check (the screen is cut, docs/SPRINT_SHORTCUTS.md):
+the Admin reads GET /api/students?centerId= and a Child's Record, and every write by the Admin is refused.
 
 ## 8. Logging and resume
 Keep docs/SPRINT_LOG.md up to date after every stage. If the session restarts or you hit a usage
