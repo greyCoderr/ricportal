@@ -50,6 +50,7 @@ function main(): void {
     logger,
     config: env,
     health: { repository: createHealthRepository(prisma) },
+    prisma,
     clientDist: existsSync(CLIENT_DIST) ? CLIENT_DIST : undefined,
   });
 

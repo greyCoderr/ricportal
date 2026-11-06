@@ -31,3 +31,13 @@ erDiagram
     datetime updated_at
   }
 ```
+
+## Sprint S1: centers, users, parent_profiles
+
+Migration `20261106120950_auth_centers_users`.
+
+| Table | Columns | Notes |
+| --- | --- | --- |
+| centers | id, name (unique), barangay, address, is_active, created_at, updated_at | 28 seeded from docs/seed-centers.md |
+| users | id, role (ADMIN, TEACHER, PARENT), username (unique, stored lowercase), password_hash, full_name, mobile, center_id, status (ACTIVE, PENDING, DECLINED, DISABLED), must_change_password, failed_login_count, locked_until, token_version, last_login_at, created_at, updated_at | Index (center_id, role, status). center_id is null for the Admin |
+| parent_profiles | user_id (PK), child_name, created_at, updated_at | Deleted with the user |

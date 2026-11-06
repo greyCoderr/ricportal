@@ -4,6 +4,7 @@ import {
   AppError,
   InternalError,
   PayloadTooLargeError,
+  RateLimitedError,
   ValidationError,
 } from "../errors.js";
 
@@ -57,6 +58,12 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
       );
     }
 
+    if (
+      appError instanceof RateLimitedError &&
+      appError.retryAfterSeconds !== undefined
+    ) {
+      res.set("Retry-After", String(appError.retryAfterSeconds));
+    }
     res.status(appError.status).json(appError.toBody());
   };
 }

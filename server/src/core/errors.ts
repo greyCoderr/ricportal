@@ -105,11 +105,16 @@ export class RuleViolationError extends AppError {
 }
 
 export class RateLimitedError extends AppError {
+  // Whole seconds for the Retry-After header, when the caller knows them.
+  readonly retryAfterSeconds: number | undefined;
+
   constructor(
     message = "Too many requests. Please wait and try again.",
     details: ErrorDetail[] = [],
+    retryAfterSeconds?: number,
   ) {
     super("RATE_LIMITED", message, details);
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 

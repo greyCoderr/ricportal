@@ -64,3 +64,24 @@ Other errors: 429 RATE_LIMITED. Any other method, such as POST, returns 404 NOT_
 **Security headers:** every response has the helmet defaults (for example `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options`) and no `X-Powered-By`. Responses over 1 KB are gzip-compressed when the client sends `Accept-Encoding: gzip`.
 
 **Limits (from config):** JSON body up to `BODY_LIMIT` (default 100kb). Global rate limit of `RATE_LIMIT_MAX` requests per `RATE_LIMIT_WINDOW_MS` per client address (default 300 per 15 minutes), when `RATE_LIMIT_ENABLED` is true. Responses carry the `RateLimit` and `RateLimit-Policy` headers (IETF draft 8). The client address comes from `X-Forwarded-For` only when `TRUST_PROXY` is above 0.
+
+## Auth, centers and accounts (sprint S1)
+
+Session: httpOnly cookie `rp_session` (HS256, 8 hours, SameSite=Lax, Secure from `COOKIE_SECURE`). `token_version` ends old sessions after a password change or reset. A user with `mustChangePassword` gets 403 on every route that has a role guard until the password is changed.
+
+| Method and path | Role | Purpose and failures |
+| --- | --- | --- |
+| POST /api/auth/login | Public | 200 with the user. 401 "Invalid username or password" (wrong password and unknown user alike). 403 with the status message for PENDING, DECLINED or DISABLED, after correct credentials only. 429 "Too many attempts. Try again in 15 minutes." with `Retry-After` in seconds: every attempt while locked, right or wrong password, and the same for unknown usernames (BR-19, DEC-026) |
+| POST /api/auth/parent-signup | Public | 201 `{ centerName }`, creates a PENDING Parent. 409 duplicate username, 422 inactive center |
+| GET /api/public/centers | Public | Active centers: id and name only |
+| POST /api/auth/logout | Any | Clears the cookie |
+| GET /api/auth/me | Any | Current user and center |
+| POST /api/auth/change-password | Any | Current and new password; increments `token_version` and sets a fresh cookie |
+| GET, POST /api/centers; PATCH /api/centers/:id | Admin | List (`q`, pagination), create, edit, `isActive`. 409 duplicate name, 422 deactivating a center with an active Teacher |
+| GET, POST /api/teachers; PATCH /api/teachers/:id | Admin | List, create (temporary password returned once), edit, enable or disable. 409 second active Teacher in a center (BR-04), 422 inactive center |
+| POST /api/teachers/:id/reset-password | Admin | Temporary password returned once; ends old sessions |
+| GET /api/parents?status= | Teacher | Parents of the own center |
+| POST /api/parents/:id/approve, /decline, /disable, /enable | Teacher | Status machine (blueprint 4.9). A repeat returns the current state; an invalid move is 409; a Parent of another center is 404 |
+| POST /api/parents/:id/reset-password | Teacher | Temporary password returned once |
+
+No response contains a password hash, `token_version`, the failed-login count or the lock time.

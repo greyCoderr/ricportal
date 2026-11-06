@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { EnvError, parseEnv } from "./env.js";
 
 const DB = "mysql://user@127.0.0.1:3306/ricportal_fake";
+const PROD_SECRET = "fake-production-secret-for-this-test-only";
 
 function errorFrom(source: Record<string, string | undefined>): EnvError {
   try {
@@ -24,6 +25,11 @@ describe("parseEnv", () => {
       LOG_LEVEL: "warn",
       TZ: "Asia/Manila",
       DATABASE_URL: DB,
+      JWT_SECRET: PROD_SECRET,
+      COOKIE_SECURE: "true",
+      SESSION_HOURS: "8",
+      ADMIN_USERNAME: "mao.admin",
+      ADMIN_PASSWORD: "NotADefault2026",
     });
 
     expect(env).toEqual({
@@ -37,7 +43,44 @@ describe("parseEnv", () => {
       RATE_LIMIT_WINDOW_MS: 900_000,
       RATE_LIMIT_MAX: 300,
       TRUST_PROXY: 0,
+      JWT_SECRET: PROD_SECRET,
+      COOKIE_SECURE: true,
+      SESSION_HOURS: 8,
+      ADMIN_USERNAME: "mao.admin",
+      ADMIN_PASSWORD: "NotADefault2026",
+      BCRYPT_COST: 12,
     });
+  });
+
+  it("gives development safe defaults for the auth settings", () => {
+    const env = parseEnv({ DATABASE_URL: DB });
+    expect(env.JWT_SECRET.length).toBeGreaterThanOrEqual(32);
+    expect(env.COOKIE_SECURE).toBe(false);
+    expect(env.SESSION_HOURS).toBe(8);
+    expect(env.ADMIN_USERNAME).toBe("admin");
+    expect(env.ADMIN_PASSWORD).toBe("Admin2026!");
+    expect(env.BCRYPT_COST).toBe(12);
+  });
+
+  it("uses the low bcrypt cost in tests only", () => {
+    expect(parseEnv({ DATABASE_URL: DB, NODE_ENV: "test" }).BCRYPT_COST).toBe(4);
+  });
+
+  it("production must set the auth settings explicitly", () => {
+    const error = errorFrom({ DATABASE_URL: DB, NODE_ENV: "production" });
+    expect(error.problems).toEqual([
+      "JWT_SECRET is missing",
+      "COOKIE_SECURE is missing",
+      "SESSION_HOURS is missing",
+      "ADMIN_USERNAME is missing",
+      "ADMIN_PASSWORD is missing",
+    ]);
+  });
+
+  it("a short JWT_SECRET is refused without printing it", () => {
+    const error = errorFrom({ DATABASE_URL: DB, JWT_SECRET: "short-secret" });
+    expect(error.problems).toEqual(["JWT_SECRET must be at least 32 characters"]);
+    expect(error.message).not.toContain("short-secret");
   });
 
   it("applies defaults when only DATABASE_URL is given", () => {

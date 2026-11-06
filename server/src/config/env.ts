@@ -49,10 +49,45 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: wholeNumber(1000, 86_400_000).default(900_000),
   RATE_LIMIT_MAX: wholeNumber(1, 100_000).default(300),
   TRUST_PROXY: wholeNumber(0, 10).default(0),
+  // Development and test get safe defaults; production must set these.
+  JWT_SECRET: z.string().min(32).optional(),
+  COOKIE_SECURE: z
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional(),
+  SESSION_HOURS: wholeNumber(1, 168).optional(),
+  ADMIN_USERNAME: z.string().min(4).max(30).optional(),
+  ADMIN_PASSWORD: z.string().min(8).max(72).optional(),
+  BCRYPT_COST: wholeNumber(4, 15).optional(),
 });
 
-export type Env = z.output<typeof envSchema>;
-type EnvKey = keyof Env;
+type ParsedEnv = z.output<typeof envSchema>;
+type EnvKey = keyof ParsedEnv;
+
+// Fake values for this machine only. Never used in production.
+const DEV_JWT_SECRET = "development-only-jwt-secret-not-for-production";
+const DEV_ADMIN_USERNAME = "admin";
+const DEV_ADMIN_PASSWORD = "Admin2026!";
+
+const REQUIRED_IN_PRODUCTION = [
+  "JWT_SECRET",
+  "COOKIE_SECURE",
+  "SESSION_HOURS",
+  "ADMIN_USERNAME",
+  "ADMIN_PASSWORD",
+] as const;
+
+export type Env = Omit<
+  ParsedEnv,
+  (typeof REQUIRED_IN_PRODUCTION)[number] | "BCRYPT_COST"
+> & {
+  JWT_SECRET: string;
+  COOKIE_SECURE: boolean;
+  SESSION_HOURS: number;
+  ADMIN_USERNAME: string;
+  ADMIN_PASSWORD: string;
+  BCRYPT_COST: number;
+};
 
 const ENV_KEYS = Object.keys(envSchema.shape) as EnvKey[];
 
@@ -68,6 +103,12 @@ const RULES: Record<EnvKey, string> = {
   RATE_LIMIT_WINDOW_MS: "must be a whole number from 1000 to 86400000",
   RATE_LIMIT_MAX: "must be a whole number from 1 to 100000",
   TRUST_PROXY: "must be a whole number from 0 to 10",
+  JWT_SECRET: "must be at least 32 characters",
+  COOKIE_SECURE: "must be true or false",
+  SESSION_HOURS: "must be a whole number from 1 to 168",
+  ADMIN_USERNAME: "must be 4 to 30 characters",
+  ADMIN_PASSWORD: "must be 8 to 72 characters",
+  BCRYPT_COST: "must be a whole number from 4 to 15",
 };
 
 export class EnvError extends Error {
@@ -85,6 +126,26 @@ export class EnvError extends Error {
   }
 }
 
+function withDefaults(parsed: ParsedEnv): Env {
+  if (parsed.NODE_ENV === "production") {
+    const missing = REQUIRED_IN_PRODUCTION.filter(
+      (key) => parsed[key] === undefined,
+    );
+    if (missing.length > 0) {
+      throw new EnvError(missing.map((key) => `${key} is missing`));
+    }
+  }
+  return {
+    ...parsed,
+    JWT_SECRET: parsed.JWT_SECRET ?? DEV_JWT_SECRET,
+    COOKIE_SECURE: parsed.COOKIE_SECURE ?? false,
+    SESSION_HOURS: parsed.SESSION_HOURS ?? 8,
+    ADMIN_USERNAME: parsed.ADMIN_USERNAME ?? DEV_ADMIN_USERNAME,
+    ADMIN_PASSWORD: parsed.ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD,
+    BCRYPT_COST: parsed.BCRYPT_COST ?? (parsed.NODE_ENV === "test" ? 4 : 12),
+  };
+}
+
 export function parseEnv(
   source: Readonly<Record<string, string | undefined>>,
 ): Env {
@@ -98,7 +159,7 @@ export function parseEnv(
 
   const result = envSchema.safeParse(input);
   if (result.success) {
-    return result.data;
+    return withDefaults(result.data);
   }
 
   const badKeys = new Set(result.error.issues.map((issue) => issue.path[0]));
