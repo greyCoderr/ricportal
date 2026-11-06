@@ -20,3 +20,8 @@ export { Spinner } from "./Spinner";
 export { STATUS_BADGES, StatusBadge, type BadgeStatus } from "./StatusBadge";
 export { Textarea } from "./Textarea";
 export { MESSAGE_TONES, type MessageTone } from "./tones";
+export { ConfirmDialog } from "./ConfirmDialog";
+export { Drawer } from "./Drawer";
+export { Modal, type OverlayProps } from "./Modal";
+export { Pagination } from "./Pagination";
+export { Table, type TableColumn } from "./Table";

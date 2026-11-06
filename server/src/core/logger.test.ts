@@ -45,7 +45,19 @@ describe("createLogger redaction", () => {
       "redaction check",
     );
 
-    const output = capture.lines().join("\n");
+    // The time, pid and hostname are left out: a timestamp can contain "555"
+    // by chance (the test failed that way once). The secrets are still
+    // searched for in everything the log call wrote.
+    const output = capture
+      .lines()
+      .map((text) => {
+        const fields = JSON.parse(text) as Record<string, unknown>;
+        delete fields.time;
+        delete fields.pid;
+        delete fields.hostname;
+        return JSON.stringify(fields);
+      })
+      .join("\n");
     for (const secret of ["111", "222", "333", "444", "555", "666", "777"]) {
       expect(output).not.toContain(secret);
     }

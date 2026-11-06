@@ -21,7 +21,10 @@ Working copy: `EetVyXPcJxatZKCElGlqr6` (docs/figma-link.txt). Token values are i
 | 2026-11-05 | T12a step B | `get_design_context` | 361:2415 | Mobile `Status` pill |
 | 2026-11-05 | T12a step B | `get_design_context` | 361:2576 | `refresh-cw` icon (SVG checked as text from Figma's asset link, not an MCP call) |
 
-Calls used so far: 13 (2 in step A, 11 in step B). No screenshots were needed.
+| 2026-11-06 | Sprint S0 | `get_design_context` | 166:910 | Teacher sidebar: 290 wide, black; items 262 x 53, Light 16, tracking 0.1em, white; selected #FF8282, radius 10, left strip #D32F2F; labels Home, Enrolled Students, Calendar, Child’s Record, Submit Report, Report Status, Admin Feedback, Profile |
+| 2026-11-06 | Sprint S0 | `get_metadata` | no node, 267:9688 | Page list (0:1 RIC teacher, 393:1101 parent, 267:9688 admin); Admin page structure. Not counted in the sprint limit of 25 reads |
+
+Calls before the sprint: 13. Sprint reads (limit 25): 1.
 
 ## Values read in step B
 

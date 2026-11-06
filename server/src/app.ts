@@ -15,6 +15,9 @@ export type AppDeps = {
   config: AppConfig;
   // Injected so tests can stub the database (server.ts passes the real one).
   health: { repository: HealthRepository; timeoutMs?: number | undefined };
+  // The built client (client/dist). When set, Express serves it on the same
+  // port with a fallback to index.html for non-API paths.
+  clientDist?: string | undefined;
 };
 
 export function createApp(deps: AppDeps): Express {
@@ -32,6 +35,18 @@ export function createApp(deps: AppDeps): Express {
     "/api/health",
     createHealthRouter(createHealthController(healthService)),
   );
+
+  const clientDist = deps.clientDist;
+  if (clientDist !== undefined) {
+    app.use(express.static(clientDist));
+    app.get("/{*splat}", (req, res, next) => {
+      if (req.path === "/api" || req.path.startsWith("/api/")) {
+        next();
+        return;
+      }
+      res.sendFile("index.html", { root: clientDist });
+    });
+  }
 
   app.use(notFound);
   app.use(createErrorHandler(deps.logger));

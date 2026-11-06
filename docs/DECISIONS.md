@@ -347,3 +347,23 @@ Decision:
 - `testTimeout: 15_000` for the `client` Vitest project only. The `unit` project (shared and server) keeps the 5 second default; the `db` project keeps its own 15 second timeout (DEC-019); the one server startup test keeps its 15 second timeout (DEC-027).
 - No test is weakened. Sharing the jsdom environment across files would be faster but can leak state between tests (BACKLOG).
 Consequences: a slow client test fails only after 15 seconds. If client tests keep getting slower, look at the BACKLOG item before raising the limit again.
+
+## DEC-030: Forms without React Hook Form (demo sprint)
+
+Context: CLAUDE.md lists React Hook Form, but the sprint's approved package list (docs/SPRINT_PLAN.md) does not. The plan wins on process.
+Decision: forms use plain React state and `safeParse` with the shared Zod schemas, through a small `useZodForm` hook. Field messages appear under the inputs. React Hook Form stays a BACKLOG option.
+
+## DEC-031: Local type declaration for multer (demo sprint)
+
+Context: multer ships no types and `@types/multer` is not on the approved list; "nothing else without a blocker report".
+Decision: a small `server/src/types/multer.d.ts` declares only what the import module uses. No extra package.
+
+## DEC-032: Fixture file name
+
+Context: the plan names `server/test/fixtures/SF_MENU_for_30_days.xlsx`; the Developer's file is `SF MENU for 30 days.xlsx` (same folder, untracked).
+Decision: S3 copies it to the plan's name and commits that copy. The original stays untouched and uncommitted. Not treated as a missing-file blocker because the file is present.
+
+## DEC-033: Sidebar icons in the sprint
+
+Context: the Figma desktop sidebar (166:910) uses raster PNG icons; the mobile frames use Lucide (BACKLOG asks the client which style wins).
+Decision: the sidebar uses the Lucide inline icons (single style, no image assets, tokens only). Labels, size, colors and the selected look come from 166:910. Labels not in the Figma Teacher sidebar (Assignments, Parent Requests) follow the phase files. Selected text is black (DEC-023).

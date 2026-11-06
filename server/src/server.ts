@@ -1,9 +1,16 @@
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import type { Logger } from "pino";
 import { createApp } from "./app.js";
 import { EnvError, parseEnv, type Env } from "./config/env.js";
 import { createPrismaClient, DatabaseUrlError } from "./core/db.js";
 import { createLogger } from "./core/logger.js";
 import { createHealthRepository } from "./modules/health/health.repository.js";
+
+// server/src and server/dist are both two levels below the repository root.
+const CLIENT_DIST = fileURLToPath(
+  new URL("../../client/dist", import.meta.url),
+);
 
 function exitAfterFlush(logger: Logger, code: number): void {
   process.exitCode = code;
@@ -43,6 +50,7 @@ function main(): void {
     logger,
     config: env,
     health: { repository: createHealthRepository(prisma) },
+    clientDist: existsSync(CLIENT_DIST) ? CLIENT_DIST : undefined,
   });
 
   const server = app.listen(env.PORT, (error?: Error) => {
