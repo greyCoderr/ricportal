@@ -9,7 +9,8 @@ export const FOCUS_RING =
 // adjusted border-subtle (DEC-023).
 export const CONTROL = [
   "w-full rounded-control border border-border-subtle bg-surface px-3",
-  "text-15 text-text hover:border-border",
+  // 16 px on phones so iOS Safari does not zoom on focus; 15 px from md up.
+  "text-16 md:text-15 text-text hover:border-border",
   "disabled:cursor-not-allowed disabled:opacity-50",
   "aria-invalid:border-danger-text",
   FOCUS_RING,

@@ -100,7 +100,7 @@ describe("Skeleton", () => {
     const block = container.firstElementChild;
     expect(block?.getAttribute("aria-hidden")).toBe("true");
     expect(block?.className).not.toMatch(/animate-/);
-    expect(block?.classList).toContain("bg-header");
+    expect(block?.classList).toContain("bg-skeleton");
   });
 
   it("SkeletonGroup sets aria-busy and has visually hidden Loading... text", () => {

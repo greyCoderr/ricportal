@@ -3,29 +3,39 @@ import { Icon } from "./icons";
 import { CONTROL, cx } from "./styles";
 
 type SelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
-  // An empty first option such as "Select..." (Figma 361:2996). It cannot be
-  // chosen again once a real option is picked.
+  // Text such as "Select..." (Figma 361:2996). It becomes a disabled, hidden
+  // empty first option that is selected until the person picks a real one,
+  // unless `value` or `defaultValue` is given.
   placeholder?: string;
 };
 
 // Native select with the Figma chevron (Lucide chevron-down, 16 px).
 export function Select({
   placeholder,
+  value,
+  defaultValue,
   className,
   disabled,
   children,
   ...rest
 }: SelectProps) {
+  const startEmpty =
+    placeholder !== undefined &&
+    value === undefined &&
+    defaultValue === undefined;
+
   return (
     <div className="relative">
       <select
         {...rest}
+        value={value}
+        defaultValue={startEmpty ? "" : defaultValue}
         disabled={disabled}
         aria-disabled={disabled === true ? true : undefined}
         className={cx(CONTROL, "h-11 appearance-none pr-10", className)}
       >
         {placeholder !== undefined && (
-          <option value="" disabled>
+          <option value="" disabled hidden>
             {placeholder}
           </option>
         )}

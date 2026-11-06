@@ -7,7 +7,7 @@ export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={cx("rounded-cell bg-header", className)}
+      className={cx("rounded-cell bg-skeleton", className)}
     />
   );
 }

@@ -88,8 +88,9 @@ Two styles on this page:
 
 ## Icons in code
 
-- **Icons adapted from Lucide (https://lucide.dev), ISC license.** The license notice is at the top of `client/src/components/ui/icons.tsx`. No icon package is installed; the path data is copied for the icons used: `check`, `chevron-down`, `circle-alert`, `circle-check`, `eye`, `loader-circle`, `refresh-cw`, `x`.
-- **Stroke width:** one constant, `ICON_STROKE = 1.5`, with `vector-effect: non-scaling-stroke`, so the stroke is 1.5 px at every icon size. Figma draws 1 px; 1.5 is the Developer's accessibility judgement (DEC-028).
+- **Icons adapted from Lucide (https://lucide.dev), ISC license.** No icon package is installed; the path data is copied for the icons used: `check`, `chevron-down`, `circle-alert`, `circle-check`, `eye`, `loader-circle`, `refresh-cw`, `x`. The notice at the top of `client/src/components/ui/icons.tsx` holds the ISC license (Copyright (c) 2026 Lucide Icons and Contributors) and the MIT license (Copyright (c) 2013-present Cole Bemis) that Lucide lists for icons derived from Feather: here `check`, `chevron-down` and `x`.
+- **Version checked: lucide-static 1.70.0**, fetched 2026-11-06 from cdn.jsdelivr.net/npm/lucide-static@1.70.0/icons/<name>.svg and /LICENSE. Seven of eight shapes matched. `circle-check` differed: its check is now `m16 9-5.5 5.5L8 12` (it was `m9 12 2 2 4-4`); fixed. `icons.test.tsx` pins every shape to 1.70.0.
+- **Stroke width:** one constant, `ICON_STROKE = 1.5`, with `vector-effect: non-scaling-stroke`, so the stroke is 1.5 px at every icon size. Figma draws 1 px; 1.5 is the Developer's accessibility judgement (DEC-028). One approved exception: the checkbox check mark is 2px (`Icon` takes `strokeWidth` for it).
 - Icons are `currentColor`, decorative (`aria-hidden`) unless given a label, and 20 px by default.
 
 ## Component record
@@ -100,16 +101,19 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 | --- | --- | --- | --- | --- |
 | Button | `ui/Button.tsx` | 241:1105, 258:5832 (primary); 361:2417 (secondary) | Figma; hover, disabled and loading added with tokens | primary: `bg-primary`, `text-primary-contrast`, hover `bg-primary-hover` (#B32828). secondary: `bg-surface`, 1px `border-subtle`, hover `border`. sm `h-8` (32), md `h-11` (44, default). `rounded-control`, Medium 13. Loading: Spinner, `aria-busy`, `aria-disabled`, still focusable, clicks and form submit blocked. No green variant (152:597, BACKLOG) |
 | IconButton | `ui/Button.tsx` | 102:454 | Figma; 44 x 44, label on focus added (DEC-028) | `size-11`, `aria-label`, the label shown below on hover and focus (Regular 15, `tracking-label`), icon 24 px |
-| Input | `ui/Input.tsx` | 241:1103, 258:5480; 361:2349 (values not used, DEC-028) | Figma desktop values | `h-11`, `rounded-control`, 1px `border-subtle`, hover `border`, `text-15`, placeholder `text-placeholder`, error `aria-invalid:border-danger-text` |
+| Input | `ui/Input.tsx` | 241:1103, 258:5480; 361:2349 (values not used, DEC-028) | Figma desktop values | `h-11`, `rounded-control`, 1px `border-subtle`, hover `border`, `text-16` on phones and `md:text-15` from 768 px (no iOS zoom on focus), placeholder `text-placeholder`, error `aria-invalid:border-danger-text` |
 | Textarea | `ui/Textarea.tsx` | 361:3381 | Figma, with the input radius (DEC-028) | As Input, `min-h-24`, `resize-y` |
-| Select | `ui/Select.tsx` | 361:2996 | Figma | Native `select`, as Input, `appearance-none`, chevron-down 16 px `text-muted`, optional placeholder option ("Select...") |
+| Select | `ui/Select.tsx` | 361:2996 | Figma | Native `select`, as Input, `appearance-none`, chevron-down 16 px `text-muted`. `placeholder` prop: a disabled, hidden empty first option, selected by default unless `value` or `defaultValue` is given |
 | FormField | `ui/FormField.tsx` | 361:2690; label size from 258:5476 | Figma | Label Medium 15 `text`; required mark " *" `text-primary` (`aria-hidden`, control gets `required`); hint `text-13 text-muted`; error `text-13 danger-text`; both linked by `aria-describedby`; error sets `aria-invalid` |
 | Card | `ui/Card.tsx` | panel 361:2984; stat 267:9808 | Figma (panel without the 9% shadow) | panel: `rounded-control`, 1px `border-subtle`, `p-4`, no shadow. stat: `rounded-card`, `border-b-4 border-accent`, `shadow-card` |
 | Badge | `ui/Badge.tsx` | 267:9763 to 267:9770 | Figma | `*-soft` fill, AA text token, `rounded-card`, Medium 12 |
 | StatusBadge | `ui/StatusBadge.tsx` | 267:9763 to 267:9770 | Figma tones, BR-07 labels (DEC-028) | Submitted info, Need Revision warning, Approved success, Declined danger. The mobile red pill 361:2415 is not used |
 | Spinner | `ui/Spinner.tsx` | none | Infrastructure | Lucide `loader-circle`, `animate-spin`, `motion-reduce:animate-none`; `role="status"` with a label, decorative without |
-| Skeleton, SkeletonGroup | `ui/Skeleton.tsx` | none | Infrastructure | Skeleton: `bg-header`, `rounded-cell`, still, `aria-hidden`. SkeletonGroup: `aria-busy="true"` and visually hidden "Loading..." text; a scan test fails if a file renders Skeleton without SkeletonGroup |
-| ErrorBoundary | `ui/ErrorBoundary.tsx` | none | Infrastructure | Class component; `fallback({ error, reset })` is passed in (ErrorState comes after its spec is approved) |
+| Skeleton, SkeletonGroup | `ui/Skeleton.tsx` | none | Infrastructure | Skeleton: `bg-skeleton` (alias of `header`), `rounded-cell`, still, `aria-hidden`. SkeletonGroup: `aria-busy="true"` and visually hidden "Loading..." text; a scan test fails if a file renders Skeleton without SkeletonGroup |
+| ErrorBoundary | `ui/ErrorBoundary.tsx` | none | Infrastructure | Class component; optional `fallback({ error, reset })`. Default: ErrorState "Something went wrong on this page.", "Reload the page to try again." and a Reload button |
 | Icon | `ui/icons.tsx` | 361:2576 and the mobile icon names | Lucide geometry | See Icons in code |
-| Checkbox, Banner, EmptyState, ErrorState | not built | 361:2911 (checkbox box) | Developer-designed specs in docs/ui-specs/ui-kit.md, waiting for approval | |
-| Toast | `components/toast` | none | Unchanged; aligns to Banner after its spec is approved | |
+| Checkbox | `ui/Checkbox.tsx` | 361:2911 (unchecked box) | Figma box; checked look Developer-designed, approved | Native checkbox, 22 px, `rounded-cell`, `border-subtle`, hover `border`; checked `bg-primary` with a 2px check in `primary-contrast`; row `min-h-11`, gap 12, `text-15`; error `aria-invalid:border-danger-text` |
+| Banner | `ui/Banner.tsx`, `ui/tones.ts` | none | Developer-designed, approved | `*-soft` fill, `border-l-4` in the hue, AA text token, icon `circle-alert` or `circle-check`; `role=status` for info and success, `alert` for warning and danger; optional title and action |
+| EmptyState | `ui/EmptyState.tsx` | none | Developer-designed, approved | Left-aligned, no card; optional icon 24 `text-muted`; heading `text-16` SemiBold (level prop); body `text-15 text-secondary`; no default text |
+| ErrorState | `ui/ErrorState.tsx` | none | Developer-designed, approved | `role=alert`; icon `circle-alert` 24 `danger-text`; heading and message; secondary Retry button with loading |
+| Toast | `components/toast` | none | Aligned to Banner | Same tone classes and icons as Banner (`tones.ts`), plus `shadow-panel`; API unchanged (success, error uses danger, info) |

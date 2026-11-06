@@ -1,6 +1,6 @@
 # UI kit gaps (Developer-designed)
 
-Status: **Developer-designed, client approval requested.** Waiting for the Developer's approval before anything here is built.
+Status: **Developer-designed, client approval requested.** Stamp and LedgerTable: spec only (built in Phases 3 and 5). Banner, EmptyState, ErrorState and the checkbox look: approved by the Developer on 2026-11-06 and built in P0-T12a.
 
 Process: docs/DESIGN_GAPS.md. Style: docs/DESIGN_LANGUAGE.md and docs/tokens.md (existing tokens only, no new colors). The client's Figma has no frame for these components (docs/components.md, step A). If the client later adds one, the Figma frame wins by default.
 
@@ -73,7 +73,7 @@ The sample names and amounts are examples only.
 
 ## Short specs for T12a (waiting for the Developer's approval)
 
-These four are built in T12a only after approval. Existing tokens only. Status: Developer-designed, client approval requested.
+Approved by the Developer on 2026-11-06 and built in P0-T12a. Existing tokens only. Status: Developer-designed, client approval requested.
 
 ### Banner
 

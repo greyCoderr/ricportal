@@ -40,6 +40,8 @@ export default defineConfig({
           include: ["client/{src,test}/**/*.test.{ts,tsx}"],
           exclude: ["**/node_modules/**", "**/dist/**"],
           setupFiles: ["client/test/setup.ts"],
+          // jsdom is slow on this machine; client tests only (DEC-029).
+          testTimeout: 15_000,
         },
       },
     ],

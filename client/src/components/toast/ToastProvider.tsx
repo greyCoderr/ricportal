@@ -8,6 +8,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { Icon } from "../ui/icons";
+import { MESSAGE_BOX, MESSAGE_TONES, type MessageTone } from "../ui/tones";
 
 // A small toast provider (no dependency, DEC-021). Messages appear in a polite
 // live region and are removed after TOAST_DURATION_MS.
@@ -20,10 +22,12 @@ type ToastApi = { show: (toast: { kind: ToastKind; message: string }) => void };
 
 const ToastContext = createContext<ToastApi | null>(null);
 
-const KIND_CLASSES: Record<ToastKind, string> = {
-  success: "border-success bg-success-soft text-text",
-  error: "border-danger bg-danger-soft text-danger-text",
-  info: "border-border-subtle bg-surface text-text",
+// Toasts look like Banner (docs/ui-specs/ui-kit.md): the same tone styles and
+// icons. The API keeps its three kinds; error uses the danger tone.
+const KIND_TONE: Record<ToastKind, MessageTone> = {
+  success: "success",
+  error: "danger",
+  info: "info",
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -63,14 +67,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         aria-label="Notifications"
         className="fixed right-4 bottom-4 flex flex-col gap-2"
       >
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`rounded-control border px-3 py-2 shadow-panel ${KIND_CLASSES[toast.kind]}`}
-          >
-            {toast.message}
-          </div>
-        ))}
+        {toasts.map((toast) => {
+          const tone = MESSAGE_TONES[KIND_TONE[toast.kind]];
+          return (
+            <div
+              key={toast.id}
+              data-toast
+              className={`flex gap-3 shadow-panel ${MESSAGE_BOX} ${tone.classes}`}
+            >
+              <Icon name={tone.icon} className="mt-0.5 shrink-0" />
+              <p>{toast.message}</p>
+            </div>
+          );
+        })}
       </div>
     </ToastContext.Provider>
   );

@@ -1,11 +1,10 @@
 /*
- * Icons adapted from Lucide (https://lucide.dev), ISC License.
+ * Icons adapted from Lucide (https://lucide.dev), lucide-static 1.70.0.
+ * Shapes checked against that version on 2026-11-06 (docs/components.md).
  *
  * ISC License
  *
- * Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as
- * part of Feather (MIT). All other copyright (c) for Lucide are held by
- * Lucide Contributors 2022.
+ * Copyright (c) 2026 Lucide Icons and Contributors
  *
  * Permission to use, copy, modify, and/or distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -18,6 +17,32 @@
  * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
  * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * ---
+ *
+ * The icons check, chevron-down and x are derived from the Feather project:
+ *
+ * The MIT License (MIT) (for the icons listed above)
+ *
+ * Copyright (c) 2013-present Cole Bemis
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 import type { ReactNode } from "react";
 
@@ -41,7 +66,7 @@ const SHAPES = {
   "circle-check": (
     <>
       <circle {...STROKE} cx="12" cy="12" r="10" />
-      <path {...STROKE} d="m9 12 2 2 4-4" />
+      <path {...STROKE} d="m16 9-5.5 5.5L8 12" />
     </>
   ),
   eye: (
@@ -85,9 +110,18 @@ type IconProps = {
   className?: string;
   // Without a label the icon is decorative and hidden from screen readers.
   label?: string;
+  // Only for a single approved use: the checkbox check mark is 2px
+  // (docs/ui-specs/ui-kit.md). Everything else uses ICON_STROKE.
+  strokeWidth?: number;
 };
 
-export function Icon({ name, size = 20, className, label }: IconProps) {
+export function Icon({
+  name,
+  size = 20,
+  className,
+  label,
+  strokeWidth = ICON_STROKE,
+}: IconProps) {
   const a11y =
     label === undefined
       ? { "aria-hidden": true as const }
@@ -100,10 +134,11 @@ export function Icon({ name, size = 20, className, label }: IconProps) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={ICON_STROKE}
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       focusable="false"
+      data-icon={name}
       className={className}
       {...a11y}
     >

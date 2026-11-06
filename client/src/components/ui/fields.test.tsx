@@ -16,7 +16,9 @@ const CONTROL = [
   "border",
   "border-border-subtle",
   "bg-surface",
-  "text-15",
+  // 16 px on phones (no zoom on focus in iOS Safari), 15 px from md up.
+  "text-16",
+  "md:text-15",
   "text-text",
   "hover:border-border",
   "disabled:opacity-50",
@@ -88,9 +90,9 @@ describe("Select", () => {
     expect(chevron?.classList).toContain("pointer-events-none");
   });
 
-  it("shows the placeholder as an empty first option that cannot be chosen again", () => {
+  it("placeholder: a disabled, hidden empty first option, selected by default", () => {
     render(
-      <Select aria-label="Relationship" placeholder="Select..." defaultValue="">
+      <Select aria-label="Relationship" placeholder="Select...">
         <option value="MOTHER">Mother</option>
       </Select>,
     );
@@ -101,7 +103,52 @@ describe("Select", () => {
     expect(first?.textContent).toBe("Select...");
     expect(first?.value).toBe("");
     expect(first?.disabled).toBe(true);
+    expect(first?.hidden).toBe(true);
     expect(select.value).toBe("");
+  });
+
+  it("placeholder: a given defaultValue or value still wins", () => {
+    render(
+      <>
+        <Select
+          aria-label="Relationship"
+          placeholder="Select..."
+          defaultValue="FATHER"
+        >
+          <option value="MOTHER">Mother</option>
+          <option value="FATHER">Father</option>
+        </Select>
+        <Select
+          aria-label="Sex"
+          placeholder="Select..."
+          value="FEMALE"
+          onChange={() => undefined}
+        >
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+        </Select>
+      </>,
+    );
+    expect(
+      screen.getByRole<HTMLSelectElement>("combobox", { name: "Relationship" })
+        .value,
+    ).toBe("FATHER");
+    expect(
+      screen.getByRole<HTMLSelectElement>("combobox", { name: "Sex" }).value,
+    ).toBe("FEMALE");
+  });
+
+  it("without a placeholder there is no empty option", () => {
+    render(
+      <Select aria-label="Relationship">
+        <option value="MOTHER">Mother</option>
+      </Select>,
+    );
+    const select = screen.getByRole<HTMLSelectElement>("combobox", {
+      name: "Relationship",
+    });
+    expect(select.options.length).toBe(1);
+    expect(select.value).toBe("MOTHER");
   });
 
   it("disabled sets aria-disabled", () => {

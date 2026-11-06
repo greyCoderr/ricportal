@@ -43,6 +43,7 @@ Contrast is WCAG 2.x. Text needs 4.5:1; borders of controls need 3:1. A transluc
 | `nav-selected` | #FF8282 | Selected nav item background | 77:290 | Earlier session |
 | `nav-selected-text` | #000000 | Selected nav item text | 77:290 (original #FFFFFF) | DEC-023 |
 | `overlay` | black at 35% | Image overlay | 241:1102 | Earlier session |
+| `skeleton` | `var(--color-header)` (#F0F0F0) | Alias for Skeleton blocks, so a later change of the skeleton color does not touch the header | none | DEC-028 |
 
 The 24% tints are stored as `#RRGGBB3D`. Hex alpha 0x3D is 23.9%, the closest a hex value gets to 24%.
 

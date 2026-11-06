@@ -144,3 +144,13 @@ describe("design tokens render", () => {
     }
   });
 });
+
+describe("alias tokens", () => {
+  it("skeleton points to the header color (DEC-028)", () => {
+    const css = readFileSync(join(STYLES_DIR, "tokens.css"), "utf8");
+    expect(css).toMatch(/--color-skeleton:\s*var\(--color-header\)\s*;/);
+    expect(ruleFor(build(["bg-skeleton"]), "bg-skeleton")).toContain(
+      "var(--color-skeleton)",
+    );
+  });
+});

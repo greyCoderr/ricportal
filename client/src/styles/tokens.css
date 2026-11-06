@@ -44,6 +44,9 @@
   --color-nav-selected-text: #000000;
   --color-overlay: #00000059;
 
+  /* Aliases (DEC-028) */
+  --color-skeleton: var(--color-header);
+
   /* Type */
   --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --text-*: initial;

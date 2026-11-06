@@ -1,6 +1,11 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { TOAST_DURATION_MS, ToastProvider, useToast } from "./ToastProvider";
+import {
+  TOAST_DURATION_MS,
+  ToastProvider,
+  useToast,
+  type ToastKind,
+} from "./ToastProvider";
 
 function Trigger() {
   const toast = useToast();
@@ -49,4 +54,62 @@ describe("ToastProvider", () => {
       "useToast must be used inside ToastProvider",
     );
   });
+});
+
+function KindTrigger({ kind }: { kind: ToastKind }) {
+  const toast = useToast();
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        toast.show({ kind, message: `A ${kind} message.` });
+      }}
+    >
+      Show {kind}
+    </button>
+  );
+}
+
+describe("ToastProvider looks like Banner (DEC-028)", () => {
+  it.each([
+    [
+      "success",
+      "bg-success-soft",
+      "border-success",
+      "text-success",
+      "circle-check",
+    ],
+    [
+      "error",
+      "bg-danger-soft",
+      "border-danger",
+      "text-danger-text",
+      "circle-alert",
+    ],
+    ["info", "bg-info-soft", "border-info", "text-info-text", "circle-alert"],
+  ] as const)(
+    "%s uses the Banner tone, a 4px left border and its icon",
+    (kind, fill, border, text, icon) => {
+      render(
+        <ToastProvider>
+          <KindTrigger kind={kind} />
+        </ToastProvider>,
+      );
+      fireEvent.click(screen.getByRole("button", { name: `Show ${kind}` }));
+      const message = screen.getByText(`A ${kind} message.`);
+      const toast = message.closest("[data-toast]");
+      for (const name of [
+        fill,
+        border,
+        text,
+        "border-l-4",
+        "rounded-control",
+      ]) {
+        expect(toast?.classList).toContain(name);
+      }
+      const svg = toast?.querySelector("svg");
+      expect(svg?.getAttribute("aria-hidden")).toBe("true");
+      expect(svg?.getAttribute("data-icon")).toBe(icon);
+    },
+  );
 });

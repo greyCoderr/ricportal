@@ -332,3 +332,18 @@ Decision:
 - Conflicts from the step B reads (docs/components.md), decided 2026-11-05: keep the desktop tokens for controls (44 px, radius 8, Medium 15 labels, `border-subtle`); StatusBadge follows 267:9763 to 267:9770, not the mobile red pill; no green button variant (BACKLOG); Card variants `panel` (no shadow) and `stat` (4px accent bottom border, `shadow-card`); Textarea uses the input radius; the icon button is 44 x 44 with an `aria-label` and its label visible on hover and focus.
 - Built in T12a: Button, IconButton, Input, Textarea, Select, FormField, Card, Badge, StatusBadge, Spinner, Skeleton, ErrorBoundary, icons. Checkbox, Banner, EmptyState and ErrorState wait for spec approval; Toast is aligned after Banner.
 Consequences: Figma reads are recorded in docs/components.md, one read per node.
+
+Addendum to DEC-028 (Developer's review of P0-T12a, 2026-11-06):
+- Icons checked against Lucide's published source, lucide-static 1.70.0. `circle-check` was out of date and is fixed; a test pins every shape. The notice in icons.tsx carries Lucide's ISC license and the MIT license for the icons derived from Feather (`check`, `chevron-down`, `x`).
+- Input, Select and Textarea text is 16 px on small screens (no zoom on focus in iOS Safari) and 15 px from the `md` breakpoint (768 px) up.
+- `skeleton` is an alias token: `--color-skeleton: var(--color-header)`.
+- Select's `placeholder` is a first-class prop: a disabled, hidden empty first option, selected by default unless `value` or `defaultValue` is given.
+- The four specs (Banner, EmptyState, ErrorState, checkbox look) were approved and built. The checkbox check mark uses a 2px stroke, the one approved exception to `ICON_STROKE`. Banner and Toast share `ui/tones.ts`; Toast keeps its API. ErrorBoundary's default fallback is the approved page ErrorState with a Reload button.
+
+## DEC-029: 15 second test timeout for the client tests
+
+Context: jsdom is slow on this machine. In full runs, client tests that pass alone in about 1 second have taken 3.9 to 17 seconds (a HealthPage test took 3994 ms against the 5000 ms default; the icon label test 6.7 s; the Toast timer test 13 to 17 s). Decided by the Developer on 2026-11-06.
+Decision:
+- `testTimeout: 15_000` for the `client` Vitest project only. The `unit` project (shared and server) keeps the 5 second default; the `db` project keeps its own 15 second timeout (DEC-019); the one server startup test keeps its 15 second timeout (DEC-027).
+- No test is weakened. Sharing the jsdom environment across files would be faster but can leak state between tests (BACKLOG).
+Consequences: a slow client test fails only after 15 seconds. If client tests keep getting slower, look at the BACKLOG item before raising the limit again.
