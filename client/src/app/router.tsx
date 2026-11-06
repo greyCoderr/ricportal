@@ -11,6 +11,8 @@ import { LoginPage } from "../features/auth/pages/LoginPage";
 import { RequestSentPage, SignupPage } from "../features/auth/pages/SignupPage";
 import { HealthPage } from "../features/health/pages/HealthPage";
 import { HomePage } from "../features/home/HomePage";
+import { CalendarPage } from "../features/calendar/pages/CalendarPage";
+import { MenuImportsPage } from "../features/menu/pages/MenuImportsPage";
 import { StudentProfilePage } from "../features/students/pages/StudentProfilePage";
 import { StudentsPage } from "../features/students/pages/StudentsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -30,7 +32,12 @@ export const router = createBrowserRouter([
         children: [
           { path: "/centers", element: <CentersPage /> },
           { path: "/teachers", element: <TeachersPage /> },
+          { path: "/menu-imports", element: <MenuImportsPage /> },
         ],
+      },
+      {
+        element: <RequireRole roles={["ADMIN", "TEACHER"]} />,
+        children: [{ path: "/calendar", element: <CalendarPage /> }],
       },
       {
         element: <RequireRole roles={["TEACHER"]} />,

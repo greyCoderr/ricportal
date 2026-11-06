@@ -63,7 +63,9 @@ describe("parseEnv", () => {
   });
 
   it("uses the low bcrypt cost in tests only", () => {
-    expect(parseEnv({ DATABASE_URL: DB, NODE_ENV: "test" }).BCRYPT_COST).toBe(4);
+    expect(parseEnv({ DATABASE_URL: DB, NODE_ENV: "test" }).BCRYPT_COST).toBe(
+      4,
+    );
   });
 
   it("production must set the auth settings explicitly", () => {
@@ -79,7 +81,9 @@ describe("parseEnv", () => {
 
   it("a short JWT_SECRET is refused without printing it", () => {
     const error = errorFrom({ DATABASE_URL: DB, JWT_SECRET: "short-secret" });
-    expect(error.problems).toEqual(["JWT_SECRET must be at least 32 characters"]);
+    expect(error.problems).toEqual([
+      "JWT_SECRET must be at least 32 characters",
+    ]);
     expect(error.message).not.toContain("short-secret");
   });
 

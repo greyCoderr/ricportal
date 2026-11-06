@@ -26,6 +26,13 @@ import {
   createProgressRouter,
 } from "./modules/child-records/child-records.routes.js";
 import { createChildRecordsService } from "./modules/child-records/child-records.service.js";
+import { createMenuController } from "./modules/menu/menu.controller.js";
+import { createMenuRepository } from "./modules/menu/menu.repository.js";
+import {
+  createCalendarRouter,
+  createMenuRouter,
+} from "./modules/menu/menu.routes.js";
+import { createMenuService } from "./modules/menu/menu.service.js";
 import { createSettingsRepository } from "./modules/settings/settings.repository.js";
 import { createStudentsController } from "./modules/students/students.controller.js";
 import { createStudentsRepository } from "./modules/students/students.repository.js";
@@ -106,7 +113,19 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
     }),
   );
 
+  const menuController = createMenuController(
+    createMenuService({ repository: createMenuRepository(prisma), now }),
+  );
+
   mounts.push(
+    {
+      path: "/api/menu",
+      router: createMenuRouter(menuController, authenticate),
+    },
+    {
+      path: "/api/calendar",
+      router: createCalendarRouter(menuController, authenticate),
+    },
     {
       path: "/api/students",
       router: createStudentsRouter(

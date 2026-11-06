@@ -82,7 +82,10 @@ export async function apiRequest<T, M = Record<string, never>>(
 ): Promise<ApiSuccess<T, M>> {
   const headers = new Headers({ Accept: "application/json" });
   const init: RequestInit = { method, headers, credentials: "same-origin" };
-  if (body !== undefined) {
+  if (body instanceof FormData) {
+    // The browser sets the multipart Content-Type with its boundary.
+    init.body = body;
+  } else if (body !== undefined) {
     headers.set("Content-Type", "application/json");
     init.body = JSON.stringify(body);
   }

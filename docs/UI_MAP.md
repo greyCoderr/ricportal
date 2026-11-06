@@ -23,3 +23,5 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | Enrolled Students | `/students` | Teacher | wired | Figma 78:260. Search, status filter, pagination, add, Enrollment Form dialog |
 | Student profile | `/students/:id` | Teacher | wired | Tabs Profile, One-on-One Conferences, Home Visits. Progress tab cut |
 | Server status | `/status` | Public | wired | The former home placeholder (P0-T10) |
+| Menu Imports | `/menu-imports` | Admin | wired | Upload, preview, warnings, overlap, confirm, history |
+| Calendar | `/calendar` | Admin, Teacher | wired | FullCalendar: month on desktop, list on phones; day panel in a Drawer |

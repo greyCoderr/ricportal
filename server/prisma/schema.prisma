@@ -167,3 +167,34 @@ model ChildProgress {
   @@index([studentId, noteDate])
   @@map("child_progress")
 }
+
+model MenuBatch {
+  id          Int       @id @default(autoincrement())
+  sheetName   String    @map("sheet_name") @db.VarChar(100)
+  fileName    String    @map("file_name") @db.VarChar(255)
+  prNo        String    @map("pr_no") @db.VarChar(30)
+  prDate      DateTime  @map("pr_date") @db.Date
+  periodStart DateTime  @map("period_start") @db.Date
+  periodEnd   DateTime  @map("period_end") @db.Date
+  uploadedBy  Int       @map("uploaded_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  days        MenuDay[]
+
+  @@map("menu_batches")
+}
+
+model MenuDay {
+  id          Int       @id @default(autoincrement())
+  batchId     Int       @map("batch_id")
+  feedingDate DateTime  @unique @map("feeding_date") @db.Date
+  dayNo       Int       @map("day_no")
+  dayName     String    @map("day_name") @db.VarChar(20)
+  menuName    String    @map("menu_name") @db.VarChar(200)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  batch       MenuBatch @relation(fields: [batchId], references: [id])
+
+  @@index([batchId])
+  @@map("menu_days")
+}

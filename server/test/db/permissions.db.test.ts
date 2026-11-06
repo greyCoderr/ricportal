@@ -65,6 +65,10 @@ export const MATRIX: Row[] = [
   ["patch", "/api/progress/:id", T],
   ["delete", "/api/progress/:id", T],
   ["get", "/api/enrollment-form.pdf", AT],
+  ["post", "/api/menu/imports/preview", A],
+  ["post", "/api/menu/imports/confirm", A],
+  ["get", "/api/menu/batches", A],
+  ["get", "/api/calendar", AT],
 ];
 
 function routesOf(router: Router): { method: string; path: string }[] {

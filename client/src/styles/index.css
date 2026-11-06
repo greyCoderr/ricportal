@@ -8,3 +8,51 @@
     font-family: var(--font-sans);
   }
 }
+
+/* FullCalendar, with tokens only (DESIGN_LANGUAGE rule 4): the dish is the
+   hero, today has a red top rule, and weekend items are quieter. */
+.ric-calendar {
+  --fc-border-color: var(--color-border-subtle);
+  --fc-today-bg-color: transparent;
+  --fc-event-bg-color: transparent;
+  --fc-event-border-color: transparent;
+  --fc-event-text-color: var(--color-text);
+  --fc-button-bg-color: var(--color-surface);
+  --fc-button-border-color: var(--color-border-subtle);
+  --fc-button-text-color: var(--color-text);
+  --fc-button-hover-bg-color: var(--color-header);
+  --fc-button-hover-border-color: var(--color-border);
+  --fc-button-active-bg-color: var(--color-header);
+  --fc-button-active-border-color: var(--color-border);
+  --fc-list-event-hover-bg-color: var(--color-header);
+  font-size: var(--text-13);
+}
+
+.ric-calendar .fc-day-today {
+  box-shadow: inset 0 3px 0 0 var(--color-primary);
+}
+
+.ric-calendar .fc-toolbar-title {
+  font-size: var(--text-20);
+  font-weight: 600;
+}
+
+.ric-calendar .fc-daygrid-event {
+  white-space: normal;
+  cursor: pointer;
+}
+
+.ric-calendar .fc-event-title {
+  font-weight: 500;
+  white-space: normal;
+}
+
+.ric-calendar .ric-quiet .fc-event-title {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.ric-calendar a:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}

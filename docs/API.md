@@ -103,3 +103,12 @@ No response contains a password hash, `token_version`, the failed-login count or
 | GET /api/enrollment-form.pdf | Teacher (own), Admin (needs centerId) | Query: schoolYear, dateStarted, centerId. Streams a PDF |
 
 Weight and height travel as decimal strings. Age is computed on every read and never stored (BR-01).
+
+## Menu import and calendar (sprint S3)
+
+| Method and path | Role | Purpose and failures |
+| --- | --- | --- |
+| POST /api/menu/imports/preview | Admin | Multipart field `file`: .xlsx with the ZIP signature, at most 5 MB. Returns `{ token, fileName, batches, warnings, errors, overlaps }`; nothing is saved. `token` is null when there are errors or overlapping dates. 400 wrong type or no file, 413 too large, 422 not a readable workbook |
+| POST /api/menu/imports/confirm | Admin | Body `{ token }`. Saves all batches in one transaction. 409 used, expired or unknown token, or an overlap that appeared after the preview |
+| GET /api/menu/batches | Admin | Import history, paginated |
+| GET /api/calendar?from=&to= | Admin, Teacher | Feeding days in the range (at most 62 days): date, dayNo, dayName, menuName, prNo, prDate. A Parent gets 403 |

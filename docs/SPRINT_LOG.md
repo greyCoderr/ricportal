@@ -83,3 +83,24 @@ Summary (S2):
 - Check: full npm run check green: 46 files, 693 tests, build ok, 7 min 12 s.
 - Not checked: screens have not been opened in a real browser. The PDF was read by eye but not compared with the official form photo.
 - Verify by hand: log in as a Teacher, add a student with a birthdate 6 years ago (warning shows), open the profile, add a conference note and a home visit, open the Enrollment Form.
+
+## S3 Menu import and calendar (budget 4 h)
+
+Plan (CUT list applied from the start: overlapping dates are rejected with a clear message, no week view):
+1. Fixture copied to the plan's name (DEC-032). Bad fixtures are built in the tests with exceljs.
+2. Packages: multer 2.5.0, exceljs 4.4.0; @fullcalendar/react, core, daygrid, list 6.1.22 (version 7 needs packages outside the approved list).
+3. Tests first: parser on the real file, bad files, both time zones; import and calendar API; matrix rows.
+4. Data: menu_batches, menu_days (the uploaded file is not stored).
+5. modules/menu: pure parser and validation, preview held in memory for 30 minutes, confirm in one transaction.
+6. modules/calendar: range of at most 62 days.
+7. Upload: multer memory storage, 5 MB, .xlsx and the ZIP signature; errors in the standard shape.
+8. UI: Menu Imports, FeedingCalendar (month on desktop, list on phones), day panel in a Drawer, formatMenuName.
+9. Targeted checks (DEC-035). No full check at the end of S3; next at the end of S4.
+10. Commit, log.
+
+Summary (S3):
+- Done: parser and validation for the DSWD file, preview and confirm, history, calendar API; Menu Imports page; FeedingCalendar with month and list views; day panel; formatMenuName.
+- Cut (from the start): replacing overlapping dates, week view.
+- Checks: parser 13 tests (real file in TZ=UTC and TZ=Asia/Manila, bad files); database 15 menu and calendar tests, matrix updated; client format and calendar logic; tsc -b clean; eslint on changed files clean. No full check this stage (DEC-035).
+- Not checked: FullCalendar has not been seen in a real browser. It has no jsdom render test, only its pure helpers are tested.
+- Verify by hand: as Admin upload server/test/fixtures/SF_MENU_for_30_days.xlsx, see 2 sheets with 42 days, confirm, open Calendar in September 2026.

@@ -56,3 +56,41 @@ export function ageBucket(age: number): AgeBucket {
 export function isUsualAge(age: number): boolean {
   return ageBucket(age) !== "Other";
 }
+
+const WEEKDAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+] as const;
+
+function toUtc(day: string): Date {
+  return new Date(`${day}T00:00:00.000Z`);
+}
+
+// Sunday is 0. Works on the written day, never on local time.
+export function weekdayIndex(day: string): number {
+  return toUtc(day).getUTCDay();
+}
+
+export function weekdayName(day: string): string {
+  return WEEKDAYS[weekdayIndex(day)] ?? "";
+}
+
+export function addDays(day: string, count: number): string {
+  const date = toUtc(day);
+  date.setUTCDate(date.getUTCDate() + count);
+  return date.toISOString().slice(0, 10);
+}
+
+export function daysBetween(from: string, to: string): number {
+  return Math.round((toUtc(to).getTime() - toUtc(from).getTime()) / 86_400_000);
+}
+
+// The Monday of the week a day is in; weeks run Monday to Sunday (BR-13).
+export function mondayOf(day: string): string {
+  return addDays(day, -((weekdayIndex(day) + 6) % 7));
+}

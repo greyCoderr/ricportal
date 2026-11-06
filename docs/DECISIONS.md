@@ -389,3 +389,12 @@ Decision:
 - While working: `tsc -b`, then vitest on the changed files or project, then `npx eslint --cache` on the changed files only. The full `npm run check` runs only at the end of S2, S4 and S6 (this replaces "at the end of each stage" in the sprint plan).
 - A run killed for memory is reported and work stops; at most one automatic retry.
 - The CUT lists of S2 to S5 apply from the start (docs/SPRINT_SHORTCUTS.md).
+
+## DEC-036: FullCalendar 6, and the menu preview without a 410
+
+Context: S3 packages and the phase 4 preview token.
+Decision:
+- FullCalendar 6.1.22, not 7.1.3. Version 7 needs `temporal-polyfill` and `@full-ui/headless-calendar`, which are outside the sprint's approved list.
+- The parsed preview is held in server memory for 30 minutes and the uploaded file is never stored (sprint plan). A restart forgets open previews; the Admin uploads again.
+- Phase 4 asks for 410 on an expired token, but the shared error codes (blueprint 4.8) have no 410. An expired, used or unknown token answers 409 STATE_INVALID, "This preview has expired. Please upload the file again."
+- `replaceOverlap` is not built (S3 cut): a file that overlaps existing dates can be previewed and shows the overlapping dates, but it gets no token and cannot be confirmed.
