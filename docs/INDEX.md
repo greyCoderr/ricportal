@@ -60,6 +60,8 @@ Started empty; later tasks append to them (see blueprint Section 8.1).
 | --- | --- |
 | [tokens.md](tokens.md) | Design tokens: values, Figma node ids, source, contrast (client original and RICPortal adjusted) |
 | [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) | RICPortal design language: fills gaps Figma leaves open; the client's Figma always wins |
+| [components.md](components.md) | UI kit components: Figma calls, node ids read (one read per node), source of each component |
+| [ui-specs/ui-kit.md](ui-specs/ui-kit.md) | Developer-designed UI kit parts (Stamp, LedgerTable), client approval requested |
 | [DESIGN_GAPS.md](DESIGN_GAPS.md) | What to do when Annex A needs a screen, state or object the client's Figma lacks |
 | [ui-specs/](ui-specs/) | Developer-designed screen specs for screens with no client Figma frame (client approval requested) |
 

@@ -29,3 +29,8 @@ Any row marked "No" or "Check!" that is not covered by Annex A is a change reque
 - Working copy: `EetVyXPcJxatZKCElGlqr6` (docs/figma-link.txt). Node ids match the original file.
 - Parent frames in the copy: PARENT LOGIN (393:1102) and PARENT CALENDAR (393:1133) exist but were not read in P0-T11. Parent sign-up (S-P1-02), Request sent (S-P1-07) and the Parent day screen (S-P5-04) have no client frame (docs/ui-specs/parent-screens.md).
 - Tokens read so far are in docs/tokens.md. Not tokenized yet (BACKLOG): the Admin dashboard card's per-side border widths (267:9808), form spacing (add enroll 258:5447 uses hand-placed gaps), and the 13 one-off shadows beyond the three shadow tokens.
+
+## Notes (P0-T12a step A, 2026-11-05)
+
+- Page `0:1` is "RIC teacher": desktop Teacher frames, Login, and 390-wide mobile layouts. It has no component or style sheet. Admin and Parent frames are on other pages (not opened). Details and node ids: docs/components.md.
+- Developer-designed UI kit parts (no client frame): Stamp and LedgerTable, specified in docs/ui-specs/ui-kit.md, client approval requested.

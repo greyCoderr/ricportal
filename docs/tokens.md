@@ -16,6 +16,7 @@ Contrast is WCAG 2.x. Text needs 4.5:1; borders of controls need 3:1. A transluc
 | --- | --- | --- | --- | --- |
 | `primary` | #D32F2F | Buttons, links, title (brand red) | 241:1105 button, 241:1097 title and links | Earlier session |
 | `primary-contrast` | #FFFFFF | Text on primary | 258:5833 "Save Student" text | 2026-11-04 |
+| `primary-hover` | #B32828 | Hover on primary buttons: `primary` mixed with 15% black, no new hue | none (Figma has no hover for the red button) | DEC-028 |
 | `accent` | #025B02 | Admin dashboard cards and tiles | 267:9808 card border, 267:9826 tile icon box | 2026-11-04 |
 | `accent-soft` | #025B02 at 24% | Quick-action tile fill | 267:9816 | 2026-11-04 |
 | `success` | #025B02 | Approved badge (same value as accent) | 267:9767 | 2026-11-04 |
@@ -60,6 +61,7 @@ The 24% tints are stored as `#RRGGBB3D`. Hex alpha 0x3D is 23.9%, the closest a 
 | Selected nav item text | #FFFFFF on #FF8282 | 2.40 | black on #FF8282 | 8.77 |
 | Primary on white | #D32F2F | 4.98 | unchanged | 4.98 |
 | White on primary | #FFFFFF on #D32F2F | 4.98 | unchanged | 4.98 |
+| White on primary hover | none in Figma | | `primary-hover` #B32828 | 6.46 |
 | Accent on white | #025B02 | 8.40 | unchanged | 8.40 |
 | Main text on white | #000000 | 21.00 | unchanged | 21.00 |
 | Secondary text on white | #3C3C3C | 11.03 | unchanged | 11.03 |

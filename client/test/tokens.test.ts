@@ -46,6 +46,7 @@ function ruleFor(output: string, className: string): string | undefined {
 const COLOR_TOKENS = [
   "primary",
   "primary-contrast",
+  "primary-hover",
   "accent",
   "accent-soft",
   "success",

@@ -11,6 +11,8 @@
   /* Hues (fills, borders, icons) */
   --color-primary: #d32f2f;
   --color-primary-contrast: #ffffff;
+  /* primary mixed with 15% black, for hover (DEC-028) */
+  --color-primary-hover: #b32828;
   --color-accent: #025b02;
   --color-accent-soft: #025b023d;
   --color-success: #025b02;

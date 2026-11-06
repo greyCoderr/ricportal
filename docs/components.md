@@ -1,0 +1,115 @@
+# UI kit components and their Figma sources
+
+The record for P0-T12 (done in three steps: T12a, T12b, T12c). Each Figma node is read once.
+Working copy: `EetVyXPcJxatZKCElGlqr6` (docs/figma-link.txt). Token values are in docs/tokens.md.
+
+## Figma calls
+
+| Date | Step | Call | Node | Result |
+| --- | --- | --- | --- | --- |
+| 2026-11-05 | T12a step A | `create_session` | file | Session for the P0-T12 reads |
+| 2026-11-05 | T12a step A | `get_metadata` | `0:1` | Page "RIC teacher" only. The tool has no depth option, so the whole page came back (about 520 KB, saved locally and parsed; no extra calls) |
+| 2026-11-05 | T12a step B | `get_design_context` | 152:597 | Button set "View Profile" |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:2417 | Mobile `Action` button |
+| 2026-11-05 | T12a step B | `get_design_context` | 102:454 | Icon button set (edit) |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:2690 | Mobile `Form field` |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:2349 | Mobile `Input` (search field; it has no chevron, the select field is shown inside 361:2984) |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:3381 | `Narrative writing area` (textarea) |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:2909 | `Sex choices` (square choice boxes) |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:2984 | Mobile `Card` (with form fields and select fields inside) |
+| 2026-11-05 | T12a step B | `get_design_context` | 267:9808 | Admin dashboard card: per-side borders |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:2415 | Mobile `Status` pill |
+| 2026-11-05 | T12a step B | `get_design_context` | 361:2576 | `refresh-cw` icon (SVG checked as text from Figma's asset link, not an MCP call) |
+
+Calls used so far: 13 (2 in step A, 11 in step B). No screenshots were needed.
+
+## Values read in step B
+
+Colors that are not tokens are written as read, with the token they map to. Contrast is on white.
+
+| Node | Size | Radius | Border | Fill | Text | States shown |
+| --- | --- | --- | --- | --- | --- | --- |
+| 152:597 Button "View Profile" | 135 x 40 | 8 | Default 1px #AAAAAA; Variant2 1px white | Default white; Variant2 #003E00 (dark green, not a token) | Montserrat Medium 13; Default #003E00, Variant2 white. Raster eye icon (PNG) 16 px at left | Default and Variant2 (filled, probably hover or selected) |
+| 361:2417 `Action` | 326 x 48, padding 12, gap 8 | 6 | 1px #BFBFBF | white | Montserrat SemiBold 13 #151515; Lucide `eye` 20 px | Default only |
+| 102:454 Icon button | 45 x 43 | none | none | none | Raster edit icon 24 px (green PNG). Variant2 adds the word "Edit" below: Regular 15, black, letter-spacing 1.5px | Default and Variant2 (hover shows the label) |
+| 361:2690 `Form field` | column, gap 7 | | | | Label Montserrat Medium 14 #151515, line height 1.4; required mark " *" in #D32F2F (`primary`) | |
+| 361:2349 `Input` (also 361:2692) | 326 x 48 (min height 48), padding 12 | 6 | 1px #BFBFBF | white | Placeholder Regular 14 #666666 (5.74:1), line height 1.45 | Default only |
+| Select field (361:2996, inside 361:2984) | as Input, gap 8 | 6 | 1px #BFBFBF | white | "Select..." Regular 14 #666666; Lucide `chevron-down` 16 px, stroke #666666 | Default only |
+| 361:3381 Textarea | 326 x about 300 | **0** | 1px #BFBFBF | white | none | Default only |
+| 361:2911 Choice box (in 361:2909) | box 22 x 22; row min height 44, gap 12 | 2 | 1px #BFBFBF | white | Label Regular 14 #151515 | Unchecked only. Used for Male and Female, which is a one-of-two choice |
+| 361:2984 Card | 326 wide, padding 16, gap 14 | 8 | 1px #BFBFBF | white | Title SemiBold 16 #151515 | Shadow 0 2px 5px 0 black 9% (not one of the three shadow tokens) |
+| 267:9808 Dashboard card | 225 x 225 | 10 | **Bottom only, 4px #025B02 (`accent`)**; no border on the other sides | white | | `shadow-card` |
+| 361:2415 Status pill | padding 9 x 5 | 6 | none | #FFE3E3 (not a token) | "Needs Revision", SemiBold 11, #D32F2F (4.11:1 on its fill, fails AA) | |
+| 361:2576 `refresh-cw` | 20 x 20 | | | | Stroke #D32F2F | |
+
+## Icon style: confirmed
+
+The mobile layouts use **Lucide** icons. The SVG path data matches Lucide's `refresh-cw` and `chevron-down` scaled from 24 to 20 and 16 px, with `stroke-linecap="round"`. The stroke is 1px at the drawn size (no `stroke-width`, so the default 1), thinner than Lucide's default 2 at 24 px (1.67 at 20 px). Icon colors seen: #D32F2F (`primary`) and #666666. The desktop Teacher frames use raster PNG icons (152:597 eye, 102:454 edit).
+
+## Conflicts with docs/tokens.md and DESIGN_LANGUAGE.md
+
+1. **Two control styles.** Desktop (241:xxxx login, 258:5447 add enroll; tokens.md): inputs 44 high, radius 8, labels Medium 15. Mobile (361:xxxx): inputs 48 high, radius 6, labels Medium 14, border #BFBFBF, text #151515, placeholder #666666. Radius 6 and size 14 are not tokens.
+2. **Status pill.** Mobile 361:2415 shows "Needs Revision" in red (#D32F2F on #FFE3E3, 4.11:1, fails AA). DEC-028 maps Need Revision to warning, and BR-07 says "Need Revision". The Admin badges (267:9763 to 267:9770) use radius 10, Medium 12 and the 24% tints.
+3. **Green button.** 152:597 is dark green #003E00 (not a token; `accent` is #025B02). DESIGN_LANGUAGE rule 6 says red = action.
+4. **Card shadow.** 361:2984 uses a 9% shadow that is not one of the three shadow tokens (rule 7).
+5. **Textarea radius 0** while the inputs next to it are rounded (6).
+6. **Square boxes for a one-of-two choice** (Male or Female): that is radio behavior drawn as checkboxes. No checked state is drawn.
+7. **Icon button 45 x 43** is just under 44 px high. Its label appears only on hover, so the icon has no visible name otherwise.
+8. **Mixed icon styles**: raster PNG on desktop and Lucide vectors on mobile (BACKLOG).
+
+## What page 0:1 contains (step A)
+
+- Page `0:1` is named **RIC teacher**. Admin frames (267:xxxx, for example the dashboard card 267:9808) and the Parent frames (393:xxxx) are on other pages and were not opened.
+- **No component sheet and no style sheet** on this page. The components are local component sets placed next to the screens.
+- Desktop Teacher frames (1920 x 1080): 166:1553 RIC calendar, 175:1023 RIC dashboard, 78:268 submit report, 78:276 RIC 4, 78:284 report status, 88:695 profile, 78:260 enrolled studs, 169:3189 and 254:4572 Child's record, 258:5447 add enroll. Also 241:1732 Login (1280 x 1020).
+- Mobile layouts, 390 wide (361:xxxx to 380:xxxx), lying loose on the page with no parent frame. They use auto-layout-style names: `Input`, `Form field`, `Status`, `Action`, `Page action`, `Card`, `Choice` and `Selection` (Sex choices 361:2909), `Narrative writing area` 361:3381, `File drop area` 361:2713, `Divider`.
+
+Local component sets (variants are named `Property 1=Default`, `Variant2`, ...):
+
+| Set (frame) | Variants | Size | Likely use |
+| --- | --- | --- | --- |
+| 152:597 "Frame 3" | 152:598 Default, 152:600 Variant2 | 135 x 40 | Button (two states) |
+| 102:454 "Group 41" | 102:453 Default, 102:455 Variant2 | 45 x 43 | Icon button (row actions, trash) |
+| 34:242 "Rectangle 17", 34:275 "Rectangle 18" | 4 each (34:241 to 34:259, 34:274 to 34:284) | 650 x 104 | List item or row, unknown |
+| 160:631 "Frame 4", 160:659 "Frame 5" | 3 each (160:630 to 160:635, 160:658 to 160:662) | 1076 x 91 | Table or list row |
+| 160:709 to 160:711 | 2 | 36 x 36 | Small control, unknown |
+| 310:857, 310:859 | 2 | 23 x 22 and 79 x 23 | Small control, unknown |
+| 77:xxx, 84:xxx, 129:xxx, 166:6xx/7xx | Default and selected | 262 x 53, 252 x 53 | Sidebar nav items (P0-T13) |
+| 166:911 "Component 4" | 166:910 HOME, 246:2707 to 246:3007 | 290 x 785 | Sidebar (P0-T13) |
+
+Not found on this page: modal or dialog, drawer, pagination, a checkbox component, a select component (the mobile `Input` with `chevron-down` is a select field), toast, spinner, skeleton, empty state, banner, stamp. Tables on desktop frames are drawn with loose lines (78:260 enrolled studs: Line 8 to Line 21, 1543 wide).
+
+## Icons (step A)
+
+Two styles on this page:
+
+1. **Desktop Teacher frames: raster images**, coloured flat icons placed as image fills. Layer names: `trash 5`, `plus 1`, `location-pin 2`, `logout 1`, `eye 2`, `check 2`, `reload 1`, `document 1`, `file 1`, `pencil 1`, `hour-glass (1) 1`, `message 1`, `downloads 2`, `cloud-computing 1`, `send 1`, `view 1`, `edit 1`.
+2. **Mobile layouts: vector icon frames** with kebab-case names that match the **Lucide** icon set exactly: `chevron-down` (16), `chevron-right`, `circle-check` (18 to 22), `circle-alert`, `circle`, `eye` (20), `pencil`, `bell` (22), `calendar-days` (22), `refresh-cw`, `trash-2`, `download`, `cloud-upload`, `upload`, `plus`, `user-plus`, `file-plus`, `message-square`, `message-circle`. `refresh-cw` and `circle-alert` are Lucide names, not Font Awesome names. The metadata shows no vector children, so the stroke style is confirmed by one read in step B.
+
+## Icons in code
+
+- **Icons adapted from Lucide (https://lucide.dev), ISC license.** The license notice is at the top of `client/src/components/ui/icons.tsx`. No icon package is installed; the path data is copied for the icons used: `check`, `chevron-down`, `circle-alert`, `circle-check`, `eye`, `loader-circle`, `refresh-cw`, `x`.
+- **Stroke width:** one constant, `ICON_STROKE = 1.5`, with `vector-effect: non-scaling-stroke`, so the stroke is 1.5 px at every icon size. Figma draws 1 px; 1.5 is the Developer's accessibility judgement (DEC-028).
+- Icons are `currentColor`, decorative (`aria-hidden`) unless given a label, and 20 px by default.
+
+## Component record
+
+Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its spec in docs/ui-specs/ui-kit.md. Common to all controls: focus ring `focus-visible:outline-2 outline-offset-2 outline-text` (DEC-028); disabled `opacity-50`, `cursor-not-allowed`, `aria-disabled`.
+
+| Component | File | Figma node(s) | Source | Built from tokens |
+| --- | --- | --- | --- | --- |
+| Button | `ui/Button.tsx` | 241:1105, 258:5832 (primary); 361:2417 (secondary) | Figma; hover, disabled and loading added with tokens | primary: `bg-primary`, `text-primary-contrast`, hover `bg-primary-hover` (#B32828). secondary: `bg-surface`, 1px `border-subtle`, hover `border`. sm `h-8` (32), md `h-11` (44, default). `rounded-control`, Medium 13. Loading: Spinner, `aria-busy`, `aria-disabled`, still focusable, clicks and form submit blocked. No green variant (152:597, BACKLOG) |
+| IconButton | `ui/Button.tsx` | 102:454 | Figma; 44 x 44, label on focus added (DEC-028) | `size-11`, `aria-label`, the label shown below on hover and focus (Regular 15, `tracking-label`), icon 24 px |
+| Input | `ui/Input.tsx` | 241:1103, 258:5480; 361:2349 (values not used, DEC-028) | Figma desktop values | `h-11`, `rounded-control`, 1px `border-subtle`, hover `border`, `text-15`, placeholder `text-placeholder`, error `aria-invalid:border-danger-text` |
+| Textarea | `ui/Textarea.tsx` | 361:3381 | Figma, with the input radius (DEC-028) | As Input, `min-h-24`, `resize-y` |
+| Select | `ui/Select.tsx` | 361:2996 | Figma | Native `select`, as Input, `appearance-none`, chevron-down 16 px `text-muted`, optional placeholder option ("Select...") |
+| FormField | `ui/FormField.tsx` | 361:2690; label size from 258:5476 | Figma | Label Medium 15 `text`; required mark " *" `text-primary` (`aria-hidden`, control gets `required`); hint `text-13 text-muted`; error `text-13 danger-text`; both linked by `aria-describedby`; error sets `aria-invalid` |
+| Card | `ui/Card.tsx` | panel 361:2984; stat 267:9808 | Figma (panel without the 9% shadow) | panel: `rounded-control`, 1px `border-subtle`, `p-4`, no shadow. stat: `rounded-card`, `border-b-4 border-accent`, `shadow-card` |
+| Badge | `ui/Badge.tsx` | 267:9763 to 267:9770 | Figma | `*-soft` fill, AA text token, `rounded-card`, Medium 12 |
+| StatusBadge | `ui/StatusBadge.tsx` | 267:9763 to 267:9770 | Figma tones, BR-07 labels (DEC-028) | Submitted info, Need Revision warning, Approved success, Declined danger. The mobile red pill 361:2415 is not used |
+| Spinner | `ui/Spinner.tsx` | none | Infrastructure | Lucide `loader-circle`, `animate-spin`, `motion-reduce:animate-none`; `role="status"` with a label, decorative without |
+| Skeleton, SkeletonGroup | `ui/Skeleton.tsx` | none | Infrastructure | Skeleton: `bg-header`, `rounded-cell`, still, `aria-hidden`. SkeletonGroup: `aria-busy="true"` and visually hidden "Loading..." text; a scan test fails if a file renders Skeleton without SkeletonGroup |
+| ErrorBoundary | `ui/ErrorBoundary.tsx` | none | Infrastructure | Class component; `fallback({ error, reset })` is passed in (ErrorState comes after its spec is approved) |
+| Icon | `ui/icons.tsx` | 361:2576 and the mobile icon names | Lucide geometry | See Icons in code |
+| Checkbox, Banner, EmptyState, ErrorState | not built | 361:2911 (checkbox box) | Developer-designed specs in docs/ui-specs/ui-kit.md, waiting for approval | |
+| Toast | `components/toast` | none | Unchanged; aligns to Banner after its spec is approved | |

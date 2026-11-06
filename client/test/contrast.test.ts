@@ -13,6 +13,7 @@ const PAIRS = [
   { fg: "text-placeholder", bg: "surface", min: 4.5 },
   { fg: "primary", bg: "surface", min: 4.5 },
   { fg: "primary-contrast", bg: "primary", min: 4.5 },
+  { fg: "primary-contrast", bg: "primary-hover", min: 4.5 },
   { fg: "accent", bg: "surface", min: 4.5 },
   { fg: "danger-text", bg: "surface", min: 4.5 },
   { fg: "info-text", bg: "surface", min: 4.5 },

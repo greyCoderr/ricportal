@@ -310,3 +310,25 @@ Decision:
 - The startup test gets a 15 second timeout, for that one test only. Reason: it starts `server.ts` through tsx in a child process, and tsx startup is slow on this machine. The global test timeout stays at 5 seconds.
 - ESLint memory: BACKLOG item for P0-T14 to give the lint script a larger memory limit with a Node flag (for example `--max-old-space-size`), no new dependency.
 
+
+## DEC-028: UI kit choices for P0-T12
+
+Context: the P0-T12 plan. Answers given by the Developer on 2026-11-05.
+Decision:
+- P0-T12 is done in three steps (T12a, T12b, T12c), each finished, checked and handed to the Developer for commit before the next starts (docs/phases/phase-0.md).
+- Focus ring: a 2px black outline (`text`) with a 2px offset; `nav-text` on black areas. No new color.
+- Hover: a `primary-hover` token in tokens.css, a darker mix of `primary` with black (no new hue). White text on it must pass AA, checked by the contrast test. Disabled: `opacity-50`, `cursor-not-allowed` and `aria-disabled`.
+- Button sizes: `sm` 32 px (as in Figma) and `md` 44 px (the default). Parent screens use `md`.
+- Destructive confirm uses the `primary` fill; destructive text uses `danger-text`. The danger hue #FF0000 is never a fill.
+- Status labels come from BR-07: Submitted, Need Revision, Approved. Tones come from the Figma badges (267:9763 to 267:9770). Figma's Rejected and Pending are not agreed statuses (BACKLOG: ask the client). A declined Parent uses the danger tone with the label Declined.
+- Mapping confirmed by the Developer on 2026-11-05 (wording to confirm with the client, BACKLOG): Approved = success, Submitted = info (Figma "For Review"), Need Revision = warning (Figma "Pending"), Declined = danger (Figma "Rejected").
+- Skeleton is still (no pulse, DESIGN_LANGUAGE rule 8). Spinner respects `prefers-reduced-motion`.
+- Modal and Drawer use the native `dialog` with `showModal()`, Escape through the `cancel` event calling `onClose`. No custom focus trap. jsdom has no `showModal`, so `client/test/setup.ts` gets a small test-only stub; focus behavior (Tab stays inside, Escape closes, focus returns to the trigger) is checked by hand in the gallery.
+- Gallery exclusion: no build inside a test. A small Node script runs after the build in `npm run check`, scans `client/dist` for the gallery marker strings and fails if one is found; a self-test fixture proves it catches them.
+- Stamp (Phase 3) and LedgerTable (Phase 5) are specified in docs/ui-specs/ui-kit.md now and built in their phases. No money formatter in Phase 0.
+- No new dependency in T12a: icons are inline SVG components adapted from Lucide (ISC license, notice in icons.tsx). One stroke constant `ICON_STROKE = 1.5` with a non-scaling stroke (Figma draws 1px; accessibility judgement by the Developer).
+- `primary-hover` = #B32828 (primary mixed with 15% black; white on it 6.46:1), in tokens.css and the contrast test.
+- Any container that shows Skeleton blocks uses `SkeletonGroup`: `aria-busy="true"` and visually hidden "Loading..." text. A scan test fails otherwise.
+- Conflicts from the step B reads (docs/components.md), decided 2026-11-05: keep the desktop tokens for controls (44 px, radius 8, Medium 15 labels, `border-subtle`); StatusBadge follows 267:9763 to 267:9770, not the mobile red pill; no green button variant (BACKLOG); Card variants `panel` (no shadow) and `stat` (4px accent bottom border, `shadow-card`); Textarea uses the input radius; the icon button is 44 x 44 with an `aria-label` and its label visible on hover and focus.
+- Built in T12a: Button, IconButton, Input, Textarea, Select, FormField, Card, Badge, StatusBadge, Spinner, Skeleton, ErrorBoundary, icons. Checkbox, Banner, EmptyState and ErrorState wait for spec approval; Toast is aligned after Banner.
+Consequences: Figma reads are recorded in docs/components.md, one read per node.
