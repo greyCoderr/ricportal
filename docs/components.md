@@ -123,4 +123,5 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 | Table, Pagination | `ui/Table.tsx`, `ui/Pagination.tsx` | 78:260 (ruled lines) | Figma lines, tokens | Caption, scoped headers, sideways scroll inside a focusable region, right-aligned tabular numbers |
 | Tabs | `ui/Tabs.tsx` | none | Developer-designed | tablist with buttons at least 44 px high; only the open panel is rendered |
 | LedgerTable | `ui/LedgerTable.tsx` | none | Developer-designed, approved spec in ui-kit.md | Ruled rows, right-aligned tabular numbers, total row with a single rule above and a double rule below; built in S4 as the sprint plan asks |
+| Stamp | `ui/Stamp.tsx` | none | Developer-designed, approved spec in ui-kit.md | Outlined, 2px, uppercase, rotated 2 degrees, BR-07 words; built in S5 as the sprint plan asks |
 | Toast | `components/toast` | none | Aligned to Banner | Same tone classes and icons as Banner (`tones.ts`), plus `shadow-panel`; API unchanged (success, error uses danger, info) |

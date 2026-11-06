@@ -94,3 +94,15 @@ export function daysBetween(from: string, to: string): number {
 export function mondayOf(day: string): string {
   return addDays(day, -((weekdayIndex(day) + 6) % 7));
 }
+
+// The first and last day of the month a day is in (A-11).
+export function monthRange(day: string): { from: string; to: string } {
+  const year = Number(day.slice(0, 4));
+  const month = Number(day.slice(5, 7));
+  const last = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const prefix = day.slice(0, 8);
+  return {
+    from: `${prefix}01`,
+    to: `${prefix}${String(last).padStart(2, "0")}`,
+  };
+}

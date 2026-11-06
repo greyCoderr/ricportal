@@ -3,6 +3,7 @@ import {
   addDays,
   daysBetween,
   mondayOf,
+  monthRange,
   weekdayName,
   ageBucket,
   computeAge,
@@ -84,5 +85,16 @@ describe("day arithmetic", () => {
 
   it("counts the days between two days", () => {
     expect(daysBetween("2026-01-01", "2026-03-04")).toBe(62);
+  });
+});
+
+describe("monthRange (A-11)", () => {
+  it.each([
+    ["2026-11-06", "2026-11-01", "2026-11-30"],
+    ["2026-12-31", "2026-12-01", "2026-12-31"],
+    ["2024-02-10", "2024-02-01", "2024-02-29"],
+    ["2026-02-10", "2026-02-01", "2026-02-28"],
+  ])("%s", (day, from, to) => {
+    expect(monthRange(day)).toEqual({ from, to });
   });
 });

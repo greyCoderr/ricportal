@@ -128,3 +128,26 @@ Summary (S4):
 - Check at the end of S4: the single `npm run check` run passed typecheck, lint and format, but Vitest could not start 2 workers ("Timeout waiting for worker to respond") with the machine under heavy load (625 s). One retry of the remaining steps, separately in the foreground: tests 55 files, 880 tests, exit 0; build ok.
 - Not checked: none of the screens has been opened in a real browser yet. The two-browser concurrency check (phase 5 gate) is for the Developer.
 - Verify by hand: as a Teacher open Assignments and assign a Parent; open Calendar, a day, Purchase Request; add Rice; as the Parent open the day and enter 2, 38.00; the total shows PHP 76.00; lock as the Teacher; the Parent sees the banner.
+
+S4 committed: c4b3b5c.
+
+## S5 Liquidation, submit, review (budget 4 h)
+
+Plan (CUT list applied from the start: Transmittal is the placeholder page, no Admin queue filters):
+1. Tests first: totals across PR PDF, Summary and snapshot; submit lists open days; rollback; Need Revision unlocks; snapshot immutable; PDF smoke tests; scope; matrix rows.
+2. Data (additive): reports (LIQUIDATION only), report_reviews, liquidation_snapshots, submitted_report_id on purchase_requests.
+3. builder.ts: one typed structure feeds the preview, the PDFs and the snapshot.
+4. PDFs per phase 6: Purchase Request, Summary of Disbursement, Transmittal placeholder (A-09). Signatories from settings, blank by default.
+5. Submit in one transaction; resubmission after Need Revision is a new version of the same report.
+6. Review: Admin Approve or Need Revision with required feedback.
+7. Submitted days cannot be unlocked (BR-12).
+8. UI: Liquidation Forms overlay on the calendar, Submit Report with blocking days, Reports list, report detail with Stamp and review actions.
+9. Targeted checks only (DEC-035). Next full check at the end of S6.
+10. Commit, log.
+
+Summary (S5):
+- Done: liquidation builder, Purchase Request and Summary PDFs, Transmittal placeholder, submit with one transaction, resubmit as a new version, Admin review, unlock guard for submitted days, reports list and detail, Stamp, Liquidation Forms overlay.
+- Cut (from the start): Transmittal beyond the placeholder, Admin queue filters. Others are in docs/SPRINT_SHORTCUTS.md.
+- Tests were seen failing first (both new test files could not load). The Stamp test was written with its component. Checks: 10 PDF tests; database liquidation, purchase and permissions 332 tests; tsc -b clean; eslint on changed files clean. Sample PDFs read by eye. No full check this stage (DEC-035).
+- Not checked: the screens in a real browser; PDFs against the official form photos.
+- Verify by hand: as a Teacher lock the days of a month, open Calendar, Liquidation Forms, Submit Report; as the Admin open Reports, send it back with feedback; the days unlock; fix, lock, resubmit; approve.

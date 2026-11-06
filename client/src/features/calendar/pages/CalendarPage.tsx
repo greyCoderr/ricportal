@@ -23,6 +23,7 @@ import {
   PurchaseRequestEditor,
 } from "../../purchase/components/PurchaseRequestEditor";
 import { useSetAssignments, useWeek } from "../../purchase/hooks";
+import { LiquidationOverlay } from "../../reports/components/LiquidationOverlay";
 import { FeedingCalendar } from "../components/FeedingCalendar";
 import { useCalendar, type DayRange } from "../hooks";
 
@@ -153,6 +154,7 @@ export function CalendarPage() {
   const [range, setRange] = useState<DayRange | null>(null);
   const [openDate, setOpenDate] = useState<string | null>(null);
   const [centerId, setCenterId] = useState<number | null>(null);
+  const [formsOpen, setFormsOpen] = useState(false);
   const calendar = useCalendar(range);
   const days = calendar.data ?? [];
   const open = days.find((day) => day.date === openDate) ?? null;
@@ -213,7 +215,27 @@ export function CalendarPage() {
       <PageHeader
         title="Calendar"
         description="The DSWD menu for each feeding day."
+        actions={
+          user.role === "TEACHER" ? (
+            <Button
+              variant="secondary"
+              icon="file-text"
+              onClick={() => {
+                setFormsOpen(true);
+              }}
+            >
+              Liquidation Forms
+            </Button>
+          ) : undefined
+        }
       />
+      {formsOpen && (
+        <LiquidationOverlay
+          onClose={() => {
+            setFormsOpen(false);
+          }}
+        />
+      )}
       {user.role === "ADMIN" && (
         <AdminCenterSelect centerId={centerId} onChange={setCenterId} />
       )}

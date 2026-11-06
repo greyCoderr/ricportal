@@ -319,6 +319,12 @@ export function createPurchaseRequestsService(deps: {
       if (pr.status === "OPEN") {
         return teacherResult(user, date, pr);
       }
+      // BR-12, BR-16: part of a submitted liquidation.
+      if (pr.submittedReportId !== null) {
+        throw new StateInvalidError(
+          "This day is part of a submitted report and cannot be unlocked.",
+        );
+      }
       return teacherResult(user, date, await repository.setOpen(pr.id));
     },
 

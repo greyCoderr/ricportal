@@ -27,3 +27,4 @@ export { Pagination } from "./Pagination";
 export { Table, type TableColumn } from "./Table";
 export { Tabs, type TabItem } from "./Tabs";
 export { LedgerTable, type LedgerColumn } from "./LedgerTable";
+export { Stamp, type StampStatus } from "./Stamp";

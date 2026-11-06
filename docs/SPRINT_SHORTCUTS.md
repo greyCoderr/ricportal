@@ -47,3 +47,11 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 | Automatic retry when the connection returns | A Retry button on the row (S4 cut) | Listen for the online event |
 | Replace-import guard (BR-08) | Not needed yet: S3 refuses any overlap, so nothing can be replaced | Add with the replace option |
 | Parents panel in Figma 393:1133 (Parents assigned) | Not shown to a Parent (BR-14, A-06) | Ask the client (A-06) |
+
+## Liquidation compared with phase 6
+
+| Phase 6 item | Instead | To restore |
+| --- | --- | --- |
+| Signatories settings screen and endpoint | No screen (settings screens are out). The PDFs read approvedByName, approvedByTitle, notedByName and notedByTitle from the settings table; blank by default | A Settings page for the Admin |
+| Blocking days link back to their day panels | A plain list of the days in the confirm dialog | Links that open the day panel |
+| report_versions table | A version number on the report, and one snapshot per version | Add with file uploads (Objective 3) |

@@ -131,3 +131,20 @@ Money travels as decimal strings, computed on the server with half-up rounding t
 | POST /api/purchase-requests/:date/no-feeding | Teacher | OPEN or not opened to NO_FEEDING. 409 when locked |
 | PATCH /api/purchase-items/:id | Teacher, assigned Parent | Body has `version`, and any of unit, quantity, unitCost (description for the Teacher only: a Parent gets 403). 409 CONFLICT "Updated by someone else. Your change was not saved." on a stale version, 409 STATE_INVALID when locked, 404 another center or not assigned |
 | DELETE /api/purchase-items/:id | Teacher | Renumbers the rest 1 to n. 409 when locked |
+
+## Liquidation and reports (sprint S5)
+
+| Method and path | Role | Purpose and failures |
+| --- | --- | --- |
+| GET /api/liquidation/preview?from=&to= | Teacher | Days, items, subtotals, total, and `blockingDays` (not LOCKED or NO_FEEDING). At most 62 days |
+| POST /api/liquidation/submit | Teacher | Body `{ from, to }`. Creates the report and snapshot in one transaction; after Need Revision the same period becomes a new version. 422 no feeding days, or blocking days listed in `details`; 409 overlap with another report |
+| GET /api/liquidation/pdf/purchase-request?date= | Teacher (own), Admin (needs centerId) | One day. 404 no Purchase Request |
+| GET /api/liquidation/pdf/summary?from=&to= | Same | Summary of Disbursement |
+| GET /api/liquidation/pdf/transmittal?from=&to= | Same | Placeholder page, "layout pending the official copy" (A-09) |
+| GET /api/reports | Teacher (own), Admin (all) | Newest first, paginated |
+| GET /api/reports/:id | Teacher (own), Admin | Report with its reviews and feedback |
+| GET /api/reports/:id/snapshot | Teacher (own), Admin | What was submitted, latest version. Never changes with later edits |
+| POST /api/reports/:id/review | Admin | `{ decision, feedback }`: APPROVED, or NEED_REVISION with required feedback, which unlocks the days. 409 when not SUBMITTED; APPROVED is final |
+| GET /api/reports/:id/pdf/summary, /transmittal, /purchase-request?date= | Teacher (own), Admin | Built from the snapshot (P6-T08) |
+
+`POST /api/purchase-requests/:date/unlock` answers 409 for a day that is part of a submitted report.

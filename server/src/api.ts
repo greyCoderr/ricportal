@@ -40,6 +40,13 @@ import {
   createProgressRouter,
 } from "./modules/child-records/child-records.routes.js";
 import { createChildRecordsService } from "./modules/child-records/child-records.service.js";
+import { createLiquidationController } from "./modules/liquidation/liquidation.controller.js";
+import { createLiquidationRepository } from "./modules/liquidation/liquidation.repository.js";
+import {
+  createLiquidationRouter,
+  createReportsRouter,
+} from "./modules/liquidation/liquidation.routes.js";
+import { createLiquidationService } from "./modules/liquidation/liquidation.service.js";
 import { createMenuController } from "./modules/menu/menu.controller.js";
 import { createMenuRepository } from "./modules/menu/menu.repository.js";
 import {
@@ -142,7 +149,23 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
     createAssignmentsService(createAssignmentsRepository(prisma)),
   );
 
+  const liquidationController = createLiquidationController(
+    createLiquidationService({
+      repository: createLiquidationRepository(prisma),
+      settings,
+      now,
+    }),
+  );
+
   mounts.push(
+    {
+      path: "/api/liquidation",
+      router: createLiquidationRouter(liquidationController, authenticate),
+    },
+    {
+      path: "/api/reports",
+      router: createReportsRouter(liquidationController, authenticate),
+    },
     {
       path: "/api/assignments",
       router: createAssignmentsRouter(assignmentsController, authenticate),

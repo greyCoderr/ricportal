@@ -29,3 +29,6 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | Calendar day panel | `/calendar` | Teacher | wired | Tabs Details, Assigned Parents, Purchase Request (editor with autosave) |
 | Calendar, center selector | `/calendar` | Admin | wired | Read-only Purchase Request once a center is chosen |
 | My Schedule | `/` | Parent | wired | Figma 393:1133, assigned days only; opens S-P5-04 in a Drawer |
+| Liquidation Forms | `/calendar`, a button | Teacher | wired | Period picker, tabs Purchase Requests, Summary, Transmittal; Submit Report with blocking days |
+| Reports, Report Status | `/reports` | Admin, Teacher | wired | Pills in the list |
+| Report detail | `/reports/:id` | Admin, Teacher | wired | Stamp, snapshot table, PDFs, feedback; Admin Approve and Need Revision |
