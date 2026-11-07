@@ -25,7 +25,7 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 | S4 | Today's Feeding card on the Teacher home | The Calendar page | A card on the home page reading the calendar API |
 | S4 | Autosave retry polish | Per-row Saving, Saved and Failed with one Retry button | Backoff and retry-all |
 | S5 | Transmittal Checklist beyond the placeholder | A clean page titled "layout pending the official copy" (A-09) | The real layout from a clear copy |
-| S5 | Admin queue filters | The full list, newest first | Filters by status, center and month |
+| S5 | Admin queue filters | A status filter since F4 | Filters by center and month |
 
 ## Student screens compared with Figma (258:5447, 78:260)
 

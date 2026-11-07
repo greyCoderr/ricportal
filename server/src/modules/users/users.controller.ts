@@ -1,5 +1,6 @@
 import {
   teacherCreateSchema,
+  teacherListQuerySchema,
   teacherPatchSchema,
   USER_STATUSES,
 } from "@ricportal/shared";
@@ -23,6 +24,7 @@ export function createUsersController(service: UsersService) {
       const { rows, total } = await service.listTeachers({
         skip: page.skip,
         take: page.take,
+        ...parseWith(teacherListQuerySchema, req.query),
       });
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },

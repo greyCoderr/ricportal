@@ -9,6 +9,10 @@ export const REPORT_STATUSES = [
 ] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 
+export const reportListQuerySchema = z.object({
+  status: z.enum(REPORT_STATUSES).optional(),
+});
+
 export const reviewSchema = z
   .object({
     decision: z.enum(["APPROVED", "NEED_REVISION"], "Choose a decision."),

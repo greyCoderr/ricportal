@@ -23,3 +23,4 @@ Deferred ideas: item, who asked, reason, and the phase it might belong to.
 | React Hook Form was not used (DEC-030); decide whether to adopt it or update CLAUDE.md | Developer (sprint) | Not on the approved package list | After the demo |
 
 - Remove `@fullcalendar/list`, unused since the polish F2 (DEC-038). Left in place so package files do not change this close to the demo. Asked by: Claude. Phase: 8.
+- Remove `generateTemporaryPassword` and its test, unused since D6 (DEC-040). Asked by: Claude. Phase: 8.

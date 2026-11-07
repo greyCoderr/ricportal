@@ -6,6 +6,7 @@ import type { PrismaClient } from "../../src/generated/prisma/client.js";
 import { seedBase } from "../../prisma/seed-base.js";
 import { addDays } from "@ricportal/shared";
 import { buildApp, loginAs } from "./api-harness.js";
+import { TEST_DEFAULT_PASSWORD } from "../test-config.js";
 import { createTestPrisma, resetDatabase } from "./test-database.js";
 
 // The whole demo path (docs/SPRINT_PLAN.md, section 7) through the real app and
@@ -71,9 +72,7 @@ describe("demo path", () => {
       centerId: sibujo.id,
     });
     expect(created.status).toBe(201);
-    const temporary = data<{ temporaryPassword: string }>(
-      created,
-    ).temporaryPassword;
+    const temporary = TEST_DEFAULT_PASSWORD;
 
     const teacher: Agent = await loginAs(app, "teacher.sibujo", temporary);
     expect((await teacher.get("/api/students")).status).toBe(403);

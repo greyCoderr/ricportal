@@ -58,3 +58,12 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | S-P2-01 Student list | `/students` | Teacher | polished | [ui-specs/student-form.md](ui-specs/student-form.md) |
 | Add and Edit Student | `/students/new`, `/students/:id/edit` | Teacher | polished | [ui-specs/student-form.md](ui-specs/student-form.md) |
 | S-P2-02 Student profile | `/students/:id` | Teacher | wired, shows the new fields | [ui-specs/student-form.md](ui-specs/student-form.md) |
+
+## Demo polish screens (F4)
+
+| Screen ID | Route | Role | Status | Spec |
+| --- | --- | --- | --- | --- |
+| S-P7-01 Admin Dashboard | `/` | Admin | polished | DEC-040 |
+| S-P1-04 RIC Teachers | `/teachers` | Admin | polished | DEC-040 |
+| S-P3-02 Reports queue | `/reports` | Admin | polished | DEC-040 |
+| S-P1-05 Parent Requests | `/parents` | Teacher | D6 and D8 applied | DEC-040 |

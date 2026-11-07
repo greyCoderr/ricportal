@@ -172,3 +172,14 @@ Money travels as decimal strings, computed on the server with half-up rounding t
 | POST /api/students, PATCH /api/students/:id | Optional `profileExtra` (`profileExtraSchema`). 400 on wrong types, unknown keys, too many rows, or over 6000 characters. A PATCH without it keeps the stored value |
 | GET /api/students, GET /api/students/:id | Every student now carries `profileExtra` (null when there is none). Dates stay YYYY-MM-DD; screens and PDFs show MM/DD/YYYY (D7) |
 
+## Demo polish: Admin and passwords (F4)
+
+| Endpoint | Role | Notes |
+| --- | --- | --- |
+| GET /api/dashboard/summary | Admin | `{ activeTeachers, disabledTeachers, centersWithTeacher, enrolledStudents, reports: { submitted, needRevision, approved } }`. Grouped queries. Archived students and students of earlier years are left out |
+| POST /api/teachers | Admin | Optional `password`; blank or missing means DEFAULT_PASSWORD. A change is forced at next login. The answer no longer holds any password |
+| POST /api/teachers/:id/reset-password | Admin | Teachers only (anyone else 404). Sets DEFAULT_PASSWORD, forces a change, ends sessions, clears a lockout. Answers only `{ message }` |
+| POST /api/parents/:id/reset-password | Teacher | Parents of the own center only (others 404). Same as above |
+| GET /api/teachers | Admin | Now also `q` (name or username), `status` (ACTIVE, DISABLED), `centerId` |
+| GET /api/reports | Admin, Teacher | Now also `status`. A Teacher still sees only the own center |
+

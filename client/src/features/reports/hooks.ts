@@ -1,4 +1,4 @@
-import type { ReviewInput } from "@ricportal/shared";
+import type { ReportStatus, ReviewInput } from "@ricportal/shared";
 import {
   keepPreviousData,
   useMutation,
@@ -39,10 +39,10 @@ export function useSubmitLiquidation() {
   return useMutation({ mutationFn: submitLiquidation, onSuccess: refresh });
 }
 
-export function useReports(page: number) {
+export function useReports(page: number, status?: ReportStatus) {
   return useQuery({
-    queryKey: ["reports", "list", page],
-    queryFn: () => fetchReports(page),
+    queryKey: ["reports", "list", page, status],
+    queryFn: () => fetchReports(page, status),
     placeholderData: keepPreviousData,
   });
 }

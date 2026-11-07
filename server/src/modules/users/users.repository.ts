@@ -25,8 +25,26 @@ const PARENT_SELECT = {
 
 export function createUsersRepository(prisma: PrismaClient) {
   return {
-    async listTeachers(input: { skip: number; take: number }) {
-      const where = { role: "TEACHER" } as const;
+    async listTeachers(input: {
+      skip: number;
+      take: number;
+      q?: string | undefined;
+      status?: "ACTIVE" | "DISABLED" | undefined;
+      centerId?: number | undefined;
+    }) {
+      const where = {
+        role: "TEACHER",
+        ...(input.status === undefined ? {} : { status: input.status }),
+        ...(input.centerId === undefined ? {} : { centerId: input.centerId }),
+        ...(input.q === undefined || input.q === ""
+          ? {}
+          : {
+              OR: [
+                { fullName: { contains: input.q } },
+                { username: { contains: input.q } },
+              ],
+            }),
+      } as const;
       const [rows, total] = await prisma.$transaction([
         prisma.user.findMany({
           where,

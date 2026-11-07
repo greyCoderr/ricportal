@@ -52,7 +52,7 @@ function ExtraText({
         <Input
           {...field}
           placeholder={placeholder}
-          value={(draft[name]) ?? ""}
+          value={draft[name] ?? ""}
           onChange={(event) => {
             setDraft((current) => ({ ...current, [name]: event.target.value }));
           }}

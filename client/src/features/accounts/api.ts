@@ -1,4 +1,6 @@
 import type {
+  PasswordResetResult,
+  TeacherListQuery,
   CenterCreateInput,
   CenterDto,
   CenterPatchInput,
@@ -8,7 +10,6 @@ import type {
   TeacherDto,
   TeacherPatchInput,
   UserStatus,
-  WithTemporaryPassword,
 } from "@ricportal/shared";
 import { apiGet, apiRequest } from "../../lib/api";
 
@@ -37,18 +38,18 @@ export async function updateCenter(id: number, input: CenterPatchInput) {
   ).data;
 }
 
-export async function fetchTeachers(page: number) {
-  return apiGet<TeacherDto[], PageMeta>(`/api/teachers?page=${String(page)}`);
+export async function fetchTeachers(page: number, filters: TeacherListQuery) {
+  const search = new URLSearchParams({ page: String(page) });
+  if (filters.q !== undefined) search.set("q", filters.q);
+  if (filters.status !== undefined) search.set("status", filters.status);
+  if (filters.centerId !== undefined) {
+    search.set("centerId", String(filters.centerId));
+  }
+  return apiGet<TeacherDto[], PageMeta>(`/api/teachers?${search.toString()}`);
 }
 
 export async function createTeacher(input: TeacherCreateInput) {
-  return (
-    await apiRequest<WithTemporaryPassword<TeacherDto>>(
-      "POST",
-      "/api/teachers",
-      input,
-    )
-  ).data;
+  return (await apiRequest<TeacherDto>("POST", "/api/teachers", input)).data;
 }
 
 export async function updateTeacher(id: number, input: TeacherPatchInput) {
@@ -59,7 +60,7 @@ export async function updateTeacher(id: number, input: TeacherPatchInput) {
 
 export async function resetTeacherPassword(id: number) {
   return (
-    await apiRequest<{ temporaryPassword: string }>(
+    await apiRequest<PasswordResetResult>(
       "POST",
       `/api/teachers/${String(id)}/reset-password`,
     )
@@ -91,7 +92,7 @@ export async function moveParent(id: number, action: ParentAction) {
 
 export async function resetParentPassword(id: number) {
   return (
-    await apiRequest<{ temporaryPassword: string }>(
+    await apiRequest<PasswordResetResult>(
       "POST",
       `/api/parents/${String(id)}/reset-password`,
     )

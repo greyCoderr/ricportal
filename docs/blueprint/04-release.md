@@ -16,6 +16,7 @@
 | TZ | `Asia/Manila` |
 | LOG_LEVEL | `info` |
 | ADMIN_USERNAME, ADMIN_PASSWORD | Used by the seed only; change the password at first login |
+| DEFAULT_PASSWORD | What a password reset, or a blank password on a new account, sets (D6). Set your own in production; a change is forced at the next login |
 
 **Release steps.**
 

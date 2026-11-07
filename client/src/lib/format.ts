@@ -1,4 +1,4 @@
-import { weekdayName } from "@ricportal/shared";
+import { formatNumericDate, manilaToday, weekdayName } from "@ricportal/shared";
 
 const SMALL_WORDS = new Set([
   "a",
@@ -62,3 +62,8 @@ export function formatLongDay(day: string): string {
 }
 
 export { formatNumericDate as formatDate, formatPeso } from "@ricportal/shared";
+
+// An instant from the API (an ISO time, not a calendar day) as its Manila date.
+export function formatInstantDate(instant: string): string {
+  return formatNumericDate(manilaToday(new Date(instant)));
+}

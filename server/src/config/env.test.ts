@@ -30,6 +30,7 @@ describe("parseEnv", () => {
       SESSION_HOURS: "8",
       ADMIN_USERNAME: "mao.admin",
       ADMIN_PASSWORD: "NotADefault2026",
+      DEFAULT_PASSWORD: "NotADefaultEither2026",
     });
 
     expect(env).toEqual({
@@ -48,6 +49,7 @@ describe("parseEnv", () => {
       SESSION_HOURS: 8,
       ADMIN_USERNAME: "mao.admin",
       ADMIN_PASSWORD: "NotADefault2026",
+      DEFAULT_PASSWORD: "NotADefaultEither2026",
       BCRYPT_COST: 12,
     });
   });
@@ -59,6 +61,7 @@ describe("parseEnv", () => {
     expect(env.SESSION_HOURS).toBe(8);
     expect(env.ADMIN_USERNAME).toBe("admin");
     expect(env.ADMIN_PASSWORD).toBe("Admin2026!");
+    expect(env.DEFAULT_PASSWORD).toBe("RICPortal2026!");
     expect(env.BCRYPT_COST).toBe(12);
   });
 
@@ -76,6 +79,7 @@ describe("parseEnv", () => {
       "SESSION_HOURS is missing",
       "ADMIN_USERNAME is missing",
       "ADMIN_PASSWORD is missing",
+      "DEFAULT_PASSWORD is missing",
     ]);
   });
 

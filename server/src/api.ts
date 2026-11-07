@@ -28,6 +28,10 @@ import { createCentersController } from "./modules/centers/centers.controller.js
 import { createCentersRepository } from "./modules/centers/centers.repository.js";
 import { createCentersRouter } from "./modules/centers/centers.routes.js";
 import { createCentersService } from "./modules/centers/centers.service.js";
+import { createDashboardController } from "./modules/dashboard/dashboard.controller.js";
+import { createDashboardRepository } from "./modules/dashboard/dashboard.repository.js";
+import { createDashboardRouter } from "./modules/dashboard/dashboard.routes.js";
+import { createDashboardService } from "./modules/dashboard/dashboard.service.js";
 import { createHealthController } from "./modules/health/health.controller.js";
 import type { HealthRepository } from "./modules/health/health.repository.js";
 import { createHealthRouter } from "./modules/health/health.routes.js";
@@ -116,6 +120,7 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
     createUsersService({
       repository: createUsersRepository(prisma),
       bcryptCost: config.BCRYPT_COST,
+      defaultPassword: config.DEFAULT_PASSWORD,
     }),
   );
 
@@ -158,6 +163,18 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
   );
 
   mounts.push(
+    {
+      path: "/api/dashboard",
+      router: createDashboardRouter(
+        createDashboardController(
+          createDashboardService({
+            repository: createDashboardRepository(prisma),
+            settings,
+          }),
+        ),
+        authenticate,
+      ),
+    },
     {
       path: "/api/liquidation",
       router: createLiquidationRouter(liquidationController, authenticate),

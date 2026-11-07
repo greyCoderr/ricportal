@@ -1,4 +1,5 @@
 import {
+  reportListQuerySchema,
   calendarQuerySchema,
   prDateQuerySchema,
   prQuerySchema,
@@ -58,6 +59,7 @@ export function createLiquidationController(service: LiquidationService) {
       const { rows, total } = await service.listReports(currentUser(req), {
         skip: page.skip,
         take: page.take,
+        ...parseWith(reportListQuerySchema, req.query),
       });
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },

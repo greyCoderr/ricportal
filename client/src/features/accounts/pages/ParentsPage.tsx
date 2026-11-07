@@ -2,7 +2,6 @@ import type { ParentDto, UserStatus } from "@ricportal/shared";
 import { useState } from "react";
 import { PageHeader } from "../../../components/PageHeader";
 import { QueryBoundary } from "../../../components/QueryBoundary";
-import { TemporaryPasswordDialog } from "../../../components/TemporaryPasswordDialog";
 import { useToast } from "../../../components/toast/ToastProvider";
 import {
   Button,
@@ -44,10 +43,6 @@ export function ParentsPage() {
   const [status, setStatus] = useState<UserStatus>("PENDING");
   const [page, setPage] = useState(1);
   const [confirmReset, setConfirmReset] = useState<ParentDto | null>(null);
-  const [temporary, setTemporary] = useState<{
-    name: string;
-    password: string;
-  } | null>(null);
   const parents = useParents({ status, page });
   const move = useMoveParent();
   const reset = useResetParentPassword();
@@ -88,9 +83,13 @@ export function ParentsPage() {
         ) : (
           <>
             <Table
+              cardsOnPhone
               caption="Parents"
               rows={parents.data?.data ?? []}
               rowKey={(row) => row.id}
+              rowClassName={(row) =>
+                row.status === "DISABLED" ? "bg-header text-text-secondary" : ""
+              }
               columns={[
                 { key: "name", header: "Name", render: (row) => row.fullName },
                 {
@@ -121,7 +120,6 @@ export function ParentsPage() {
                       {ACTIONS[row.status].map((item, index) => (
                         <Button
                           key={item.action}
-                          size="sm"
                           variant={index === 0 ? "primary" : "secondary"}
                           aria-label={`${item.label} ${row.fullName}`}
                           disabled={move.isPending}
@@ -144,14 +142,13 @@ export function ParentsPage() {
                       ))}
                       {row.status === "ACTIVE" && (
                         <Button
-                          size="sm"
                           variant="secondary"
                           aria-label={`Reset password of ${row.fullName}`}
                           onClick={() => {
                             setConfirmReset(row);
                           }}
                         >
-                          Reset password
+                          Reset to default
                         </Button>
                       )}
                     </div>
@@ -171,7 +168,7 @@ export function ParentsPage() {
       <ConfirmDialog
         open={confirmReset !== null}
         title="Reset this password?"
-        confirmLabel="Reset password"
+        confirmLabel="Reset to default"
         loading={reset.isPending}
         onCancel={() => {
           setConfirmReset(null);
@@ -182,9 +179,9 @@ export function ParentsPage() {
           }
           reset.mutate(confirmReset.id, {
             onSuccess: (result) => {
-              setTemporary({
-                name: confirmReset.fullName,
-                password: result.temporaryPassword,
+              toast.show({
+                kind: "success",
+                message: `${result.message} ${confirmReset.fullName} must change it at the next login.`,
               });
               setConfirmReset(null);
             },
@@ -195,19 +192,9 @@ export function ParentsPage() {
           });
         }}
       >
-        {confirmReset?.fullName} will get a temporary password and must change
-        it at the next login.
+        The password of {confirmReset?.fullName} goes back to the default, and
+        they must change it at the next login.
       </ConfirmDialog>
-      {temporary !== null && (
-        <TemporaryPasswordDialog
-          open
-          personName={temporary.name}
-          password={temporary.password}
-          onClose={() => {
-            setTemporary(null);
-          }}
-        />
-      )}
     </>
   );
 }

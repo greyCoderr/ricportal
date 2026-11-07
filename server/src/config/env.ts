@@ -58,6 +58,7 @@ const envSchema = z.object({
   SESSION_HOURS: wholeNumber(1, 168).optional(),
   ADMIN_USERNAME: z.string().min(4).max(30).optional(),
   ADMIN_PASSWORD: z.string().min(8).max(72).optional(),
+  DEFAULT_PASSWORD: z.string().min(8).max(72).optional(),
   BCRYPT_COST: wholeNumber(4, 15).optional(),
 });
 
@@ -68,6 +69,8 @@ type EnvKey = keyof ParsedEnv;
 const DEV_JWT_SECRET = "development-only-jwt-secret-not-for-production";
 const DEV_ADMIN_USERNAME = "admin";
 const DEV_ADMIN_PASSWORD = "Admin2026!";
+// D6: what a reset or a blank password on a new account sets.
+const DEV_DEFAULT_PASSWORD = "RICPortal2026!";
 
 const REQUIRED_IN_PRODUCTION = [
   "JWT_SECRET",
@@ -75,6 +78,7 @@ const REQUIRED_IN_PRODUCTION = [
   "SESSION_HOURS",
   "ADMIN_USERNAME",
   "ADMIN_PASSWORD",
+  "DEFAULT_PASSWORD",
 ] as const;
 
 export type Env = Omit<
@@ -86,6 +90,7 @@ export type Env = Omit<
   SESSION_HOURS: number;
   ADMIN_USERNAME: string;
   ADMIN_PASSWORD: string;
+  DEFAULT_PASSWORD: string;
   BCRYPT_COST: number;
 };
 
@@ -108,6 +113,7 @@ const RULES: Record<EnvKey, string> = {
   SESSION_HOURS: "must be a whole number from 1 to 168",
   ADMIN_USERNAME: "must be 4 to 30 characters",
   ADMIN_PASSWORD: "must be 8 to 72 characters",
+  DEFAULT_PASSWORD: "must be 8 to 72 characters",
   BCRYPT_COST: "must be a whole number from 4 to 15",
 };
 
@@ -142,6 +148,7 @@ function withDefaults(parsed: ParsedEnv): Env {
     SESSION_HOURS: parsed.SESSION_HOURS ?? 8,
     ADMIN_USERNAME: parsed.ADMIN_USERNAME ?? DEV_ADMIN_USERNAME,
     ADMIN_PASSWORD: parsed.ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD,
+    DEFAULT_PASSWORD: parsed.DEFAULT_PASSWORD ?? DEV_DEFAULT_PASSWORD,
     BCRYPT_COST: parsed.BCRYPT_COST ?? (parsed.NODE_ENV === "test" ? 4 : 12),
   };
 }

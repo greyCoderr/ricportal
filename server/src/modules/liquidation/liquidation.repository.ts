@@ -148,10 +148,14 @@ export function createLiquidationRepository(prisma: PrismaClient) {
 
     async listReports(input: {
       centerId: number | null;
+      status?: ReportStatus | undefined;
       skip: number;
       take: number;
     }) {
-      const where = input.centerId === null ? {} : { centerId: input.centerId };
+      const where = {
+        ...(input.centerId === null ? {} : { centerId: input.centerId }),
+        ...(input.status === undefined ? {} : { status: input.status }),
+      };
       const [rows, total] = await prisma.$transaction([
         prisma.report.findMany({
           where,

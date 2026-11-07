@@ -75,3 +75,27 @@ Summary (F3, 2026-11-07):
 - Tests changed for the new layout: `StudentForm.test.tsx` now clicks the Female radio and types MM/DD/YYYY into "5a. Date of Birth".
 - Decisions: DEC-039. Field mapping for the client: docs/ui-specs/student-form.md.
 - Not seen in a browser. Developer, please compare at 1440x900 and 390x844: the list against 78:260, the form against 258:5447. The family table is the tightest part at desktop widths.
+
+## F4 Admin pages and passwords
+
+Plan:
+1. Tests first: reset sets the default and forces a change; blank password on create uses the default; Admin resets only Teachers, a Teacher only Parents of their center; no password in logs or responses; dashboard counts against the database; matrix rows.
+2. DEFAULT_PASSWORD setting (required in production, default for development and the demo).
+3. Reset and create stop returning passwords; a plain confirmation instead.
+4. `GET /api/dashboard/summary` (Admin only, grouped queries).
+5. Filters on `GET /api/teachers` (q, status, centerId) and `GET /api/reports` (status).
+6. RIC Teachers like 267:9862: cards, search, filters, disabled rows per D8, reset to default.
+7. Reports like 268:12661: status cards, queue table, filter panel; the detail keeps the Stamp.
+8. Admin dashboard like 267:9689 with real counts; Calendar upload banner like 268:11404.
+9. Table renders cards on phones, so all these lists follow the phone frames.
+10. Full check in foreground steps, docs, commit.
+
+Summary (F4, 2026-11-07):
+
+- Built: DEFAULT_PASSWORD; reset and create no longer return any password (D6); `GET /api/dashboard/summary`; filters on teachers and reports; RIC Teachers like 267:9862 with disabled rows per D8; Reports like 268:12661; Admin Dashboard like 267:9689; the Calendar upload banner like 268:11404; `cardsOnPhone` on Table.
+- Tests first: 25 password and dashboard tests, 20 seen failing before the code, then all passing. They include a log capture proving no password reaches the logs, the reset rights for each role, and dashboard counts checked against the database. Client tests for the Teachers page and the dashboard.
+- Tests changed because D6 replaces the old rule, not to make them pass: in `accounts.db.test.ts` and `demo-flow.test.ts` the login now uses the default password in place of the temporary one from the response. `env.test.ts` adds DEFAULT_PASSWORD to the production list. The matrix adds the dashboard row.
+- Removed: TemporaryPasswordDialog.
+- Decisions: DEC-040. **Set your own DEFAULT_PASSWORD before any real deployment.**
+- Not seen in a browser. Developer, please compare at 1440x900 and 390x844: Teachers against 267:9862 and 378:16285, Reports against 268:12661 and 378:15917, Dashboard against 267:9689.
+- Full check at the end of F4: typecheck, lint and format clean, 1189 tests pass in 74 files, build succeeds. The test run took 610 s, past the 600 s foreground limit, so it finished as a background task with nothing else running.

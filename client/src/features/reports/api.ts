@@ -1,4 +1,5 @@
 import type {
+  ReportStatus,
   LiquidationData,
   PageMeta,
   ReportDetailDto,
@@ -47,8 +48,10 @@ export function reportPurchaseRequestUrl(id: number, date: string): string {
   return `/api/reports/${String(id)}/pdf/purchase-request?date=${date}`;
 }
 
-export function fetchReports(page: number) {
-  return apiGet<ReportDto[], PageMeta>(`/api/reports?page=${String(page)}`);
+export function fetchReports(page: number, status?: ReportStatus) {
+  const search = new URLSearchParams({ page: String(page) });
+  if (status !== undefined) search.set("status", status);
+  return apiGet<ReportDto[], PageMeta>(`/api/reports?${search.toString()}`);
 }
 
 export async function fetchReport(id: number) {

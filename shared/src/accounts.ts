@@ -109,6 +109,10 @@ export const teacherCreateSchema = z.object({
   username: usernameSchema,
   mobile: mobileSchema.optional().or(z.literal("").transform(() => undefined)),
   centerId: centerIdSchema,
+  // D6: blank means the default password. A change is forced either way.
+  password: passwordSchema
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
 });
 export type TeacherCreateInput = z.input<typeof teacherCreateSchema>;
 
@@ -119,6 +123,13 @@ export const teacherPatchSchema = z.object({
   status: z.enum(["ACTIVE", "DISABLED"]).optional(),
 });
 export type TeacherPatchInput = z.input<typeof teacherPatchSchema>;
+
+export const teacherListQuerySchema = z.object({
+  q: z.string().trim().max(100).optional(),
+  status: z.enum(["ACTIVE", "DISABLED"]).optional(),
+  centerId: z.coerce.number().int().positive().optional(),
+});
+export type TeacherListQuery = z.output<typeof teacherListQuerySchema>;
 
 // A user edits only their own name and mobile (D11). A blank mobile clears it,
 // except for a Parent, whose mobile is required since sign-up (service rule).
@@ -180,8 +191,17 @@ export type ParentDto = {
   createdAt: string;
 };
 
-// A temporary password is returned once and never stored in plain text.
-export type WithTemporaryPassword<T> = T & { temporaryPassword: string };
+// D6: a reset answers only with this; no password ever leaves the server.
+export const PASSWORD_RESET_MESSAGE = "The password was reset to the default.";
+export type PasswordResetResult = { message: string };
+
+export type DashboardSummary = {
+  activeTeachers: number;
+  disabledTeachers: number;
+  centersWithTeacher: number;
+  enrolledStudents: number;
+  reports: { submitted: number; needRevision: number; approved: number };
+};
 
 export type SignupResult = { centerName: string };
 

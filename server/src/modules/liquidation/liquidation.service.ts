@@ -1,3 +1,4 @@
+import type { ReportStatus } from "@ricportal/shared";
 import type {
   LiquidationData,
   ReportDetailDto,
@@ -252,7 +253,11 @@ export function createLiquidationService(deps: {
 
     async listReports(
       user: AuthUser,
-      page: { skip: number; take: number },
+      page: {
+        skip: number;
+        take: number;
+        status?: ReportStatus | undefined;
+      },
     ): Promise<{ rows: ReportDto[]; total: number }> {
       const { rows, total } = await repository.listReports({
         centerId: scopeToCenter(user),

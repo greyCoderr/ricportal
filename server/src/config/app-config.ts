@@ -11,4 +11,5 @@ export type AppConfig = Pick<
   | "COOKIE_SECURE"
   | "SESSION_HOURS"
   | "BCRYPT_COST"
+  | "DEFAULT_PASSWORD"
 >;

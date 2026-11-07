@@ -10,6 +10,7 @@ import {
   seedWorld,
   TEST_PASSWORD,
 } from "./api-harness.js";
+import { TEST_DEFAULT_PASSWORD } from "../test-config.js";
 import { createTestPrisma, resetDatabase } from "./test-database.js";
 
 let prisma: PrismaClient;
@@ -105,24 +106,19 @@ describe("teachers (Admin)", () => {
       res.body as {
         data: {
           username: string;
-          temporaryPassword: string;
           centerName: string;
         };
       }
     ).data;
     expect(data.username).toBe("teacher.sibujo");
     expect(data.centerName).toBe("Sibujo");
-    expect(data.temporaryPassword.length).toBeGreaterThanOrEqual(8);
+    expect(JSON.stringify(res.body)).not.toContain(TEST_DEFAULT_PASSWORD);
 
     const list = await admin.get("/api/teachers");
-    expect(JSON.stringify(list.body)).not.toContain(data.temporaryPassword);
+    expect(JSON.stringify(list.body)).not.toContain(TEST_DEFAULT_PASSWORD);
     expectNoSecrets(list.body);
 
-    const teacher = await loginAs(
-      app,
-      "teacher.sibujo",
-      data.temporaryPassword,
-    );
+    const teacher = await loginAs(app, "teacher.sibujo", TEST_DEFAULT_PASSWORD);
     const me = await teacher.get("/api/auth/me");
     expect(
       (me.body as { data: { mustChangePassword: boolean } }).data
@@ -201,7 +197,7 @@ describe("teachers (Admin)", () => {
     expect(res.status).toBe(404);
   });
 
-  it("reset gives a temporary password once and ends old sessions", async () => {
+  it("reset sets the default password and ends old sessions (D6)", async () => {
     const admin = await loginAs(app, "admin.t");
     const teacher = await loginAs(app, "teacher.a");
     const res = await admin.post(
@@ -209,11 +205,9 @@ describe("teachers (Admin)", () => {
     );
     expect(res.status).toBe(200);
     expectNoSecrets(res.body);
-    const temp = (res.body as { data: { temporaryPassword: string } }).data
-      .temporaryPassword;
 
     expect((await teacher.get("/api/auth/me")).status).toBe(401);
-    const again = await loginAs(app, "teacher.a", temp);
+    const again = await loginAs(app, "teacher.a", TEST_DEFAULT_PASSWORD);
     const me = await again.get("/api/auth/me");
     expect(
       (me.body as { data: { mustChangePassword: boolean } }).data
@@ -308,16 +302,14 @@ describe("parents (Teacher, own center)", () => {
     expect((await parentAgent.get("/api/auth/me")).status).toBe(401);
   });
 
-  it("reset gives a temporary password once", async () => {
+  it("reset sets the default password (D6)", async () => {
     const teacher = await loginAs(app, "teacher.a");
     const res = await teacher.post(
       `/api/parents/${String(world.parentA.id)}/reset-password`,
     );
     expect(res.status).toBe(200);
     expectNoSecrets(res.body);
-    const temp = (res.body as { data: { temporaryPassword: string } }).data
-      .temporaryPassword;
-    await loginAs(app, "parent.a", temp);
+    await loginAs(app, "parent.a", TEST_DEFAULT_PASSWORD);
   });
 
   it("BR-02: a Teacher of center A gets 404 for a Parent of center B", async () => {

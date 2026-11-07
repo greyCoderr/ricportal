@@ -1,10 +1,12 @@
-import type {
-  ParentDto,
-  teacherCreateSchema,
-  TeacherDto,
-  teacherPatchSchema,
-  UserStatus,
-  WithTemporaryPassword,
+import {
+  PASSWORD_RESET_MESSAGE,
+  type PasswordResetResult,
+  type ParentDto,
+  type teacherCreateSchema,
+  type TeacherDto,
+  type TeacherListQuery,
+  type teacherPatchSchema,
+  type UserStatus,
 } from "@ricportal/shared";
 import type { z } from "zod";
 import {
@@ -13,10 +15,7 @@ import {
   RuleViolationError,
   StateInvalidError,
 } from "../../core/errors.js";
-import {
-  generateTemporaryPassword,
-  hashPassword,
-} from "../../core/password.js";
+import { hashPassword } from "../../core/password.js";
 import type { UsersRepository } from "./users.repository.js";
 
 type TeacherRow = NonNullable<
@@ -65,8 +64,19 @@ export type ParentAction = "approve" | "decline" | "disable" | "enable";
 export function createUsersService(deps: {
   repository: UsersRepository;
   bcryptCost: number;
+  defaultPassword: string;
 }) {
-  const { repository, bcryptCost } = deps;
+  const { repository, bcryptCost, defaultPassword } = deps;
+
+  // D6: sets the default, forces a change at next login, ends old sessions and
+  // clears a lockout. Only a plain message goes back.
+  async function resetToDefault(id: number): Promise<PasswordResetResult> {
+    await repository.resetPassword(
+      id,
+      await hashPassword(defaultPassword, bcryptCost),
+    );
+    return { message: PASSWORD_RESET_MESSAGE };
+  }
 
   async function requireTeacherSlot(centerId: number, exceptId?: number) {
     const others = await repository.countOtherActiveTeachers(
@@ -96,14 +106,16 @@ export function createUsersService(deps: {
   }
 
   return {
-    async listTeachers(input: { skip: number; take: number }) {
+    async listTeachers(
+      input: { skip: number; take: number } & TeacherListQuery,
+    ) {
       const { rows, total } = await repository.listTeachers(input);
       return { rows: rows.map(toTeacherDto), total };
     },
 
     async createTeacher(
       input: z.output<typeof teacherCreateSchema>,
-    ): Promise<WithTemporaryPassword<TeacherDto>> {
+    ): Promise<TeacherDto> {
       await requireActiveCenter(input.centerId);
       if (await repository.usernameExists(input.username)) {
         throw new ConflictError("This username is already taken.", [
@@ -111,15 +123,17 @@ export function createUsersService(deps: {
         ]);
       }
       await requireTeacherSlot(input.centerId);
-      const temporaryPassword = generateTemporaryPassword();
       const row = await repository.createTeacher({
         username: input.username,
         fullName: input.fullName,
         mobile: input.mobile,
         centerId: input.centerId,
-        passwordHash: await hashPassword(temporaryPassword, bcryptCost),
+        passwordHash: await hashPassword(
+          input.password ?? defaultPassword,
+          bcryptCost,
+        ),
       });
-      return { ...toTeacherDto(row), temporaryPassword };
+      return toTeacherDto(row);
     },
 
     async updateTeacher(
@@ -150,12 +164,7 @@ export function createUsersService(deps: {
       if ((await repository.findTeacher(id)) === null) {
         throw new NotFoundError("This RIC Teacher was not found.");
       }
-      const temporaryPassword = generateTemporaryPassword();
-      await repository.resetPassword(
-        id,
-        await hashPassword(temporaryPassword, bcryptCost),
-      );
-      return { temporaryPassword };
+      return resetToDefault(id);
     },
 
     async listParents(input: {
@@ -200,12 +209,7 @@ export function createUsersService(deps: {
       if ((await repository.findParentInCenter(id, centerId)) === null) {
         throw new NotFoundError("This Parent was not found.");
       }
-      const temporaryPassword = generateTemporaryPassword();
-      await repository.resetPassword(
-        id,
-        await hashPassword(temporaryPassword, bcryptCost),
-      );
-      return { temporaryPassword };
+      return resetToDefault(id);
     },
   };
 }

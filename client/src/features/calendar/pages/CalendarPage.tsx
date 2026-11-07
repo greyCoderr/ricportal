@@ -1,10 +1,12 @@
 import { manilaToday, mondayOf, monthRange } from "@ricportal/shared";
 import { useCallback, useState } from "react";
+import { Link } from "react-router";
 import { PageHeader } from "../../../components/PageHeader";
 import {
   Button,
   ErrorState,
   FormField,
+  Icon,
   Select,
   Skeleton,
   SkeletonGroup,
@@ -231,11 +233,32 @@ export function CalendarPage() {
           <Skeleton className="h-6 w-1/2" />
         </SkeletonGroup>
       )}
-      {calendar.isSuccess && days.length === 0 && (
-        <p className="mb-3 text-15 text-text-secondary">
-          No menu uploaded for this month.
-        </p>
-      )}
+      {calendar.isSuccess &&
+        days.length === 0 &&
+        (user.role === "ADMIN" ? (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-control border border-dashed border-danger-text bg-danger-soft p-4">
+            <div>
+              <p className="text-15 font-semibold text-danger-text">
+                No Menu/Food Rotation Upload for this month
+              </p>
+              <p className="text-13">
+                Please upload a document containing the menu/food rotation for
+                this month.
+              </p>
+            </div>
+            <Link
+              to="/menu-imports"
+              className="inline-flex h-11 items-center gap-2 rounded-control bg-primary px-4 text-13 font-medium text-primary-contrast hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+            >
+              <Icon name="upload" size={16} />
+              Upload Document
+            </Link>
+          </div>
+        ) : (
+          <p className="mb-3 text-15 text-text-secondary">
+            No menu uploaded for this month.
+          </p>
+        ))}
       <FeedingCalendar
         days={days}
         selectedDate={selected}

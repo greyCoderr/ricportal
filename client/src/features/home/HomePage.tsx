@@ -4,6 +4,7 @@ import { Card } from "../../components/ui";
 import { LABELS } from "../../lib/labels";
 import { useCurrentUser } from "../auth/components/guards";
 import { EXTRA_LINKS_BY_ROLE, NAV_BY_ROLE } from "../../app/layouts/nav";
+import { AdminDashboardPage } from "../dashboard/pages/AdminDashboardPage";
 import { MySchedulePage } from "../purchase/pages/MySchedulePage";
 
 // Welcome panels. The Parent home is the My Schedule calendar (DEC-024).
@@ -12,6 +13,9 @@ export function HomePage() {
 
   if (user.role === "PARENT") {
     return <MySchedulePage />;
+  }
+  if (user.role === "ADMIN") {
+    return <AdminDashboardPage />;
   }
 
   const links = [
@@ -22,11 +26,7 @@ export function HomePage() {
     <>
       <PageHeader
         title={`Welcome, ${user.fullName}`}
-        description={
-          user.role === "ADMIN"
-            ? LABELS.admin
-            : `${LABELS.teacher}, ${user.centerName ?? ""}`
-        }
+        description={`${LABELS.teacher}, ${user.centerName ?? ""}`}
       />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {links.map((item) => (

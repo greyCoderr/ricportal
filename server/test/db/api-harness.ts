@@ -1,3 +1,4 @@
+import type { Logger } from "pino";
 import request from "supertest";
 import { createApp } from "../../src/app.js";
 import { createLogger } from "../../src/core/logger.js";
@@ -10,10 +11,11 @@ export const TEST_PASSWORD = "Test2026pw";
 
 export function buildApp(
   prisma: PrismaClient,
-  options: { now?: () => Date } = {},
+  options: { now?: () => Date; logger?: Logger } = {},
 ) {
   return createApp({
-    logger: createLogger({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
+    logger:
+      options.logger ?? createLogger({ NODE_ENV: "test", LOG_LEVEL: "silent" }),
     config: testConfig(),
     health: { repository: createHealthRepository(prisma) },
     prisma,

@@ -464,3 +464,21 @@ Decision:
 - Export List stays out (not in the sprint scope); the Enrollment Form button keeps its place.
 - `formatFormDate` in the PDF module is now the shared `formatNumericDate`, so there is one formatter (D7).
 Consequences: additive migration `20261107093727_polish_student_profile_extra`.
+
+## DEC-040: Defaults chosen in F4 (Admin pages and passwords)
+
+Context: details D6, D8 and D10 leave open. No question asked, per docs/POLISH_PLAN.md.
+Decision:
+- DEFAULT_PASSWORD is an environment setting, required in production and defaulting to `RICPortal2026!` elsewhere, like ADMIN_PASSWORD. The Admin's own password is not affected.
+- A password typed when creating a Teacher is used but still has to be changed at the next login, as with the default.
+- Parents sign up with their own password, so only the reset applies to them.
+- `generateTemporaryPassword` no longer has a caller. It stays because its test does; removing both is a BACKLOG item.
+- D8 says "Disabled", so that word replaces Figma's "Inactive" on the RIC Teachers page, in the badge, the filter and the card.
+- Dashboard cards: Figma's "Enrollment Reports Submitted" and "Accomplishment Reports Submitted" have no data before Objective 3, so those two cards show liquidation reports by status (Submitted, Approved). D10 asks for reports by status. "Registered RIC Teacher" and "Total Enrolled Students" and "Reports for Revision" keep Figma's labels.
+- "Registered RIC Teacher" counts active teachers only; "Total Enrolled Students" counts active students of the current school year (plan F4).
+- Quick Actions: Figma's "Send Feedback", "Monitor Enrolled Students" and "Review Applications" have no pages, so they are replaced by real links: View reports (Figma's label), RIC Teachers, Centers and Menu Imports. This also keeps Centers and Menu Imports reachable (D10).
+- RIC Teachers: Figma's Email becomes Username (no emails, DEC-034); Date Approved becomes Last Login (teachers are not approved); View Profile and the note about it are left out (no teacher profile page); Teacher ID is a display code from the row id, not stored.
+- Reports: the status cards replace Figma's report-type cards, and the Report Type, Month and Teacher filters and the tabs are left out, because only liquidation reports exist and the plan asks for a status filter. A # column, type badge and Barangay column follow the frame.
+- Table can render cards under 768 px (`cardsOnPhone`), used by the Teachers, Parents and Reports lists and the dashboard.
+- The Teachers page reads its cards from `GET /api/dashboard/summary` too, so there is one place that counts.
+Consequences: `DEFAULT_PASSWORD` is added to .env.example and the release runbook. TemporaryPasswordDialog is removed. **Before a real deployment, set your own DEFAULT_PASSWORD:** anyone who knows it can log in to a freshly reset account until its owner changes it.

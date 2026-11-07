@@ -1,4 +1,5 @@
 import type {
+  TeacherListQuery,
   CenterPatchInput,
   TeacherPatchInput,
   UserStatus,
@@ -54,17 +55,21 @@ export function useUpdateCenter() {
   });
 }
 
-export function useTeachers(page: number) {
+export function useTeachers(page: number, filters: TeacherListQuery = {}) {
   return useQuery({
-    queryKey: ["teachers", page],
-    queryFn: () => fetchTeachers(page),
+    queryKey: ["teachers", page, filters],
+    queryFn: () => fetchTeachers(page, filters),
     placeholderData: keepPreviousData,
   });
 }
 
 function useTeachersInvalidate() {
   const client = useQueryClient();
-  return () => client.invalidateQueries({ queryKey: ["teachers"] });
+  return () =>
+    Promise.all([
+      client.invalidateQueries({ queryKey: ["teachers"] }),
+      client.invalidateQueries({ queryKey: ["dashboard"] }),
+    ]);
 }
 
 export function useCreateTeacher() {

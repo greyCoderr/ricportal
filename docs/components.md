@@ -145,7 +145,9 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 
 | 2026-11-07 | F3 | `get_screenshot` | 78:260, 258:5447 | Enrolled Students, add enroll (labels read from the saved page metadata) |
 
-Polish calls so far: 24 of 120.
+| 2026-11-07 | F4 | `get_screenshot` | 268:12661, 267:9862, 267:9887, 268:11404 | Reports, RIC Teachers, Admin Profile, Admin Calendar |
+
+Polish calls so far: 28 of 120.
 
 ## Polish layout components
 
