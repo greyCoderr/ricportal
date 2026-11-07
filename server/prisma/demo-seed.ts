@@ -20,7 +20,7 @@ const PARENTS = [
   { username: "parent1", fullName: "Rosa Dela Cruz", childName: "Maria" },
   { username: "parent2", fullName: "Lito Santos", childName: "Jose" },
   { username: "parent3", fullName: "Nena Bautista", childName: "Ana" },
-  { username: "parent4", fullName: "Lito Ramos", childName: "Ben" },
+  { username: "parent4", fullName: "Carmen Ramos", childName: "Ben" },
 ];
 // The account the demo script's step 2 creates, removed so it can be redone.
 const LIVE_DEMO_TEACHER = "teacher.bahay";
