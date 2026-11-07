@@ -499,3 +499,14 @@ Context: the final full test run of F6 was stopped by the system because memory 
 Decision:
 - Final runs on this laptop: `npx vitest run --project unit --maxWorkers=1`, then `db`, then `client`, one after another. All three finished on one worker.
 - A CLI flag for these runs only. `vitest.config.mjs` keeps `maxWorkers: 2` (DEC-035), so nothing else changes. `npm run test` still runs all projects together, about 10 minutes on two workers, and is what memory stopped.
+
+## DEC-043: Fixes from the browser check after v0.9.1-demo
+
+Context: the Developer asked for the Playwright check on 2026-11-07, after the tag. It found problems the tests could not see.
+Decision:
+- The Figma exports of the waves and three footer logos had an opaque rgb(51,49,49) background baked in. It was removed from the client's own images in a browser canvas, with no new package. The waves keep the line color and use eight opacity levels to stay under 300 KB (164 KB). The originals stay in git history. If the client can supply transparent originals, they should replace these.
+- FullCalendar's rules are as specific as ours and load later, so the calendar's overrides carry one more class.
+- The icon button's hidden hover label is removed under 768 px, where it pushed the page sideways and there is no hover. The button keeps its aria-label.
+- The family table becomes a table from 1536 px (cards before that), because it clipped MM/DD/YYYY at 1440 px.
+- The five dashboard cards share one row from 1280 px, as Figma shows.
+- useNativeDialog restores focus when a dialog is removed while open, because the browser does this only on close().

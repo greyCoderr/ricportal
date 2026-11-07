@@ -36,7 +36,7 @@
   color: var(--color-text);
 }
 
-.ric-calendar .fc-day-today {
+.ric-calendar .fc .fc-daygrid-day.fc-day-today {
   background-color: var(--ric-calendar-fill);
 }
 
@@ -46,15 +46,22 @@
 }
 
 /* The whole cell is the button, so a day is easy to tap. */
-.ric-calendar .fc-daygrid-day-top {
+.ric-calendar .fc .fc-daygrid-day-top {
   position: static;
   display: block;
+}
+
+.ric-calendar .fc .fc-daygrid-day-number {
+  position: static;
+  padding: 0;
 }
 
 .ric-day-button {
   position: absolute;
   inset: 0;
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
   padding: 2px 4px;
   text-align: left;
   color: var(--color-text);

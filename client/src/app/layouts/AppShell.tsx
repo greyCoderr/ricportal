@@ -55,7 +55,7 @@ function SidebarBrand({ role }: { role: Role }) {
     );
   }
   return (
-    <div className="flex shrink-0 items-center gap-4 border-b border-primary px-6 py-5 text-nav-text">
+    <div className="flex shrink-0 items-center gap-3 border-b border-primary py-5 pr-1 pl-6 text-nav-text">
       <img
         src={emblem}
         alt={EMBLEM_ALT}
@@ -65,15 +65,19 @@ function SidebarBrand({ role }: { role: Role }) {
         <p className="text-20 tracking-label">
           <span className="text-primary">RIC</span>Portal
         </p>
-        <p className="text-12 tracking-label">Rural Improvement Club</p>
-        <p className="text-12 tracking-label">Libmanan, Camarines Sur</p>
+        <p className="text-12 tracking-label whitespace-nowrap">
+          Rural Improvement Club
+        </p>
+        <p className="text-12 tracking-label whitespace-nowrap">
+          Libmanan, Camarines Sur
+        </p>
       </div>
     </div>
   );
 }
 
 function itemClass(role: Role, isActive: boolean): string {
-  const base = `flex h-[53px] shrink-0 items-center gap-3 rounded-card px-3 text-left tracking-label ${NAV_FOCUS}`;
+  const base = `flex h-[53px] shrink-0 items-center gap-3 rounded-card px-3 text-left tracking-label whitespace-nowrap ${NAV_FOCUS}`;
   const weight =
     role === "ADMIN" ? "text-15 font-medium" : "text-15 font-light";
   if (!isActive) {
@@ -81,7 +85,7 @@ function itemClass(role: Role, isActive: boolean): string {
   }
   return role === "ADMIN"
     ? `${base} ${weight} bg-primary text-primary-contrast`
-    : `${base} ${weight} border-l-8 border-primary bg-nav-selected text-nav-selected-text`;
+    : `${base} ${weight} border-l-8 border-primary bg-nav-selected pl-1 text-nav-selected-text`;
 }
 
 function SidebarContent({

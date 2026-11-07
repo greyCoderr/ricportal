@@ -141,6 +141,8 @@ describe("IconButton", () => {
     expect(visible?.getAttribute("aria-hidden")).toBe("true");
     expect(visible?.classList).toContain("invisible");
     expect(visible?.classList).toContain("group-hover:visible");
+    // It must not push the page sideways on a phone (found in the browser, F6).
+    expect(visible?.classList).toContain("max-md:hidden");
     expect(visible?.classList).toContain("group-focus-visible:visible");
   });
 

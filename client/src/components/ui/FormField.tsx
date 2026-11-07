@@ -15,8 +15,8 @@ type FormFieldProps = {
   required?: boolean;
   // Keeps the label for screen readers when the row already shows its meaning.
   hideLabel?: boolean;
-  // The same, from 1280 px: a table row with a header above it (cards before that).
-  hideLabelFrom?: "xl";
+  // The same, from 1536 px: a table row with a header above it (cards before that).
+  hideLabelFrom?: "2xl";
   children: (field: FieldControlProps) => ReactNode;
 };
 
@@ -60,7 +60,7 @@ export function FormField({
         className={
           hideLabel
             ? "sr-only"
-            : `text-15 font-medium text-text ${hideLabelFrom === "xl" ? "xl:sr-only" : ""}`
+            : `text-15 font-medium text-text ${hideLabelFrom === "2xl" ? "2xl:sr-only" : ""}`
         }
       >
         {label}

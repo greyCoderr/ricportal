@@ -151,8 +151,49 @@ Summary (F6, 2026-11-07):
 - The smoke test used the demo data already in the local database. **The new seed was not run on it**, because it clears Sibujo's data. The seed itself is tested on the test database. Run `npm run db:seed:demo` on demo morning.
 - The server logs two notices from the PDF library when a PDF is made: no URL or local access policy is defined. This was not looked into. BACKLOG item for hardening.
 - Docs: DEMO_SCRIPT has the new pages, the Assign Parents flow, the Parent flow, the default password reset and a short visual checklist. DEC-042.
-- **Still not done: the plan's width-by-width check and Figma comparison in a browser.** Playwright did not connect during F1 to F6. It connected at the start of this final session, but this session's instructions were to start nothing new, so no page was opened. docs/DEMO_SCRIPT.md has the checklist.
+- The browser check was not part of the tag v0.9.1-demo. It ran afterwards; see below.
 
 ## Polish summary
 
 F1 to F6 done on branch demo-polish, tag v0.9.1-demo, not pushed. 31 of 120 Figma calls used. Decisions DEC-037 to DEC-042. Nothing was started on Objective 3 beyond the placeholders D10 asks for.
+
+## Browser check after the tag (2026-11-07)
+
+Asked for by the Developer. Playwright against the built app on port 3000, with the demo data already in the local database. Nothing was saved: no write requests other than login and logout were sent.
+
+Audit: 18 pages across the three roles at 360, 390, 768, 1024, 1280, 1440 and 1920 px, measuring sideways page scroll, tap targets under 44 px up to 768 px, and page errors. 31 scripted interactions.
+
+Bugs found that the tests could not see, all fixed:
+
+| Bug | Cause | Fix |
+| --- | --- | --- |
+| Login page dark gray, with unreadable text | The Figma export of the waves had an opaque background | Background removed. In F1 the asset was viewed and the dark color was wrongly taken for how transparency displays |
+| Dark boxes behind the footer logos | Same, on three logos | Background removed |
+| Page scrolled 68 px sideways on Enrolled Students at 360 and 390 px | The hidden hover label of the row icons stuck out | Label removed under 768 px |
+| Day button only 8 px wide, so cells were hard to tap and the selection ring was tiny | FullCalendar's number link is position relative | Number link made static; the button fills the cell (154x90 on desktop, 48x61 on a 390 px phone) |
+| Today not filled | FullCalendar's rule won | More specific rule |
+| Focus lost after closing a modal or drawer | Screens remove the dialog without closing it | Restored in useNativeDialog; test seen failing first |
+| Organization name and ENROLLED STUDENTS wrapped in the sidebar | Too little room | Spacing changed, no wrapping |
+| MM/DD/YYYY clipped in the family table at 1440 px | Nine columns | Cards until 1536 px |
+| Dashboard cards wrapped to two rows | Breakpoint | One row from 1280 px |
+
+Also a bug in my own first fix: the day number sat on top of the dish, because a button centers its content. Fixed and rechecked.
+
+Confirmed working in the browser: LOGOUT stays at the bottom while scrolling, and the menu scrolls inside the sidebar on a short window; the phone menu opens, and closes on a choice, Escape or a backdrop tap; the Assign Parents modal (four dropdowns, no parent offered twice, Step 2, CANCEL, Escape) fits a phone and SAVE can be reached; the masked date field refuses 02/30/2020 and accepts 02/29/2024; a Parent sees check marks on their own days and "not assigned" on others, with no budget text; clicking a cell or a dish, and Enter on a dish, select the day.
+
+Results of the final run: no page scroll and no small tap target in the audit of 126 views. One thing to know about that run: it hit the server's limit of 5000 requests in 15 minutes on its last view, because every image counts. Only Parent Profile at 1440 and 1920 px were affected. They were rechecked and pass. After the later fixes, Calendar, Enrolled Students and the student form were audited again at all seven widths, with no findings and no 429. A demo will not come near this limit.
+
+The 16 px gap at the calendar's right edge in the first screenshots was an artifact of full-page capture, where the scrollbar goes away. The grid is correct in the real viewport.
+
+Checks after the fixes: typecheck and lint clean, client project 398 of 398 on one worker, build succeeds. The unit and db projects were not rerun, because only client files changed since they passed.
+
+Not checked:
+
+- Saving in the browser: SAVE in the modal, and a Parent's add, edit and delete. The API and component tests cover these. The check left the demo data untouched on purpose.
+- Pages with report data. The local database has no reports, so Reports, Report Status and Admin Feedback were seen empty, and the report detail page was not seen.
+- The new demo seed on the local database.
+- Figma was compared by eye from screenshots, not measured.
+- Real phones, and browsers other than Chromium.
+- The PDFs next to the official forms.
+
+Open: port 3000 was still held by a server after the last `npm start` was stopped, probably that session's node process surviving. A check that would identify it was refused by the permission system, so it was left running. It serves the current build. Close it, or restart the laptop, before `npm start` on demo day.

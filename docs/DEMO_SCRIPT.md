@@ -92,16 +92,13 @@ Cut or simplified: see docs/SPRINT_SHORTCUTS.md (Progress tab, Admin students-by
 
 ## Visual checklist before the demo
 
-**No page of this polish has been opened in a real browser yet.** The automated tests and the smoke test cover the API, component logic and source patterns, not how the pages look. Use the browser's device toolbar at 1440x900 and 390x844.
+Layout at every width from 360 to 1920 px, the calendar, the sidebar, the phone menu and the Assign Parents modal were checked in a real browser (Chromium) with the older demo data; see docs/POLISH_LOG.md. These remain for you:
 
-- [ ] Run `npm run db:seed:demo` first. The smoke test ran on the older demo data, so the new seed (parent4, the week team, rows by both roles) has run only on the test database.
-- [ ] **Calendar** (highest risk, tests cannot render it): month title and arrows; tapping a cell and a dish both select the day; today filled; selected day ringed; dots on a phone. Figma 166:1553, 393:1133.
-- [ ] **Sidebar**: LOGOUT stays at the bottom while a long page scrolls. Under 1024 px the top bar and the menu drawer replace it.
-- [ ] **No sideways page scroll** on any page at 360 px.
-- [ ] **Login**: photo, emblem and waves. The photo is exported small and may look soft. Figma 241:1732, 393:1102.
-- [ ] **Student form** at 1280 px: the family table is the tightest part. Figma 258:5447.
-- [ ] **Assign Parents** on a phone: the cards fit and SAVE can be reached.
-- [ ] **Dialogs**: Escape closes them and focus returns to the button.
+- [ ] Run `npm run db:seed:demo` first. The new seed (parent4, the week team, rows by both roles) has run only on the test database.
+- [ ] If `npm start` says port 3000 is in use, an earlier server is still running. Close it first, or restart the laptop.
+- [ ] Walk the click path once, with real saves: **SAVE** in Assign Parents, a Parent's add, edit and delete, and Lock day. The browser check saved nothing.
+- [ ] After submitting a report, look at the pages that were empty in the check: **REPORTS**, the report with its Stamp, **REPORT STATUS** and **ADMIN FEEDBACK**.
+- [ ] Log in on a real phone if you have one on the same network.
+- [ ] Compare the login photo on the demo screen. It is exported small to stay under 300 KB and may look soft.
 - [ ] **PDFs** next to the photos of the official forms.
-
-Other frames to compare if time allows: Teacher Home 175:1023, Enrolled Students 78:260, Admin Dashboard 267:9689, RIC Teachers 267:9862, Reports 268:12661, Report Status 78:284, Admin Feedback 78:276, Profile 88:695, footer 268:10479.
+- [ ] Two browsers on one day: Teacher and Parent editing the same row shows "Updated by someone else. Your change was not saved."

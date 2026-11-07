@@ -11,3 +11,8 @@ Changed: navigation labels (D10); a Parent sees the whole center calendar (D2) a
 Removed: the `/assignments` page, ParentLayout, TemporaryPasswordDialog.
 
 Migrations (additive): `20261107085701_polish_week_team_created_by`, `20261107093727_polish_student_profile_extra`.
+
+## After v0.9.1-demo (2026-11-07)
+
+Fixed, from the browser check: dark background on the login page and the footer logos; sideways scroll on Enrolled Students on phones; the day button and the today fill on the calendar; focus after closing a modal or drawer; wrapping in the sidebar; the family table at 1440 px; the dashboard cards.
+

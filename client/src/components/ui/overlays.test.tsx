@@ -16,6 +16,30 @@ describe.each([
   ["Modal", Modal],
   ["Drawer", Drawer],
 ] as const)("%s", (_name, Overlay) => {
+  // Most screens remove the overlay instead of closing it, so the browser never
+  // restores focus by itself (found in a real browser, polish F6).
+  it("gives focus back to the opener when it is removed while open", () => {
+    function Screen({ showing }: { showing: boolean }) {
+      return (
+        <>
+          <button type="button">Opener</button>
+          {showing && (
+            <Overlay open onClose={() => undefined} title="Add a student">
+              <button type="button">Inside</button>
+            </Overlay>
+          )}
+        </>
+      );
+    }
+    const { rerender } = render(<Screen showing={false} />);
+    const opener = screen.getByRole("button", { name: "Opener" });
+    opener.focus();
+    rerender(<Screen showing />);
+    screen.getByRole("button", { name: "Inside" }).focus();
+    rerender(<Screen showing={false} />);
+    expect(document.activeElement).toBe(opener);
+  });
+
   it("is a native dialog that opens and closes with its prop", () => {
     const { container, rerender } = render(
       <Overlay open={false} onClose={() => undefined} title="Add a student">

@@ -26,3 +26,5 @@ Deferred ideas: item, who asked, reason, and the phase it might belong to.
 - Remove `generateTemporaryPassword` and its test, unused since D6 (DEC-040). Asked by: Claude. Phase: 8.
 - Look at the PDF library's notices about URL and local file access policies, and set them if needed (POLISH_LOG, F6). Asked by: Claude. Phase: 8.
 - Watch for the intermittent 404 in `assignments-week.db.test.ts` (POLISH_LOG, F6). The setup now prints the real cause if it returns. Asked by: Claude. Phase: 8.
+- FullCalendar's icon font is a data: URL, which the font-src 'self' policy blocks, giving one console error on calendar pages. Harmless: the toolbar with those icons is replaced. Remove the error in hardening. Asked by: Claude. Phase: 8.
+- `.playwright-mcp/` is not in .gitignore. Add it if the Playwright tool stays in use. Asked by: Claude. Phase: 8.
