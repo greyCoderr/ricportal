@@ -154,15 +154,24 @@ describe("ProfilePage (D11)", () => {
     fireEvent.click(
       await screen.findByRole("button", { name: "Change Password" }),
     );
-    fireEvent.change(screen.getByLabelText(/Current password/, { selector: "input" }), {
-      target: { value: "Demo2026!" },
-    });
-    fireEvent.change(screen.getByLabelText(/^New password/, { selector: "input" }), {
-      target: { value: "Fresh2026pw" },
-    });
-    fireEvent.change(screen.getByLabelText(/Confirm new password/, { selector: "input" }), {
-      target: { value: "Fresh2026pw" },
-    });
+    fireEvent.change(
+      screen.getByLabelText(/Current password/, { selector: "input" }),
+      {
+        target: { value: "Demo2026!" },
+      },
+    );
+    fireEvent.change(
+      screen.getByLabelText(/^New password/, { selector: "input" }),
+      {
+        target: { value: "Fresh2026pw" },
+      },
+    );
+    fireEvent.change(
+      screen.getByLabelText(/Confirm new password/, { selector: "input" }),
+      {
+        target: { value: "Fresh2026pw" },
+      },
+    );
     fireEvent.click(screen.getByRole("button", { name: "Save password" }));
     expect(await screen.findByText("Your password was changed.")).toBeDefined();
     expect(
@@ -197,15 +206,24 @@ describe("ProfilePage (D11)", () => {
     fireEvent.click(
       await screen.findByRole("button", { name: "Change Password" }),
     );
-    fireEvent.change(screen.getByLabelText(/Current password/, { selector: "input" }), {
-      target: { value: "Wrong2026pw" },
-    });
-    fireEvent.change(screen.getByLabelText(/^New password/, { selector: "input" }), {
-      target: { value: "Fresh2026pw" },
-    });
-    fireEvent.change(screen.getByLabelText(/Confirm new password/, { selector: "input" }), {
-      target: { value: "Fresh2026pw" },
-    });
+    fireEvent.change(
+      screen.getByLabelText(/Current password/, { selector: "input" }),
+      {
+        target: { value: "Wrong2026pw" },
+      },
+    );
+    fireEvent.change(
+      screen.getByLabelText(/^New password/, { selector: "input" }),
+      {
+        target: { value: "Fresh2026pw" },
+      },
+    );
+    fireEvent.change(
+      screen.getByLabelText(/Confirm new password/, { selector: "input" }),
+      {
+        target: { value: "Fresh2026pw" },
+      },
+    );
     fireEvent.click(screen.getByRole("button", { name: "Save password" }));
     expect(
       await screen.findByText("Your current password is not correct."),

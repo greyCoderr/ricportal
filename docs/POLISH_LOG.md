@@ -29,3 +29,27 @@ Summary (F1 done, 2026-11-07):
 - Decisions: DEC-037. Blueprint rows BR-05, BR-12, BR-14, A-06, A-14, A-17 updated.
 - Not seen in a browser: the Playwright tool is not connected, and this session has no other browser check. Developer, please compare at 1440x900 and 390x844: Login against 241:1732 and 393:1102; sidebars against 166:910 and 267:9689; Profile against 88:695; footer against 268:10479. Check that LOGOUT stays at the bottom while the page scrolls.
 - Known issue to check by eye: the waves image may need its position adjusted on wide screens.
+
+## F2 Calendar, assignment, Parent flow
+
+Plan:
+1. Additive migration: `purchase_items.created_by` and a table for the week team.
+2. Tests first: week rules (5th member, approved, same center, team membership, Monday to Sunday, non-feeding dates, rollback), Parent row rules, Parent visibility, matrix rows.
+3. `GET` and `PUT /api/assignments/week`; the old per-day PUT stays but cannot break the limit of 4.
+4. `/api/parent-schedule` returns the whole center (D2), with status only on assigned days.
+5. Parent add, edit, delete per D3; `canDelete` on each row, computed on the server.
+6. Calendar like Figma: month title, weekday bar, today fill, grid on phones too, selected day panels (Today's Menu, Assigned Parents, Purchase Request).
+7. Assign Parents modal: Step 1 team of up to 4, Step 2 day by parent grid, Apply to all days, counts, warnings, one Save, cards on phones.
+8. Parent calendar and Parent day screen with add, edit, delete.
+9. Summary one-liner on the calendar linking to the overlay (D5); correct the DEC-037 note on the phone top bar and rebuild it from 378:15722.
+10. Full check in foreground steps, docs, commit.
+
+Summary (F2, 2026-11-07):
+
+- Built: `GET` and `PUT /api/assignments/week` with the week team table; the per-day PUT keeps to D4; the Parent schedule returns the whole center (D2); Parents add, edit and delete rows (D3) with `canDelete` from the server; the calendar like Figma with day panels; the Assign Parents modal (two steps, Apply to all days, counts, warnings, one SAVE); the shared Purchase Request table; the D5 summary line; the phone top bar from 378:15722.
+- Tests first: 31 week and Parent tests, 27 seen failing before the code, then all passing, including rollback. Client tests for the modal, Parent screen and calendar helpers.
+- Tests changed because D2 and D3 replace the old rule, not to make them pass: in `purchase.db.test.ts`, the Parent rename test now expects 200 and the rename to stick; "a Parent cannot add or delete" keeps the delete, open, lock and unlock refusals, and adding moved to the new D3 tests; the schedule test now filters on `assigned`. In `demo-flow.test.ts`, the schedule check filters on `assigned`. `ParentDayScreen.test.tsx` is rewritten for the table and the D3 actions. The matrix now allows a Parent on item add and delete.
+- Removed: the `/assignments` page and AssignParentsDialog, replaced by the modal.
+- Decisions: DEC-038. The DEC-037 note on the phone top bar was wrong and is corrected.
+- Not seen in a browser: FullCalendar needs a real browser, so the jsdom tests cover only its helpers. Developer, please check at 1440x900 and 390x844: the calendar against 166:1553, 393:1133 and 378:15722; tapping a day; the check mark on a Parent's days; the modal on a phone.
+- Full check at the end of F2: typecheck, lint and format clean, 1070 tests pass in 65 files, build succeeds. The build warns that the main script is over 500 kB (759 kB, 225 kB gzipped). Harmless on localhost for the demo.

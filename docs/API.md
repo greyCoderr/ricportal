@@ -150,3 +150,18 @@ Money travels as decimal strings, computed on the server with half-up rounding t
 | GET /api/reports/:id/pdf/summary, /transmittal, /purchase-request?date= | Teacher (own), Admin | Built from the snapshot (P6-T08) |
 
 `POST /api/purchase-requests/:date/unlock` answers 409 for a day that is part of a submitted report.
+
+## Demo polish: week assignment and Parent rows (F2)
+
+| Endpoint | Role | Notes |
+| --- | --- | --- |
+| GET /api/assignments/week?week=YYYY-MM-DD | Teacher | The week is its Monday (400 otherwise). Returns `{ week, team: [{ id, fullName, username }], days: [{ date, dayName, menuName, status, parents }] }`, seven days |
+| PUT /api/assignments/week | Teacher | Body `{ week, teamParentIds, days: [{ date, parentIds }] }` (`weekSaveSchema`). Replaces the team and all days of the week in one transaction. 422: over 4 team members, a duplicate, a parent not approved or of another center, a day parent outside the team, a date outside Monday to Sunday, a date with no menu, a date listed twice |
+| PUT /api/assignments/:date | Teacher | Unchanged body. Now also 422 when it would take the week's team past 4; adds a new parent to the team |
+| GET /api/parent-schedule?from&to | Parent | Now every menu of the range for the Parent's center: `{ date, dayName, menuName, assigned, status, parents: [{ id, fullName }] }`. `status` is null unless assigned. 400 over 62 days or backwards |
+| POST /api/purchase-requests/:date/items | Teacher, assigned Parent | A Parent on any other day gets 404; locked or No feeding 409. Keeps `created_by`. Opens a day that was not opened |
+| PATCH /api/purchase-items/:id | Teacher, assigned Parent | A Parent may now change the description as well |
+| DELETE /api/purchase-items/:id | Teacher, assigned Parent | A Parent only rows they created (403 otherwise); another day 404; locked 409 |
+| Every purchase item | | Now carries `canDelete`, computed for the reader |
+| GET /api/parents/approved | Teacher | Now also returns `username` |
+

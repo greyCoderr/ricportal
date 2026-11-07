@@ -2,6 +2,7 @@ import {
   assignmentPutSchema,
   assignmentWeekSchema,
   scheduleQuerySchema,
+  weekSaveSchema,
 } from "@ricportal/shared";
 import type { Request, Response } from "express";
 import { currentUser } from "../../core/middleware/authenticate.js";
@@ -14,6 +15,21 @@ export function createAssignmentsController(service: AssignmentsService) {
     week: async (req: Request, res: Response) => {
       const { week } = parseWith(assignmentWeekSchema, req.query);
       ok(res, await service.week(currentUser(req), week));
+    },
+
+    readWeek: async (req: Request, res: Response) => {
+      const { week } = parseWith(assignmentWeekSchema, req.query);
+      ok(res, await service.readWeek(currentUser(req), week));
+    },
+
+    saveWeek: async (req: Request, res: Response) => {
+      ok(
+        res,
+        await service.saveWeek(
+          currentUser(req),
+          parseWith(weekSaveSchema, req.body),
+        ),
+      );
     },
 
     replace: async (req: Request, res: Response) => {

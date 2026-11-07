@@ -59,6 +59,7 @@ async function clearDemoData(prisma: PrismaClient, centerId: number) {
   await prisma.childProgress.deleteMany({ where: students });
   await prisma.student.deleteMany({ where: { centerId } });
   await prisma.feedingAssignment.deleteMany({ where: { centerId } });
+  await prisma.weekTeamMember.deleteMany({ where: { centerId } });
   // Items go with their Purchase Request.
   await prisma.purchaseRequest.deleteMany({ where: { centerId } });
   const report = { report: { centerId } };

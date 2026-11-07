@@ -1,113 +1,28 @@
-import { mondayOf, type CalendarDay } from "@ricportal/shared";
+import { manilaToday, mondayOf, monthRange } from "@ricportal/shared";
 import { useCallback, useState } from "react";
 import { PageHeader } from "../../../components/PageHeader";
-import { QueryBoundary } from "../../../components/QueryBoundary";
-import { useToast } from "../../../components/toast/ToastProvider";
 import {
   Button,
-  Drawer,
-  EmptyState,
   ErrorState,
   FormField,
   Select,
   Skeleton,
   SkeletonGroup,
-  Tabs,
 } from "../../../components/ui";
-import { formatLongDay, formatMenuName } from "../../../lib/format";
+import { formatPeso } from "../../../lib/format";
 import { useCenters } from "../../accounts/hooks";
 import { useCurrentUser } from "../../auth/components/guards";
-import { AssignParentsDialog } from "../../purchase/components/AssignParentsDialog";
+import { AssignParentsModal } from "../../purchase/components/AssignParentsModal";
 import {
   AdminPurchaseRequest,
   PurchaseRequestEditor,
 } from "../../purchase/components/PurchaseRequestEditor";
-import { useSetAssignments, useWeek } from "../../purchase/hooks";
+import { useAssignmentWeek } from "../../purchase/hooks";
 import { LiquidationOverlay } from "../../reports/components/LiquidationOverlay";
+import { useLiquidationPreview } from "../../reports/hooks";
+import { DayPanels } from "../components/DayPanels";
 import { FeedingCalendar } from "../components/FeedingCalendar";
 import { useCalendar, type DayRange } from "../hooks";
-
-export function DayDetails({ day }: { day: CalendarDay }) {
-  return (
-    <dl className="flex flex-col gap-3">
-      <div>
-        <dt className="text-13 text-text-secondary">DSWD Day {day.dayNo}</dt>
-        <dd className="text-20 font-semibold">
-          {formatMenuName(day.menuName)}
-        </dd>
-      </div>
-      <div>
-        <dt className="text-13 text-text-secondary">PR No.</dt>
-        <dd className="text-16">{day.prNo}</dd>
-      </div>
-      <div>
-        <dt className="text-13 text-text-secondary">PR date</dt>
-        <dd className="text-16">{day.prDate}</dd>
-      </div>
-    </dl>
-  );
-}
-
-function AssignedParentsTab({ date }: { date: string }) {
-  const monday = mondayOf(date);
-  const week = useWeek(monday);
-  const assign = useSetAssignments(monday);
-  const toast = useToast();
-  const [editing, setEditing] = useState(false);
-  const day = week.data?.find((row) => row.date === date);
-  const parents = day?.parents ?? [];
-  return (
-    <QueryBoundary
-      query={week}
-      errorTitle="Could not load the assigned Parents."
-    >
-      {parents.length === 0 ? (
-        <EmptyState
-          title={`No Parents assigned to ${formatLongDay(date)} yet.`}
-        />
-      ) : (
-        <ul className="mb-3 flex flex-col gap-1 text-16">
-          {parents.map((parent) => (
-            <li key={parent.id}>{parent.fullName}</li>
-          ))}
-        </ul>
-      )}
-      <div className="mt-3">
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setEditing(true);
-          }}
-        >
-          Assign parents
-        </Button>
-      </div>
-      {editing && (
-        <AssignParentsDialog
-          title={`Parents for ${formatLongDay(date)}`}
-          assigned={parents}
-          saving={assign.isPending}
-          onClose={() => {
-            setEditing(false);
-          }}
-          onSave={(next) => {
-            assign.mutate(
-              { date, parents: next },
-              {
-                onSuccess: () => {
-                  setEditing(false);
-                },
-                onError: (error) => {
-                  toast.show({ kind: "error", message: error.message });
-                },
-              },
-            );
-          }}
-        />
-      )}
-    </QueryBoundary>
-  );
-}
 
 function AdminCenterSelect({
   centerId,
@@ -146,18 +61,106 @@ function AdminCenterSelect({
   );
 }
 
-// Calendar for Admin and Teacher. Both see the same menus (P4-T11). The panel
-// has tabs for the Teacher, and a read-only Purchase Request for the Admin once
-// a center is chosen (P5-T13, P5-T16).
+// D5: one line for the month; the table itself is in the overlay's Summary tab.
+function MonthSummary({ date, onOpen }: { date: string; onOpen: () => void }) {
+  const { from, to } = monthRange(date);
+  const preview = useLiquidationPreview(from, to);
+  if (preview.data === undefined) {
+    return null;
+  }
+  return (
+    <p className="mt-6 flex flex-wrap items-center gap-x-3 text-15">
+      <span>
+        This month: {preview.data.days.length} feeding days, total{" "}
+        <span className="tabular-nums">{formatPeso(preview.data.total)}</span>.
+      </span>
+      <button
+        type="button"
+        onClick={onOpen}
+        className="inline-flex min-h-11 items-center font-medium text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+      >
+        View Summary of Disbursement
+      </button>
+    </p>
+  );
+}
+
+function TeacherDayPanels({
+  date,
+  menuName,
+  onAssign,
+}: {
+  date: string;
+  menuName: string | null;
+  onAssign: () => void;
+}) {
+  const week = useAssignmentWeek(mondayOf(date));
+  const parents = week.data?.days.find((day) => day.date === date)?.parents;
+  return (
+    <DayPanels
+      date={date}
+      menuName={menuName}
+      parents={parents ?? []}
+      parentsAction={
+        <Button variant="secondary" icon="users" onClick={onAssign}>
+          Assign Parents
+        </Button>
+      }
+      purchaseRequest={
+        menuName === null ? (
+          <p className="text-center text-15 text-text-secondary">
+            There is no menu for this date.
+          </p>
+        ) : (
+          <PurchaseRequestEditor date={date} />
+        )
+      }
+    />
+  );
+}
+
+function AdminDayPanels({
+  date,
+  menuName,
+  centerId,
+}: {
+  date: string;
+  menuName: string | null;
+  centerId: number | null;
+}) {
+  return (
+    <DayPanels
+      date={date}
+      menuName={menuName}
+      purchaseRequest={
+        menuName === null ? (
+          <p className="text-center text-15 text-text-secondary">
+            There is no menu for this date.
+          </p>
+        ) : centerId === null ? (
+          <p className="text-center text-15 text-text-secondary">
+            Choose a center above to read its Purchase Request.
+          </p>
+        ) : (
+          <AdminPurchaseRequest date={date} centerId={centerId} />
+        )
+      }
+    />
+  );
+}
+
+// The calendar page for the Admin and the Teacher (Figma 166:1553, 378:15722):
+// the month, then the panels of the chosen day. Both see the same menus (P4-T11).
 export function CalendarPage() {
   const user = useCurrentUser();
   const [range, setRange] = useState<DayRange | null>(null);
-  const [openDate, setOpenDate] = useState<string | null>(null);
+  const [selected, setSelected] = useState(() => manilaToday());
   const [centerId, setCenterId] = useState<number | null>(null);
-  const [formsOpen, setFormsOpen] = useState(false);
+  const [overlay, setOverlay] = useState<"requests" | "summary" | null>(null);
+  const [assigning, setAssigning] = useState(false);
   const calendar = useCalendar(range);
   const days = calendar.data ?? [];
-  const open = days.find((day) => day.date === openDate) ?? null;
+  const menuName = days.find((day) => day.date === selected)?.menuName ?? null;
 
   const handleRange = useCallback((next: DayRange) => {
     setRange((current) =>
@@ -165,74 +168,46 @@ export function CalendarPage() {
     );
   }, []);
 
-  const panel =
-    open === null ? null : user.role === "TEACHER" ? (
-      <Tabs
-        label="Day details"
-        initial="purchase"
-        items={[
-          {
-            id: "details",
-            label: "Details",
-            content: <DayDetails day={open} />,
-          },
-          {
-            id: "parents",
-            label: "Assigned Parents",
-            content: <AssignedParentsTab date={open.date} />,
-          },
-          {
-            id: "purchase",
-            label: "Purchase Request",
-            content: <PurchaseRequestEditor date={open.date} />,
-          },
-        ]}
-      />
-    ) : centerId === null ? (
-      <DayDetails day={open} />
-    ) : (
-      <Tabs
-        label="Day details"
-        items={[
-          {
-            id: "details",
-            label: "Details",
-            content: <DayDetails day={open} />,
-          },
-          {
-            id: "purchase",
-            label: "Purchase Request",
-            content: (
-              <AdminPurchaseRequest date={open.date} centerId={centerId} />
-            ),
-          },
-        ]}
-      />
-    );
+  function openAssign() {
+    setAssigning(true);
+  }
 
   return (
     <>
       <PageHeader
         title="Calendar"
-        description="The DSWD menu for each feeding day."
         actions={
           user.role === "TEACHER" ? (
-            <Button
-              variant="secondary"
-              icon="file-text"
-              onClick={() => {
-                setFormsOpen(true);
-              }}
-            >
-              Liquidation Forms
-            </Button>
+            <>
+              <Button icon="users" onClick={openAssign}>
+                Assign Parents
+              </Button>
+              <Button
+                variant="secondary"
+                icon="file-text"
+                onClick={() => {
+                  setOverlay("requests");
+                }}
+              >
+                Liquidation Forms
+              </Button>
+            </>
           ) : undefined
         }
       />
-      {formsOpen && (
+      {overlay !== null && (
         <LiquidationOverlay
+          initialTab={overlay}
           onClose={() => {
-            setFormsOpen(false);
+            setOverlay(null);
+          }}
+        />
+      )}
+      {assigning && (
+        <AssignParentsModal
+          initialMonday={mondayOf(selected)}
+          onClose={() => {
+            setAssigning(false);
           }}
         />
       )}
@@ -263,19 +238,31 @@ export function CalendarPage() {
       )}
       <FeedingCalendar
         days={days}
+        selectedDate={selected}
         onRangeChange={handleRange}
-        onDayClick={setOpenDate}
+        onDayClick={setSelected}
       />
-      <Drawer
-        wide
-        open={open !== null}
-        onClose={() => {
-          setOpenDate(null);
-        }}
-        title={open === null ? "" : formatLongDay(open.date)}
-      >
-        {panel}
-      </Drawer>
+      {user.role === "TEACHER" ? (
+        <>
+          <TeacherDayPanels
+            date={selected}
+            menuName={menuName}
+            onAssign={openAssign}
+          />
+          <MonthSummary
+            date={selected}
+            onOpen={() => {
+              setOverlay("summary");
+            }}
+          />
+        </>
+      ) : (
+        <AdminDayPanels
+          date={selected}
+          menuName={menuName}
+          centerId={centerId}
+        />
+      )}
     </>
   );
 }

@@ -426,6 +426,24 @@ Defaults chosen for F1 (no question asked, per the plan):
 - The notification bell with its count (111:965) is left out: there are no notifications, and a fake count would mislead.
 - Profile shows only the D11 fields. The frame's report cards, activity lists, date of birth, address, two-factor and session panels have no data behind them.
 - Phones use PARENT LOGIN 393:1102 for the login page because it keeps the red brand. The Admin phone login (380:1149) is green with the title unreadable over the photo.
-- No Figma frame shows a mobile top bar or menu drawer, so both are Developer-designed from tokens (docs/ui-specs/shell.md). Client approval requested.
+- The phone top bar follows Calendar mobile 378:15722: a black band with the logo and a hamburger (corrected in F2; F1 wrongly said no frame shows it). No frame shows the menu drawer it opens, so that drawer is Developer-designed from tokens (docs/ui-specs/shell.md). Client approval requested.
 - The login photo is exported at 0.7x (378 x 714) to stay under 300 KB, not at 2x. It may look soft on large screens.
 Consequences: blueprint rows BR-05, BR-12, BR-14, A-06, A-14 and A-17 are updated. Recorded in BUSINESS_RULES.md.
+
+## DEC-038: Defaults chosen in F2 (calendar, assignment, Parent flow)
+
+Context: details D2 to D5 leave open. No question asked, per docs/POLISH_PLAN.md.
+Decision:
+- The team lives in a new table `week_team_members`, because a team member with no days yet would be lost if the team were only derived from the day rows. A day saved before this table existed still counts towards the team when reading.
+- The old `PUT /api/assignments/:date` stays (tests and the demo seed use it), but it refuses a parent who would take the week past 4, and it adds a new parent to the team in the same transaction, so D4 cannot be bypassed.
+- A Parent's first row on an assigned day that has no Purchase Request yet opens it. D3 says "while the day is OPEN"; without this a Parent could not start a day the Teacher has not opened. Locked and No feeding days stay blocked.
+- On a day the Parent is not assigned to, `/api/parent-schedule` gives `status: null`. The status is part of the purchase request, which D2 hides.
+- Older rows have `created_by` null, so no Parent can delete them; a Teacher can.
+- The schedule now lists every menu, so it refuses a range over 62 days or one that runs backwards.
+- Figma's Price column is the line total: its sample rows add up to its Total (170 + 120 + 120 + 20 + 20 = 450). Unit cost is edited in the row's fields.
+- The Teacher and the Parent share one table (PurchaseItemsTable). This replaces the Teacher's stacked form, the first row of the "Purchase Request screens" table in docs/SPRINT_SHORTCUTS.md.
+- The list view on phones is gone: both Figma phone frames show the month grid. `@fullcalendar/list` stays installed but unused; removing it is a BACKLOG item, so package files do not change this close to the demo.
+- The weekly board page `/assignments` is removed; its job moved into the calendar's Assign Parents modal.
+- Roboto Condensed (Figma's calendar font) is not on the approved package list, so the calendar uses Montserrat.
+- SAVE keeps the red button although Figma draws it green (DEC-028, no green variant).
+Consequences: new tokens `calendar-bar`, `tag`, `tag-tint` (docs/tokens.md). Additive migration `20261107085701_polish_week_team_created_by`.

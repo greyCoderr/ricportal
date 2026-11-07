@@ -40,4 +40,4 @@ Any row marked "No" or "Check!" that is not covered by Annex A is a change reque
 - Assets exported from this file into `client/src/assets` (DEC-037, D1): emblem 241:1100, photo 241:1101, waves 241:1085, login icon 241:1113, sidebar icons 77:136 to 77:141 and 166:580, 166:778, logout 169:3049, avatar 111:962, footer logos 268:10485, 268:10498, 268:10507, footer icons 268:10529, 268:10530.
 - Admin page frames: ADMIN 267:9689, ADMIN2 268:11404, ADMIN3 268:12661, ADMIN4 267:9862, ADMIN5 267:9887, Login 272:16383, Calendar mobile 378:15722, Reports mobile 378:15917, RIC teachers mobile 378:16285, Profile mobile 378:16539, Admin phone login 380:1149.
 - Teacher page frames: RIC calendar 166:1553, RIC dashboard 175:1023, submit report 78:268, RIC 4 78:276, report status 78:284, profile 88:695, enrolled studs 78:260, Child's record 169:3189 and 254:4572, add enroll 258:5447.
-- No frame shows a mobile top bar or menu drawer (DEC-037).
+- Calendar mobile 378:15722 shows the phone top bar. No frame shows the menu drawer (DEC-037).

@@ -14,6 +14,7 @@ const ITEM: PurchaseItemDto = {
   unitCost: null,
   total: null,
   version: 1,
+  canDelete: true,
 };
 
 type Hook = ReturnType<typeof useRowAutosave>;

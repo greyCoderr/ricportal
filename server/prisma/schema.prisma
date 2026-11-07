@@ -43,6 +43,7 @@ model Center {
   users              User[]
   students           Student[]
   feedingAssignments FeedingAssignment[]
+  weekTeamMembers    WeekTeamMember[]
   purchaseRequests   PurchaseRequest[]
   reports            Report[]
 
@@ -69,6 +70,7 @@ model User {
   center             Center?             @relation(fields: [centerId], references: [id])
   parentProfile      ParentProfile?
   assignments        FeedingAssignment[] @relation("AssignedParent")
+  weekTeams          WeekTeamMember[]    @relation("WeekTeamParent")
   reports            Report[]            @relation("ReportTeacher")
 
   @@index([centerId, role, status])
@@ -227,6 +229,23 @@ model FeedingAssignment {
   @@map("feeding_assignments")
 }
 
+// The team of at most 4 parents for one week of one center (D4). Kept apart from
+// the day rows, so a team member with no days yet is not lost.
+model WeekTeamMember {
+  id         Int      @id @default(autoincrement())
+  centerId   Int      @map("center_id")
+  weekStart  DateTime @map("week_start") @db.Date
+  parentId   Int      @map("parent_id")
+  assignedBy Int      @map("assigned_by")
+  createdAt  DateTime @default(now()) @map("created_at")
+  center     Center   @relation(fields: [centerId], references: [id])
+  parent     User     @relation("WeekTeamParent", fields: [parentId], references: [id])
+
+  @@unique([centerId, weekStart, parentId])
+  @@index([parentId])
+  @@map("week_team_members")
+}
+
 model PurchaseRequest {
   id                Int                   @id @default(autoincrement())
   centerId          Int                   @map("center_id")
@@ -262,6 +281,8 @@ model PurchaseItem {
   quantity          Decimal?        @db.Decimal(10, 3)
   unitCost          Decimal?        @map("unit_cost") @db.Decimal(10, 2)
   filledBy          Int?            @map("filled_by")
+  // Who added the row (D3). Null on rows older than this column.
+  createdBy         Int?            @map("created_by")
   version           Int             @default(1)
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")

@@ -42,3 +42,11 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | Profile | `/profile` | All | polished | [ui-specs/shell.md](ui-specs/shell.md) |
 | Submit Report | `/submit-report` | Teacher | "Coming soon" (D10) | none |
 | Admin Feedback | `/admin-feedback` | Teacher | placeholder until F5 | none |
+
+## Demo polish screens (F2)
+
+| Screen ID | Route | Role | Status | Spec |
+| --- | --- | --- | --- | --- |
+| S-P4-02 Feeding calendar with day panels | `/calendar` | Admin, Teacher | polished | [ui-specs/calendar.md](ui-specs/calendar.md) |
+| Parent calendar with S-P5-04 in the panel | `/` | Parent | polished | [ui-specs/calendar.md](ui-specs/calendar.md) |
+| Assign Parents modal (replaces S-P5-01) | from the calendar | Teacher | polished | [ui-specs/calendar.md](ui-specs/calendar.md) |

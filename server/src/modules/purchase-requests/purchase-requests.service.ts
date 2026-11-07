@@ -45,7 +45,15 @@ function itemTotal(item: ItemRow) {
     : lineTotal(item.quantity, item.unitCost);
 }
 
-function toItemDto(item: ItemRow): PurchaseItemDto {
+// D3: a Teacher may delete any row, a Parent only rows they created.
+function canDeleteRow(item: { createdBy: number | null }, viewer: AuthUser) {
+  if (viewer.role === "TEACHER") {
+    return true;
+  }
+  return viewer.role === "PARENT" && item.createdBy === viewer.id;
+}
+
+function toItemDto(item: ItemRow, viewer: AuthUser): PurchaseItemDto {
   const total = itemTotal(item);
   return {
     id: item.id,
@@ -56,6 +64,7 @@ function toItemDto(item: ItemRow): PurchaseItemDto {
     unitCost: item.unitCost === null ? null : money(item.unitCost),
     total: total === null ? null : money(total),
     version: item.version,
+    canDelete: canDeleteRow(item, viewer),
   };
 }
 
@@ -83,6 +92,7 @@ export function createPurchaseRequestsService(deps: {
   }
 
   function baseDto(
+    viewer: AuthUser,
     date: string,
     day: MenuDayRow,
     pr: PrRow | null,
@@ -94,19 +104,20 @@ export function createPurchaseRequestsService(deps: {
       menuName: day.menuName,
       prNo: pr?.prNo ?? day.batch.prNo,
       status: pr?.status ?? "NOT_OPENED",
-      items: items.map(toItemDto),
+      items: items.map((item) => toItemDto(item, viewer)),
       subtotal: money(itemsSubtotal(items)),
     };
   }
 
   // Live while not locked, frozen on lock (BR-10).
   async function withBudget(
+    viewer: AuthUser,
     centerId: number,
     date: string,
     day: MenuDayRow,
     pr: PrRow | null,
   ): Promise<TeacherPurchaseRequestDto> {
-    const base = baseDto(date, day, pr);
+    const base = baseDto(viewer, date, day, pr);
     const total = itemsSubtotal(pr?.items ?? []);
     if (
       pr?.status === "LOCKED" &&
@@ -150,7 +161,13 @@ export function createPurchaseRequestsService(deps: {
   }
 
   async function teacherResult(user: AuthUser, date: string, pr: PrRow | null) {
-    return withBudget(ownCenterId(user), date, await requireMenuDay(date), pr);
+    return withBudget(
+      user,
+      ownCenterId(user),
+      date,
+      await requireMenuDay(date),
+      pr,
+    );
   }
 
   return {
@@ -167,7 +184,7 @@ export function createPurchaseRequestsService(deps: {
         }
         const day = await requireMenuDay(date);
         // Built without the budget, so it can never reach a Parent (DEC-026).
-        return baseDto(date, day, await repository.find(centerId, date));
+        return baseDto(user, date, day, await repository.find(centerId, date));
       }
       const centerId = scopeToCenter(user, requestedCenterId);
       if (centerId === null) {
@@ -177,6 +194,7 @@ export function createPurchaseRequestsService(deps: {
       }
       const day = await requireMenuDay(date);
       return withBudget(
+        user,
         centerId,
         date,
         day,
@@ -192,13 +210,22 @@ export function createPurchaseRequestsService(deps: {
         menuDayId: day.id,
         prNo: day.batch.prNo,
       });
-      return withBudget(ownCenterId(user), date, day, pr);
+      return withBudget(user, ownCenterId(user), date, day, pr);
     },
 
     async addItem(user: AuthUser, date: string, description: string) {
+      const centerId = ownCenterId(user);
+      // D3: a Parent adds rows only on an assigned day; any other day does not
+      // exist for them (BR-14).
+      if (
+        user.role === "PARENT" &&
+        !(await repository.isAssigned(centerId, date, user.id))
+      ) {
+        throw new NotFoundError("This day was not found.");
+      }
       const day = await requireMenuDay(date);
       const pr = await repository.open({
-        centerId: ownCenterId(user),
+        centerId,
         date,
         menuDayId: day.id,
         prNo: day.batch.prNo,
@@ -206,7 +233,10 @@ export function createPurchaseRequestsService(deps: {
       if (pr.status !== "OPEN") {
         throw new StateInvalidError(LOCKED_MESSAGE);
       }
-      return toItemDto(await repository.addItem(pr.id, description));
+      return toItemDto(
+        await repository.addItem(pr.id, description, user.id),
+        user,
+      );
     },
 
     async updateItem(
@@ -226,12 +256,6 @@ export function createPurchaseRequestsService(deps: {
       if (user.role === "PARENT") {
         if (!(await repository.isAssigned(pr.centerId, date, user.id))) {
           throw new NotFoundError("This row was not found.");
-        }
-        // BR-12, A-14: a Parent fills unit, quantity and cost only.
-        if (input.description !== undefined) {
-          throw new ForbiddenError(
-            "Only the RIC Teacher can rename an ingredient.",
-          );
         }
       }
       if (pr.status !== "OPEN") {
@@ -258,7 +282,7 @@ export function createPurchaseRequestsService(deps: {
         change,
       );
       if (updated !== null) {
-        return toItemDto(updated);
+        return toItemDto(updated, user);
       }
       // Find out which guard stopped it.
       const latest = await repository.findItem(id);
@@ -273,10 +297,26 @@ export function createPurchaseRequestsService(deps: {
       if (item === null || item.purchaseRequest.centerId !== user.centerId) {
         throw new NotFoundError("This row was not found.");
       }
-      if (item.purchaseRequest.status !== "OPEN") {
+      const { purchaseRequest: pr } = item;
+      if (
+        user.role === "PARENT" &&
+        !(await repository.isAssigned(
+          pr.centerId,
+          fromDbDate(pr.feedingDate),
+          user.id,
+        ))
+      ) {
+        throw new NotFoundError("This row was not found.");
+      }
+      if (pr.status !== "OPEN") {
         throw new StateInvalidError(LOCKED_MESSAGE);
       }
-      await repository.deleteItem(id, item.purchaseRequest.id);
+      if (!canDeleteRow(item, user)) {
+        throw new ForbiddenError(
+          "You can delete only the rows that you added.",
+        );
+      }
+      await repository.deleteItem(id, pr.id);
     },
 
     async lock(user: AuthUser, date: string) {

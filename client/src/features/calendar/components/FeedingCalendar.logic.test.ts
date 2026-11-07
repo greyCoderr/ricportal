@@ -5,7 +5,47 @@ vi.mock("@fullcalendar/react", () => ({ default: () => null }));
 vi.mock("@fullcalendar/daygrid", () => ({ default: {} }));
 vi.mock("@fullcalendar/list", () => ({ default: {} }));
 
-const { rangeFromDates, toEvents } = await import("./FeedingCalendar");
+const { cellDate, rangeFromDates, splitTitle, toEvents, WEEKDAY_LABELS } =
+  await import("./FeedingCalendar");
+const { menuHeading } = await import("./DayPanels");
+
+describe("Figma calendar helpers", () => {
+  it("uses the client's weekday labels", () => {
+    expect(WEEKDAY_LABELS).toEqual([
+      "Sun",
+      "Mon",
+      "Tues",
+      "Wed",
+      "Thurs",
+      "Fri",
+      "Sat",
+    ]);
+  });
+
+  it("splits the title into an upper-case month and a year", () => {
+    expect(splitTitle("November 2026")).toEqual({
+      month: "NOVEMBER",
+      year: "2026",
+    });
+  });
+
+  it("reads a cell's local date with no time zone shift", () => {
+    expect(cellDate(new Date(2026, 0, 5))).toBe("2026-01-05");
+    expect(cellDate(new Date(2026, 11, 31, 23, 59))).toBe("2026-12-31");
+  });
+
+  it("marks a Parent's own day (D2)", () => {
+    expect(
+      toEvents([{ date: "2026-09-17", menuName: "EGG", mine: true }])[0]
+        ?.classNames,
+    ).toEqual(["ric-mine"]);
+  });
+
+  it("calls only today Today's Menu; other days carry the numeric date", () => {
+    expect(menuHeading("2026-11-10", "2026-11-10")).toBe("Today’s Menu");
+    expect(menuHeading("2026-11-11", "2026-11-10")).toBe("Menu for 11/11/2026");
+  });
+});
 
 describe("toEvents", () => {
   it("makes one all-day event with the display name, keyed by the date", () => {

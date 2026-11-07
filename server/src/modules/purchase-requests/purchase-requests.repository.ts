@@ -93,13 +93,18 @@ export function createPurchaseRequestsRepository(prisma: PrismaClient) {
     },
 
     // Item numbers run 1 to n (BR-11).
-    addItem(purchaseRequestId: number, description: string) {
+    addItem(purchaseRequestId: number, description: string, createdBy: number) {
       return prisma.$transaction(async (tx) => {
         const count = await tx.purchaseItem.count({
           where: { purchaseRequestId },
         });
         return tx.purchaseItem.create({
-          data: { purchaseRequestId, description, itemNo: count + 1 },
+          data: {
+            purchaseRequestId,
+            description,
+            createdBy,
+            itemNo: count + 1,
+          },
         });
       });
     },

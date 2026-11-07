@@ -13,6 +13,8 @@ type FormFieldProps = {
   hint?: string;
   error?: string;
   required?: boolean;
+  // Keeps the label for screen readers when the row already shows its meaning.
+  hideLabel?: boolean;
   children: (field: FieldControlProps) => ReactNode;
 };
 
@@ -24,6 +26,7 @@ export function FormField({
   hint,
   error,
   required = false,
+  hideLabel = false,
   children,
 }: FormFieldProps) {
   const id = useId();
@@ -49,7 +52,10 @@ export function FormField({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={id} className="text-15 font-medium text-text">
+      <label
+        htmlFor={id}
+        className={hideLabel ? "sr-only" : "text-15 font-medium text-text"}
+      >
         {label}
         {required && (
           <span aria-hidden="true" className="text-primary">

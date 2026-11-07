@@ -43,6 +43,10 @@
   --color-nav-selected: #ff8282;
   --color-nav-selected-text: #000000;
   --color-overlay: #00000059;
+  /* Calendar and day panels (Figma 378:15461, 393:1759, 393:1816) */
+  --color-calendar-bar: #90db99;
+  --color-tag: #a40000;
+  --color-tag-tint: #ff000026;
 
   /* Aliases (DEC-028) */
   --color-skeleton: var(--color-header);

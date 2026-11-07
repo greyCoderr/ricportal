@@ -1,11 +1,12 @@
 import type {
   ApprovedParent,
-  AssignmentDay,
+  AssignmentWeek,
   ItemPatchInput,
   ParentScheduleDay,
   PurchaseItemDto,
   PurchaseRequestDto,
   TeacherPurchaseRequestDto,
+  WeekSaveInput,
 } from "@ricportal/shared";
 import { apiGet, apiRequest } from "../../lib/api";
 
@@ -54,13 +55,15 @@ export async function deleteItem(id: number) {
   await apiRequest("DELETE", `/api/purchase-items/${String(id)}`);
 }
 
-export async function fetchWeek(monday: string) {
-  return (await apiGet<AssignmentDay[]>(`/api/assignments?week=${monday}`))
+export async function fetchAssignmentWeek(monday: string) {
+  return (await apiGet<AssignmentWeek>(`/api/assignments/week?week=${monday}`))
     .data;
 }
 
-export async function putAssignments(date: string, parentIds: number[]) {
-  await apiRequest("PUT", `/api/assignments/${date}`, { parentIds });
+export async function saveWeek(input: WeekSaveInput) {
+  return (
+    await apiRequest<AssignmentWeek>("PUT", "/api/assignments/week", input)
+  ).data;
 }
 
 export async function fetchApprovedParents() {

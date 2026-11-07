@@ -23,9 +23,10 @@ profile 88:695, ADMIN 267:9689, Profile mobile 378:16539, footer 268:10479. Deci
 ## Top bar
 
 `header` fill and `shadow-header`, 94 high from 1024 px (111:959), 64 below. Avatar 70 with an `accent`
-ring, name Medium 20, role line Light 12. Under 1024 px: menu button (44), "RICPortal", avatar 44.
+ring, name Medium 20, role line Light 12. Under 1024 px (378:15722): black band with the menu button
+(44), emblem, "RICPortal", one small organization line, and the avatar.
 
-## Mobile menu (no Figma frame)
+## Mobile menu (no Figma frame for the drawer)
 
 Under 1024 px the sidebar content opens in a left drawer (native dialog, 290 wide, at most 85% of the
 width, full height). Escape, a backdrop tap or choosing an item closes it.

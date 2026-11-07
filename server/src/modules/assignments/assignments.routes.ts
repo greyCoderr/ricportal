@@ -9,6 +9,9 @@ export function createAssignmentsRouter(
   const router = Router();
   const teacher = [authenticate, requireRole("TEACHER")];
   router.get("/", teacher, controller.week);
+  // Before "/:date", so "week" is not read as a date.
+  router.get("/week", teacher, controller.readWeek);
+  router.put("/week", teacher, controller.saveWeek);
   router.put("/:date", teacher, controller.replace);
   return router;
 }

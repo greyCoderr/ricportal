@@ -82,3 +82,8 @@ Migration `20261106152044_reports_liquidation`. Additive. `report_versions` and 
 | report_reviews | id, report_id, version_no, reviewer_id, decision, feedback, created_at, updated_at | One per decision |
 | liquidation_snapshots | id, report_id, version_no, payload JSON, created_at | Unique (report_id, version_no). Immutable: never updated |
 | purchase_requests (added) | submitted_report_id | Set on submit; cleared on Need Revision |
+
+## Demo polish (F2)
+
+- `purchase_items.created_by` INT NULL: who added the row (D3). Null on older rows.
+- `week_team_members`: id, center_id (FK centers), week_start DATE (a Monday), parent_id (FK users), assigned_by, created_at. Unique (center_id, week_start, parent_id). The team of at most 4 parents for one week (D4); the limit is enforced in the service.

@@ -197,9 +197,11 @@ describe("demo path", () => {
     const schedule = await parent.get(
       "/api/parent-schedule?from=2026-11-01&to=2026-11-30",
     );
-    expect(data<{ date: string }[]>(schedule).map((row) => row.date)).toEqual([
-      DAY,
-    ]);
+    expect(
+      data<{ date: string; assigned: boolean }[]>(schedule)
+        .filter((row) => row.assigned)
+        .map((row) => row.date),
+    ).toEqual([DAY]);
     const entries: [string, string, string, string][] = [
       ["kg", "2", "38.00", "76.00"],
       ["kg", "0.5", "340.00", "170.00"],

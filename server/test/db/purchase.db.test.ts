@@ -284,8 +284,8 @@ describe("state machine (blueprint 4.9, BR-12, BR-15)", () => {
   });
 });
 
-describe("field rights by role (BR-12, A-14)", () => {
-  it("an assigned Parent edits unit, quantity and cost only", async () => {
+describe("field rights by role (BR-12, D3)", () => {
+  it("an assigned Parent edits unit, quantity, cost and description", async () => {
     await assignParent();
     const item = await addItem();
     const res = await patchItem(parent, item, {
@@ -307,19 +307,16 @@ describe("field rights by role (BR-12, A-14)", () => {
         description: "Sugar",
       },
     );
-    expect(renamed.status).toBe(403);
+    expect(renamed.status).toBe(200);
     const after = await prisma.purchaseItem.findUniqueOrThrow({
       where: { id: item.id },
     });
-    expect(after.description).toBe("Rice");
+    expect(after.description).toBe("Sugar");
   });
 
-  it("a Parent cannot add or delete rows, open, lock or unlock", async () => {
+  it("a Parent cannot delete the Teacher's row, open, lock or unlock", async () => {
     await assignParent();
     const item = await addItem();
-    expect(
-      (await parent.post(`${PR}/items`).send({ description: "Oil" })).status,
-    ).toBe(403);
     expect(
       (await parent.delete(`/api/purchase-items/${String(item.id)}`)).status,
     ).toBe(403);
@@ -432,7 +429,7 @@ describe("what a Parent may see (BR-14, DEC-026)", () => {
     expect(pr(res).status).toBe("NOT_OPENED");
   });
 
-  it("the schedule lists only assigned days, with the status", async () => {
+  it("the schedule marks assigned days and gives their status (D2)", async () => {
     await assignParent("2026-11-09");
     await assignParent("2026-11-11");
     await teacher.post("/api/purchase-requests/2026-11-11/lock").expect(409);
@@ -444,12 +441,24 @@ describe("what a Parent may see (BR-14, DEC-026)", () => {
     );
     expect(res.status).toBe(200);
     const rows = (
-      res.body as { data: { date: string; menuName: string; status: string }[] }
+      res.body as {
+        data: {
+          date: string;
+          menuName: string;
+          status: string | null;
+          assigned: boolean;
+        }[];
+      }
     ).data;
-    expect(rows.map((row) => [row.date, row.menuName, row.status])).toEqual([
+    expect(
+      rows
+        .filter((row) => row.assigned)
+        .map((row) => [row.date, row.menuName, row.status]),
+    ).toEqual([
       ["2026-11-09", "PORK PICADILLO", "NOT_OPENED"],
       ["2026-11-11", "EGG CALDERETA", "LOCKED"],
     ]);
+    expect(rows.find((row) => !row.assigned)?.status).toBe(null);
     expect(JSON.stringify(res.body)).not.toContain("budget");
     expect(
       (await parent.get("/api/parent-schedule?from=nope&to=2026-11-30")).status,

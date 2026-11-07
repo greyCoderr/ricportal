@@ -27,6 +27,10 @@ const PAIRS = [
   { fg: "text", bg: "accent-soft", min: 4.5 },
   { fg: "border", bg: "surface", min: 3 },
   { fg: "border-subtle", bg: "surface", min: 3 },
+  { fg: "text", bg: "calendar-bar", min: 4.5 },
+  { fg: "text", bg: "nav-selected", min: 4.5 },
+  { fg: "primary-contrast", bg: "tag", min: 4.5 },
+  { fg: "text", bg: "tag-tint", min: 4.5 },
 ] as const;
 
 describe("token contrast (WCAG AA)", () => {

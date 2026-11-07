@@ -73,6 +73,9 @@ const COLOR_TOKENS = [
   "nav-selected-text",
   "header",
   "overlay",
+  "calendar-bar",
+  "tag",
+  "tag-tint",
 ];
 const TEXT_SIZES = [10, 11, 12, 13, 15, 16, 18, 20, 24, 40, 42, 48];
 const RADII = ["cell", "control", "card", "icon"];

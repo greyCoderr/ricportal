@@ -152,7 +152,7 @@ export function createUsersRepository(prisma: PrismaClient) {
       return prisma.user.findMany({
         where: { centerId, role: "PARENT", status: "ACTIVE" },
         orderBy: { fullName: "asc" },
-        select: { id: true, fullName: true },
+        select: { id: true, fullName: true, username: true },
       });
     },
 

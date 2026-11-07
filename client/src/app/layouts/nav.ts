@@ -58,6 +58,6 @@ export const EXTRA_LINKS_BY_ROLE: Record<
     { to: "/centers", label: "Centers" },
     { to: "/menu-imports", label: "Menu Imports" },
   ],
-  TEACHER: [{ to: "/assignments", label: "Assignments" }],
+  TEACHER: [],
   PARENT: [],
 };

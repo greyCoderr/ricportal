@@ -1,4 +1,3 @@
-import type { AssignmentDay } from "@ricportal/shared";
 import {
   keepPreviousData,
   useMutation,
@@ -10,12 +9,12 @@ import {
   addItem,
   deleteItem,
   fetchApprovedParents,
+  fetchAssignmentWeek,
   fetchPurchaseRequest,
   fetchSchedule,
-  fetchWeek,
   patchItem,
-  putAssignments,
   runPrAction,
+  saveWeek,
   type PrAction,
 } from "./api";
 
@@ -63,11 +62,10 @@ export function useDeleteItem(date: string) {
 
 export { patchItem };
 
-export function useWeek(monday: string) {
+export function useAssignmentWeek(monday: string) {
   return useQuery({
     queryKey: ["assignments", monday],
-    queryFn: () => fetchWeek(monday),
-    placeholderData: keepPreviousData,
+    queryFn: () => fetchAssignmentWeek(monday),
   });
 }
 
@@ -78,33 +76,11 @@ export function useApprovedParents() {
   });
 }
 
-// Saves at once with an optimistic update; a failure rolls back (phase 5).
-export function useSetAssignments(monday: string) {
+export function useSaveWeek() {
   const client = useQueryClient();
-  const key = ["assignments", monday];
   return useMutation({
-    mutationFn: (input: {
-      date: string;
-      parents: { id: number; fullName: string }[];
-    }) =>
-      putAssignments(
-        input.date,
-        input.parents.map((parent) => parent.id),
-      ),
-    onMutate: async (input) => {
-      await client.cancelQueries({ queryKey: key });
-      const previous = client.getQueryData<AssignmentDay[]>(key);
-      client.setQueryData<AssignmentDay[]>(key, (days) =>
-        days?.map((day) =>
-          day.date === input.date ? { ...day, parents: input.parents } : day,
-        ),
-      );
-      return { previous };
-    },
-    onError: (_error, _input, context) => {
-      client.setQueryData(key, context?.previous);
-    },
-    onSettled: () => client.invalidateQueries({ queryKey: key }),
+    mutationFn: saveWeek,
+    onSuccess: () => client.invalidateQueries({ queryKey: ["assignments"] }),
   });
 }
 

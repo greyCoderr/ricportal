@@ -189,7 +189,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
         data-testid="page-column"
         className="flex min-h-dvh min-w-0 flex-1 flex-col"
       >
-        <header className="sticky top-0 z-10 flex min-h-16 items-center gap-3 bg-header px-4 shadow-header lg:min-h-[94px]">
+        <header className="sticky top-0 z-10 flex min-h-16 items-center gap-3 bg-nav px-4 text-nav-text shadow-header lg:min-h-[94px] lg:bg-header lg:text-text">
           <button
             type="button"
             aria-expanded={menuOpen}
@@ -197,20 +197,30 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
             onClick={() => {
               setMenuOpen((open) => !open);
             }}
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text lg:hidden"
+            className="inline-flex size-11 shrink-0 items-center justify-center rounded-control focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nav-text lg:hidden"
           >
             <Icon name="menu" size={24} />
           </button>
-          <p className="text-16 font-semibold text-primary lg:hidden">
-            {LABELS.appName}
-          </p>
+          <img
+            src={emblem}
+            alt={EMBLEM_ALT}
+            className="size-11 shrink-0 rounded-full object-cover lg:hidden"
+          />
+          <div className="min-w-0 lg:hidden">
+            <p className="text-16 tracking-label">
+              <span className="text-primary">RIC</span>Portal
+            </p>
+            <p className="truncate text-10 tracking-label">
+              Rural Improvement Club, Libmanan, Camarines Sur
+            </p>
+          </div>
           <div className="ml-auto flex min-w-0 items-center gap-3">
             <img
               src={avatar}
               alt=""
               className="size-11 shrink-0 rounded-full border-2 border-accent bg-surface object-cover lg:size-[70px]"
             />
-            <div className="min-w-0">
+            <div className="hidden min-w-0 lg:block">
               <p className="truncate text-13 font-medium tracking-label lg:text-20">
                 {user.fullName}
               </p>

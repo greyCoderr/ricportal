@@ -14,7 +14,6 @@ import { HealthPage } from "../features/health/pages/HealthPage";
 import { HomePage } from "../features/home/HomePage";
 import { CalendarPage } from "../features/calendar/pages/CalendarPage";
 import { MenuImportsPage } from "../features/menu/pages/MenuImportsPage";
-import { AssignmentsPage } from "../features/purchase/pages/AssignmentsPage";
 import { ReportDetailPage } from "../features/reports/pages/ReportDetailPage";
 import { ReportsPage } from "../features/reports/pages/ReportsPage";
 import { StudentProfilePage } from "../features/students/pages/StudentProfilePage";
@@ -53,7 +52,6 @@ export const router = createBrowserRouter([
         element: <RequireRole roles={["TEACHER"]} />,
         children: [
           { path: "/parents", element: <ParentsPage /> },
-          { path: "/assignments", element: <AssignmentsPage /> },
           { path: "/students", element: <StudentsPage /> },
           { path: "/students/:id", element: <StudentProfilePage /> },
           {

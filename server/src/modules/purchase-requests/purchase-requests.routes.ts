@@ -15,14 +15,21 @@ export function createPurchaseRequestsRouter(
     controller.get,
   );
   router.post("/:date/open", teacher, controller.open);
-  router.post("/:date/items", teacher, controller.addItem);
+  // A Parent assigned to the day may add a row (D3); the service checks it.
+  router.post(
+    "/:date/items",
+    authenticate,
+    requireRole("TEACHER", "PARENT"),
+    controller.addItem,
+  );
   router.post("/:date/lock", teacher, controller.lock);
   router.post("/:date/unlock", teacher, controller.unlock);
   router.post("/:date/no-feeding", teacher, controller.noFeeding);
   return router;
 }
 
-// A Parent assigned to the day may edit a row (BR-12); the Admin never.
+// A Parent assigned to the day may edit any row and delete their own (D3); the
+// Admin never.
 export function createPurchaseItemsRouter(
   controller: PurchaseRequestsController,
   authenticate: RequestHandler,
@@ -37,7 +44,7 @@ export function createPurchaseItemsRouter(
   router.delete(
     "/:id",
     authenticate,
-    requireRole("TEACHER"),
+    requireRole("TEACHER", "PARENT"),
     controller.deleteItem,
   );
   return router;

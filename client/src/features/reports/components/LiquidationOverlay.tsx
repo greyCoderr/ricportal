@@ -149,8 +149,14 @@ function TransmittalTab({ from, to }: { from: string; to: string }) {
 }
 
 // Liquidation Forms on the calendar page (P6-T11, P6-T12). The period defaults
-// to this month (A-11).
-export function LiquidationOverlay({ onClose }: { onClose: () => void }) {
+// to this month (A-11). The Summary of Disbursement table lives here (D5).
+export function LiquidationOverlay({
+  onClose,
+  initialTab,
+}: {
+  onClose: () => void;
+  initialTab?: "requests" | "summary" | "transmittal";
+}) {
   const initial = monthRange(manilaToday());
   const [from, setFrom] = useState(initial.from);
   const [to, setTo] = useState(initial.to);
@@ -199,6 +205,7 @@ export function LiquidationOverlay({ onClose }: { onClose: () => void }) {
             <div className="flex flex-col gap-4">
               <Tabs
                 label="Liquidation Forms"
+                initial={initialTab}
                 items={[
                   {
                     id: "requests",

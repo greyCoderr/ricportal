@@ -16,14 +16,15 @@ export function Modal({
   title,
   children,
   footer,
-}: OverlayProps) {
+  wide = false,
+}: OverlayProps & { wide?: boolean }) {
   const ref = useNativeDialog(open, onClose);
   const titleId = useId();
   return (
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-card bg-surface text-text shadow-panel backdrop:bg-overlay"
+      className={`m-auto w-[calc(100%-2rem)] ${wide ? "max-w-3xl" : "max-w-lg"} rounded-card bg-surface text-text shadow-panel backdrop:bg-overlay`}
     >
       {open && (
         <div className="flex max-h-[85vh] flex-col">

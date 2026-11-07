@@ -61,4 +61,4 @@ export function formatLongDay(day: string): string {
   return `${weekdayName(day)}, ${String(Number(date))} ${MONTHS[Number(month) - 1] ?? ""} ${year ?? ""}`;
 }
 
-export { formatPeso } from "@ricportal/shared";
+export { formatNumericDate as formatDate, formatPeso } from "@ricportal/shared";

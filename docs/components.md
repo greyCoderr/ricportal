@@ -140,7 +140,10 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 | 2026-11-07 | F1 | `get_metadata` | 267:9688, 0:1 | Admin and Teacher pages, saved locally and parsed |
 | 2026-11-07 | F1 | `get_screenshot` | 267:9689, 378:16539, 380:1149 | Admin dashboard, Admin Profile mobile, Admin phone login |
 
-Polish calls so far: 16 of 120.
+| 2026-11-07 | F2 | `get_screenshot` | 166:1553, 393:1133, 378:15722 | Teacher, Parent and Admin phone calendars |
+| 2026-11-07 | F2 | `get_design_context` | 378:15461, 393:1759, 393:1816 | Calendar cells, arrow tag (#A40000), pink card |
+
+Polish calls so far: 22 of 120.
 
 ## Polish layout components
 
@@ -150,3 +153,6 @@ Polish calls so far: 16 of 120.
 | AppFooter | `app/layouts/AppFooter.tsx` | 268:10479, 267:9689 | Figma |
 | StatusPage | `app/pages/StatusPage.tsx` | none | Developer-designed from tokens |
 | ProfilePage | `features/auth/pages/ProfilePage.tsx` | 88:695, 378:16539 | Figma, D11 fields only |
+| DayPanels | `features/calendar/components/DayPanels.tsx` | 393:1759, 393:1816, 166:1553 | Figma |
+| PurchaseItemsTable | `features/purchase/components/PurchaseItemsTable.tsx` | 393:1766 to 393:1814, 166:1553 | Figma; the row's edit fields are Developer-designed |
+| AssignParentsModal | `features/purchase/components/AssignParentsModal.tsx` | 166:1553 (Step 1) | Figma Step 1; Step 2 is Developer-designed from D4 |

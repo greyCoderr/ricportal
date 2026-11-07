@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { calendarDateSchema } from "./students.js";
-import { isCalendarDate, weekdayIndex } from "./dates.js";
+import { daysBetween, isCalendarDate, weekdayIndex } from "./dates.js";
 
 // The Unit field reads this list with no API call; the server validates against
 // the same list (DEC-026).
@@ -73,6 +73,9 @@ export type PurchaseItemDto = {
   // Computed by the server. Null while the quantity or unit cost is empty.
   total: string | null;
   version: number;
+  // Computed by the server for the reader: a Teacher may delete any row, a
+  // Parent only rows they created (D3), the Admin none.
+  canDelete: boolean;
 };
 
 // A Parent response never holds the budget fields (DEC-026).
@@ -100,23 +103,44 @@ export const prQuerySchema = z.object({
   centerId: z.coerce.number().int().positive().optional(),
 });
 
-export const assignmentWeekSchema = z.object({
-  week: z
-    .string("Give the Monday of the week.")
-    .refine(
-      (value) => isCalendarDate(value) && weekdayIndex(value) === 1,
-      "The week is given by its Monday.",
-    ),
+const mondaySchema = z
+  .string("Give the Monday of the week.")
+  .refine(
+    (value) => isCalendarDate(value) && weekdayIndex(value) === 1,
+    "The week is given by its Monday.",
+  );
+
+export const assignmentWeekSchema = z.object({ week: mondaySchema });
+
+// A week's team has at most this many Parents (D4). The service enforces it.
+export const WEEK_TEAM_MAX = 4;
+
+const parentIdsSchema = z.array(z.number().int().positive()).max(50);
+
+export const weekSaveSchema = z.object({
+  week: mondaySchema,
+  teamParentIds: parentIdsSchema,
+  days: z
+    .array(z.object({ date: calendarDateSchema, parentIds: parentIdsSchema }))
+    .max(7),
 });
+export type WeekSaveInput = z.input<typeof weekSaveSchema>;
 
 export const assignmentPutSchema = z.object({
   parentIds: z.array(z.number().int().positive()).max(50),
 });
 
-export const scheduleQuerySchema = z.object({
-  from: calendarDateSchema,
-  to: calendarDateSchema,
-});
+const SCHEDULE_MAX_DAYS = 62;
+
+export const scheduleQuerySchema = z
+  .object({ from: calendarDateSchema, to: calendarDateSchema })
+  .refine(
+    ({ from, to }) => {
+      const span = daysBetween(from, to);
+      return span >= 0 && span <= SCHEDULE_MAX_DAYS;
+    },
+    { path: ["to"], message: "Choose a range of up to 62 days." },
+  );
 
 export type AssignmentDay = {
   date: string;
@@ -126,11 +150,21 @@ export type AssignmentDay = {
   parents: { id: number; fullName: string }[];
 };
 
-export type ApprovedParent = { id: number; fullName: string };
+export type ApprovedParent = { id: number; fullName: string; username: string };
 
+export type AssignmentWeek = {
+  week: string;
+  team: ApprovedParent[];
+  days: AssignmentDay[];
+};
+
+// A Parent sees the whole calendar of their center (D2). The status of a day is
+// part of its purchase request, so it is null unless the Parent is assigned.
 export type ParentScheduleDay = {
   date: string;
   dayName: string;
   menuName: string;
-  status: PrDayStatus;
+  assigned: boolean;
+  status: PrDayStatus | null;
+  parents: { id: number; fullName: string }[];
 };

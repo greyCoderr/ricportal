@@ -41,12 +41,12 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 
 | Phase 5 item | Instead | To restore |
 | --- | --- | --- |
-| Editor rows inside the ledger table, with cards under 768 px | While OPEN the rows are a stacked form (inputs in a responsive grid) with the sub-total under a double rule. LedgerTable is used for the read-only view (locked days and the Admin) | Put the inputs into LedgerTable cells |
+| Editor rows inside the ledger table, with cards under 768 px | Since F2 the Figma table with a pencil on each row; the fields open under the row. LedgerTable is used for the read-only view (locked days and the Admin) | Nothing |
 | Progress bar on the budget line | The budget line in words, and a warning sentence when over budget (warning-text) | A bar using tokens |
-| Searchable multi-select of Parents | A checkbox list | Add a search box |
+| Searchable multi-select of Parents | Since F2 the week team dropdowns and the day checkboxes (D4) | Add a search box if a center has many parents |
 | Automatic retry when the connection returns | A Retry button on the row (S4 cut) | Listen for the online event |
 | Replace-import guard (BR-08) | Not needed yet: S3 refuses any overlap, so nothing can be replaced | Add with the replace option |
-| Parents panel in Figma 393:1133 (Parents assigned) | Not shown to a Parent (BR-14, A-06) | Ask the client (A-06) |
+| Parents panel in Figma 393:1133 (Parents assigned) | Shown since F2 (D2) | Nothing |
 
 ## Liquidation compared with phase 6
 
