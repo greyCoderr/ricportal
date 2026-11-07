@@ -1,4 +1,4 @@
-import { manilaToday } from "@ricportal/shared";
+import { manilaToday, type ReportDto } from "@ricportal/shared";
 import { useCallback, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { QueryBoundary } from "../../components/QueryBoundary";
@@ -35,7 +35,7 @@ function SummaryCard({
   urgent?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-card border border-border-subtle p-3 shadow-panel">
+    <div className="flex items-center gap-3 rounded-card border border-border-subtle p-3 shadow-panel compact:p-2">
       <span
         className={`inline-flex size-14 shrink-0 items-center justify-center rounded-full ${
           urgent
@@ -79,10 +79,10 @@ function QuickAction({
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 rounded-control border border-border-subtle p-3 shadow-panel ${LINK_FOCUS}`}
+      className={`flex items-center gap-3 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2 ${LINK_FOCUS}`}
     >
-      <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-icon bg-accent-soft text-accent">
-        <Icon name={icon} size={28} />
+      <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-icon bg-accent-soft text-accent compact:size-10">
+        <Icon name={icon} size={24} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-15 font-medium tracking-label">
@@ -97,8 +97,31 @@ function QuickAction({
   );
 }
 
-// Teacher Home (Figma 175:1023) with real counts for the own center. The Report
-// Tracking box is left out: Report Status shows the same thing (DEC-041).
+// The latest report, from what the report list holds (Figma's Report Tracking).
+function ReportTracking({ report }: { report: ReportDto | undefined }) {
+  return (
+    <section className="rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+      <h2 className="text-13 font-medium">Report Tracking</h2>
+      {report === undefined ? (
+        <p className="mt-1 text-12">No report yet.</p>
+      ) : (
+        <>
+          <p className="mt-1 text-12 font-medium text-accent">
+            Liquidation, {formatDate(report.periodStart)}
+          </p>
+          <p className="mt-1 flex flex-wrap items-center gap-2 text-12 tabular-nums">
+            Submitted {formatInstantDate(report.submittedAt)}
+            <StatusBadge status={report.status} />
+          </p>
+        </>
+      )}
+    </section>
+  );
+}
+
+// Teacher Home (Figma 175:1023) with real counts for the own center. Figma stacks
+// the tables under the calendar; three columns keep the same content on one desktop
+// screen with the footer (D3, DEC-046).
 export function TeacherHomePage() {
   const user = useCurrentUser();
   const navigate = useNavigate();
@@ -122,16 +145,16 @@ export function TeacherHomePage() {
   }, []);
 
   return (
-    <>
+    <div className="flex flex-col compact:h-full compact:min-h-0">
       <h1 className="text-24 font-semibold tracking-label text-accent lg:text-40">
         Welcome, Teacher {firstName}!
       </h1>
-      <p className="mb-4 flex items-center gap-1 text-13 tracking-label text-text-secondary">
+      <p className="mb-4 flex shrink-0 items-center gap-1 compact:mb-2 text-13 tracking-label text-text-secondary">
         <Icon name="map-pin" size={16} />
         {user.centerName ?? ""}, Libmanan, Camarines Sur
       </p>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid shrink-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           icon="users"
           label="Total Enrolled Students"
@@ -163,40 +186,58 @@ export function TeacherHomePage() {
         />
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[18rem_minmax(0,1fr)]">
-        <section>
-          <h2 className="mb-2 text-20 tracking-label">Quick Actions</h2>
-          <div className="flex flex-col gap-3">
-            <QuickAction
-              to="/students/new"
-              icon="plus"
-              title="Register Students"
-              description="Add new students"
-            />
-            <QuickAction
-              to="/submit-report"
-              icon="upload"
-              title="Submit Report"
-              description="Submit a new report for approval"
-            />
-            <QuickAction
-              to="/admin-feedback"
-              icon="inbox"
-              title="View Feedback"
-              description="Check admin feedback and comments"
-            />
-          </div>
+      <div className="mt-6 grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)] compact:mt-3 compact:min-h-0 compact:flex-1 compact:grid-cols-[18rem_minmax(0,1.3fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-3 compact:min-h-0">
+          <section className="shrink-0">
+            <h2 className="mb-2 text-20 tracking-label compact:mb-1">
+              Quick Actions
+            </h2>
+            <div className="flex flex-col gap-3 compact:gap-2">
+              <QuickAction
+                to="/students/new"
+                icon="plus"
+                title="Register Students"
+                description="Add new students"
+              />
+              <QuickAction
+                to="/submit-report"
+                icon="upload"
+                title="Submit Report"
+                description="Submit a new report for approval"
+              />
+              <QuickAction
+                to="/admin-feedback"
+                icon="inbox"
+                title="View Feedback"
+                description="Check admin feedback and comments"
+              />
+            </div>
+          </section>
+          <ReportTracking report={reports.data?.data[0]} />
+        </div>
+        <section className="min-w-0 compact:min-h-0">
+          <FeedingCalendar
+            fit
+            days={calendar.data ?? []}
+            selectedDate={manilaToday()}
+            onRangeChange={handleRange}
+            onDayClick={() => {
+              void navigate("/calendar");
+            }}
+          />
+        </section>
+        <div className="flex min-w-0 flex-col gap-3 xl:col-span-2 compact:col-span-1 compact:min-h-0 compact:overflow-y-auto">
           {latestFeedback !== undefined && (
-            <section className="mt-4 rounded-control border border-border-subtle p-3 shadow-panel">
+            <section className="shrink-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
               <h3 className="text-13 font-medium text-danger-text">
                 Admin Feedback
               </h3>
-              <div className="mt-2 rounded-control bg-tag-tint p-3 text-13">
+              <div className="mt-1 rounded-control bg-tag-tint p-2 text-13">
                 <p className="font-medium">From: RIC Admin</p>
                 <p className="text-12 tabular-nums">
                   Received on: {formatInstantDate(latestFeedback.reviewedAt)}
                 </p>
-                <p className="mt-2 whitespace-pre-wrap">
+                <p className="mt-1 line-clamp-2 whitespace-pre-wrap">
                   {latestFeedback.feedback}
                 </p>
               </div>
@@ -208,109 +249,102 @@ export function TeacherHomePage() {
               </Link>
             </section>
           )}
-        </section>
-        <section className="min-w-0">
-          <FeedingCalendar
-            days={calendar.data ?? []}
-            selectedDate={manilaToday()}
-            onRangeChange={handleRange}
-            onDayClick={() => {
-              void navigate("/calendar");
-            }}
-          />
-        </section>
-      </div>
 
-      <div className="mt-6 grid gap-4 xl:grid-cols-2">
-        <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h2 className="text-15 font-medium">Recent Reports</h2>
-            <Link
-              to="/reports"
-              className={`inline-flex min-h-11 items-center text-13 text-accent underline ${LINK_FOCUS}`}
+          <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+            <div className="mb-2 flex compact:mb-0 items-center justify-between gap-2">
+              <h2 className="text-15 font-medium">Recent Reports</h2>
+              <Link
+                to="/reports"
+                className={`inline-flex min-h-11 items-center text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
+              >
+                View all reports
+              </Link>
+            </div>
+            <QueryBoundary
+              query={reports}
+              errorTitle="Could not load the reports."
             >
-              View all reports
-            </Link>
-          </div>
-          <QueryBoundary
-            query={reports}
-            errorTitle="Could not load the reports."
-          >
-            {(reports.data?.data.length ?? 0) === 0 ? (
-              <EmptyState title="No liquidation reports yet." />
-            ) : (
-              <Table
-                cardsOnPhone
-                caption="Recent Reports"
-                rows={reports.data?.data.slice(0, 3) ?? []}
-                rowKey={(row) => row.id}
-                columns={[
-                  {
-                    key: "title",
-                    header: "Report Title",
-                    render: (row) =>
-                      `Liquidation, ${formatDate(row.periodStart)}`,
-                  },
-                  {
-                    key: "date",
-                    header: "Date",
-                    render: (row) => formatInstantDate(row.submittedAt),
-                  },
-                  {
-                    key: "status",
-                    header: "Status",
-                    render: (row) => <StatusBadge status={row.status} />,
-                  },
-                ]}
-              />
-            )}
-          </QueryBoundary>
-        </section>
-        <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel">
-          <div className="mb-2 flex items-center justify-between gap-2">
-            <h2 className="text-15 font-medium">Enrolled Students</h2>
-            <Link
-              to="/students"
-              className={`inline-flex min-h-11 items-center text-13 text-accent underline ${LINK_FOCUS}`}
+              {(reports.data?.data.length ?? 0) === 0 ? (
+                <EmptyState title="No liquidation reports yet." />
+              ) : (
+                <Table
+                  cardsOnPhone
+                  caption="Recent Reports"
+                  rows={reports.data?.data.slice(0, 3) ?? []}
+                  rowKey={(row) => row.id}
+                  columns={[
+                    {
+                      key: "title",
+                      header: "Report Title",
+                      render: (row) =>
+                        `Liquidation, ${formatDate(row.periodStart)}`,
+                    },
+                    {
+                      key: "date",
+                      header: "Date",
+                      render: (row) => formatInstantDate(row.submittedAt),
+                    },
+                    {
+                      key: "status",
+                      header: "Status",
+                      render: (row) => <StatusBadge status={row.status} />,
+                    },
+                  ]}
+                />
+              )}
+            </QueryBoundary>
+          </section>
+          <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+            <div className="mb-2 flex compact:mb-0 items-center justify-between gap-2">
+              <h2 className="text-15 font-medium">Enrolled Students</h2>
+              <Link
+                to="/students"
+                className={`inline-flex min-h-11 items-center text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
+              >
+                View all
+              </Link>
+            </div>
+            <QueryBoundary
+              query={students}
+              errorTitle="Could not load the students."
             >
-              View all
-            </Link>
-          </div>
-          <QueryBoundary
-            query={students}
-            errorTitle="Could not load the students."
-          >
-            {(students.data?.data.length ?? 0) === 0 ? (
-              <EmptyState title="No students enrolled yet." />
-            ) : (
-              <Table
-                cardsOnPhone
-                caption="Enrolled Students"
-                rows={students.data?.data.slice(0, 4) ?? []}
-                rowKey={(row) => row.id}
-                columns={[
-                  {
-                    key: "name",
-                    header: "Student name",
-                    render: (row) => row.displayName,
-                  },
-                  {
-                    key: "date",
-                    header: "Date Enrolled",
-                    render: (row) => formatDate(row.enrolledOn),
-                  },
-                  {
-                    key: "age",
-                    header: "Age",
-                    align: "right",
-                    render: (row) => String(row.age),
-                  },
-                ]}
-              />
-            )}
-          </QueryBoundary>
-        </section>
+              {(students.data?.data.length ?? 0) === 0 ? (
+                <EmptyState title="No students enrolled yet." />
+              ) : (
+                <Table
+                  cardsOnPhone
+                  caption="Enrolled Students"
+                  rows={
+                    students.data?.data.slice(
+                      0,
+                      latestFeedback === undefined ? 4 : 2,
+                    ) ?? []
+                  }
+                  rowKey={(row) => row.id}
+                  columns={[
+                    {
+                      key: "name",
+                      header: "Student name",
+                      render: (row) => row.displayName,
+                    },
+                    {
+                      key: "date",
+                      header: "Date Enrolled",
+                      render: (row) => formatDate(row.enrolledOn),
+                    },
+                    {
+                      key: "age",
+                      header: "Age",
+                      align: "right",
+                      render: (row) => String(row.age),
+                    },
+                  ]}
+                />
+              )}
+            </QueryBoundary>
+          </section>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
