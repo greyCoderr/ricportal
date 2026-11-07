@@ -80,3 +80,13 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 | Figma's Admin quick actions: Send Feedback, Monitor Enrolled Students, Review Applications | The existing four tiles stay, because the Admin has no such pages | A change request with the client |
 | Figma's Recent Reports tabs on the Admin dashboard (Enrollment, Accomplishment) | One list, because only liquidation reports exist | Objective 3 |
 | Figma's Email and Date Approved columns on RIC Teachers | Username and Last Login stay in the table; email and registration date are on View Profile | Move them if the client asks |
+
+## Polish Round 2 (G3)
+
+| What | Instead | To finish |
+| --- | --- | --- |
+| Figma's Report Tracking steps with a date each (Submitted, Pending, Returned for Revision) | The latest report's submitted date and current status | Return review dates in the report list |
+| Figma's Export List on Enrolled Students | The Enrollment Form button stays, which gives the agreed PDF | A change request with the client |
+| Figma's Report Status filters by report type, year and search; Recent Status Activity | Status filter only; no activity data exists | Objective 3 |
+| Figma's Admin Feedback extras: Approved with Remarks, Resolved, filters, timeline, Feedback Guide, activity | Left out, as DEC-041 says, because no data exists before Objective 3 | Objective 3 |
+| Figma's Assign Parents dialog beside the calendar | Centered in the content area, as D4 says | None |

@@ -535,3 +535,16 @@ Decision:
 - Sex is Female or Male only, as the frame shows. A birth date cannot be in the future.
 - The profile saves only the extra fields that changed, so an unchanged form never overwrites them.
 - Test changes, all required by the plan: the dashboard test's Reports Approved row became D6's cards. The reset test moved from TeachersPage.test.tsx to TeacherProfilePage.test.tsx with the same assertions, because D8 moves the button. The Disabled badge assertion now looks among two matches, because the toggle shows the same word.
+
+## DEC-046: Defaults chosen in G3 (Teacher pages)
+
+Context: details that docs/POLISH_PLAN_2.md D3 and D10 leave open. No question asked, as the plan says.
+Decision:
+- Teacher Home counts as a dashboard page, because Figma names the frame "RIC dashboard". Figma stacks Recent Reports and Enrolled Students under the calendar, which cannot fit above the footer at 1366 x 768. On a desktop the same content sits in three columns, and it stacks below that.
+- Figma's Report Tracking box returns (it was left out by DEC-041), showing what the report list holds: the latest report, its submitted date and its status. Figma's per-step dates have no data source.
+- When a feedback box shows on Home, the student list shortens from four rows to two so the page still fits. The third column scrolls by itself only if a long text still does not fit.
+- The day-panel tags point at the Purchase Request from 1024 px, as 166:1553 shows. Below that they keep the Parent frame's direction.
+- Student names in the list are black and underlined, as 78:260 shows.
+- On Report Status the details column sits beside the list on a desktop, as 78:284 shows. The Admin's Reports page keeps the full-width list, because its table has more columns and overflowed in the narrower one.
+- Tables on Centers and Menu Imports become cards on phones, so nothing scrolls sideways.
+- An icon button's hover label now runs left from the button's right edge, so the hidden label cannot widen a table.

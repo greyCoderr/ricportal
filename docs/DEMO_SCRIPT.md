@@ -33,14 +33,14 @@ A new account or a reset password uses the default **RICPortal2026!**, and a cha
 ### Admin: the new pages
 
 1. Show the **Login** page with the client's photo and emblem. Log in as **admin**.
-2. **DASHBOARD**: the real counts, Quick Actions (Centers and Menu Imports are here), Recent Reports and the calendar.
+2. **DASHBOARD**: it fits one screen. The six cards: Registered RIC Teacher, Total Enrolled Students, Reports Submitted, Enrollment Reports Submitted, Accomplishment Reports Submitted, Reports for Revision. **Say this:** the Enrollment and Accomplishment cards stay 0 until Objective 3. Then Quick Actions (Centers and Menu Imports are here), Recent Reports and the calendar. **CALENDAR** shows the **Upload Menu/Food Rotation** panel at all times: choose a file, **Upload & Process**, check the preview, confirm. **View import history** opens Menu Imports.
 3. **RIC TEACHERS**: the cards, search and filters. **Add New Teacher**: Full name "Liza Ramos", username `teacher.bahay`, center Bahay, password left blank. (Sibujo already has its Teacher. The next seed removes this account, so the step can be repeated.)
-4. On that row, **Disable**: the red Disabled badge, the muted row and **Enable**. Choose **Enable** again before the next section.
+4. On that row, click the check button in the Action column. It goes dark and says Disabled, the Status badge turns red and the row is muted. Hover over it for the tooltip. Click it again, so the account is Active before the next section.
 5. **PROFILE**: **Edit Profile** and **Change Password**.
 
 ### Default password reset
 
-6. In **RIC TEACHERS**, on Liza Ramos, choose **Reset to default** and confirm. Only a confirmation shows, never a password.
+6. In **RIC TEACHERS**, on Liza Ramos, choose **View Profile**. **Edit** and the reset are here now. Choose **Reset to default password** and confirm. Only a confirmation shows, never a password.
 7. Log out. Log in as `teacher.bahay` with the default **RICPortal2026!**. The **Change your password** page blocks everything else until a new one is chosen. Choose one, then log out.
 8. The same works for a Teacher on a Parent: **PARENT REQUESTS**, Show Active, **Reset to default**. A Teacher can reset only Parents of their own center, and the Admin only Teachers.
 

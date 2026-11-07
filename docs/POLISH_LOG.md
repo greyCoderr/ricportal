@@ -295,3 +295,41 @@ Summary of G2:
 Figma calls used so far: 6 of 89.
 
 Full check for G2, in foreground steps: typecheck clean; lint clean after one fix (the import hook's methods became arrow functions); format clean; unit 297 of 297, client 428 of 428, db 549 of 549, each on one worker; build succeeds.
+
+## G3 Teacher
+
+Done, in the plan's order:
+- Calendar: the day-panel tags point at the Purchase Request from 1024 px, as 166:1553 shows. The selected day's ring covers the whole cell (fixed in G2). The Assign Parents modal was measured in G1, before these changes; the shell and the dialog CSS have not changed since.
+- Enrolled Students: denser rows, table text 12 to 13 px, names in black. The hidden hover labels no longer add false sideways scroll.
+- Add Student, Admin Feedback, Parent Requests, Profile: density only. Compared with the frames at 1440x900 only: Add Student and Admin Feedback by eye; Parent Requests and Profile through the numbers and the audit.
+- Home: same content in three columns, with Report Tracking back and new tests (DEC-046).
+- Report Status: the details column beside the list from 1360 px.
+- Cards until 1024 px on Reports and RIC Teachers, cards on phones on Centers and Menu Imports.
+
+Figma calls used so far: 12 of 89.
+
+## G4 Verify and tag: STOPPED, NOT TAGGED
+
+The system stopped the last browser audit because memory was critically low, and said not to restart it without being asked. DEC-035 says the same: report it and stop. So G4 is not finished and v0.9.4-demo does not exist. v0.9.3-demo is still the fallback.
+
+Done in G4:
+- docs/DEMO_SCRIPT.md is updated: the cards, the upload panel, the status toggle, View Profile.
+- Audit of every page for all three roles (18 pages), document scroll, sideways scroll and fit:
+  - Before the last fixes, all seven sizes: 122 of 126 passed. The 4 failures were tables overflowing at 768x1024 and on Teacher Reports at 1280x720.
+  - After those fixes, 1280x720, 1366x768, 1920x1080 and 768x1024: 72 of 72 passed.
+
+NOT verified:
+- After the last fixes, 1440x900, 1536x864 and 390x844 were not audited again.
+- Teacher Home with the Admin Feedback box showing, its tallest state. The audit was stopped before it reached the Teacher pages. Home could overflow here, and the third column would then scroll by itself.
+- Touch devices of 1024 px and up (the comfortable mode there). The touch pass did not run.
+- Every dialog: only Assign Parents (G1), the reset confirmation and the menu preview (G2) were measured. Focus return was checked on Assign Parents and the reset confirmation.
+- Overlapping elements: the audit does not measure them. Screenshots were read only for the pages named in this log.
+- Report pages with data: the rows were mocked in the browser, because the local database has no reports.
+- The G3 and G4 pages with the client's mobile frames at 390x844: measured for scroll, not compared by eye.
+- The Upload panel's Confirm step in a browser (see G2).
+
+Not run after the G3 changes: the full lint, the unit and db projects, and the whole client project. Run so far: typecheck, and client tests for the changed folders. ESLint ran on Home, Students and Reports before their last edits, and not on Table, Button, Centers or Menu Imports. No server code changed after G2's full check.
+
+The smoke test on port 3000 did not run. Another server I did not start holds that port, and its API code is older than this round: **restart it before the demo, or GET /api/teachers/:id and the new counts will fail.** My own checks ran on port 3100, and that server is stopped.
+
+To finish, when memory allows: close other programs, then run npx tsc -b, npm run lint, npm run format:check, the three vitest projects one after another with --maxWorkers=1, and npm run build. Repeat the audit for the items above, then tag v0.9.4-demo.

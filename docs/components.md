@@ -171,3 +171,4 @@ Polish calls so far: 31 of 120.
 - 175:1023 RIC dashboard (Teacher Home), 1920 x 1671: design-context read (sparse response, 2026-11-08).
 - 88:695 profile, 1920 x 1367: design-context read (2026-11-08).
 - 267:9689, 268:11404 (Admin Calendar with the upload panel), 267:9862 (RIC Teachers): screenshots (2026-11-08).
+- 166:1553 (Teacher Calendar), 78:260 (Enrolled Students), 175:1023 (Teacher Home), 78:284 (Report Status), 78:276 (Admin Feedback), 258:5447 (Add Student): screenshots (2026-11-08).
