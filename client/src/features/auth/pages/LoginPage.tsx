@@ -60,56 +60,56 @@ export function LoginPage() {
           </div>
         </div>
 
-        <main className="relative mx-auto mt-8 flex w-full max-w-[480px] flex-1 flex-col">
-          <h1 className="text-24 font-semibold lg:-ml-[100px] lg:text-48">
-            Welcome Back
-          </h1>
-          <p className="mb-8 text-13 font-semibold tracking-label text-text-secondary lg:-ml-[100px] lg:text-18">
+        <main className="relative mt-8 flex w-full flex-1 flex-col">
+          <h1 className="text-24 font-semibold lg:text-48">Welcome Back</h1>
+          <p className="mb-8 text-13 font-semibold tracking-label text-text-secondary lg:text-18">
             Please log in to continue to your account
           </p>
 
-          <form
-            noValidate
-            className="flex flex-col gap-4"
-            onSubmit={form.handleSubmit((data) => {
-              login.mutate(data, {
-                onSuccess: () => {
-                  void navigate(target, { replace: true });
-                },
-                onError: (error) => {
-                  form.applyError(error);
-                },
-              });
-            })}
-          >
-            <TextField
-              form={form}
-              name="username"
-              label="Username"
-              autoComplete="username"
-              placeholder="Enter your username"
-            />
-            <PasswordField form={form} name="password" label="Password" />
-            {form.formError !== null && (
-              <Banner tone="danger">{form.formError}</Banner>
-            )}
-            <Button type="submit" loading={login.isPending}>
-              Log in
-              <img src={loginIcon} alt="" className="size-5" />
-            </Button>
-          </form>
+          <div className="mx-auto flex w-full max-w-[480px] flex-col">
+            <form
+              noValidate
+              className="flex flex-col gap-4"
+              onSubmit={form.handleSubmit((data) => {
+                login.mutate(data, {
+                  onSuccess: () => {
+                    void navigate(target, { replace: true });
+                  },
+                  onError: (error) => {
+                    form.applyError(error);
+                  },
+                });
+              })}
+            >
+              <TextField
+                form={form}
+                name="username"
+                label="Username"
+                autoComplete="username"
+                placeholder="Enter your username"
+              />
+              <PasswordField form={form} name="password" label="Password" />
+              {form.formError !== null && (
+                <Banner tone="danger">{form.formError}</Banner>
+              )}
+              <Button type="submit" loading={login.isPending}>
+                Log in
+                <img src={loginIcon} alt="" className="size-5" />
+              </Button>
+            </form>
 
-          <div className="my-6 flex items-center gap-4" aria-hidden="true">
-            <span className="h-px flex-1 bg-border" />
-            <span className="text-15 tracking-label">or</span>
-            <span className="h-px flex-1 bg-border" />
+            <div className="my-6 flex items-center gap-4" aria-hidden="true">
+              <span className="h-px flex-1 bg-border" />
+              <span className="text-15 tracking-label">or</span>
+              <span className="h-px flex-1 bg-border" />
+            </div>
+            <Link
+              to="/signup"
+              className="inline-flex h-11 items-center justify-center rounded-control border border-border-subtle bg-surface text-15 tracking-label hover:border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+            >
+              Sign up
+            </Link>
           </div>
-          <Link
-            to="/signup"
-            className="inline-flex h-11 items-center justify-center rounded-control border border-border-subtle bg-surface text-15 tracking-label hover:border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
-          >
-            Sign up
-          </Link>
         </main>
 
         <p className="relative mt-8 text-center text-10 tracking-label">

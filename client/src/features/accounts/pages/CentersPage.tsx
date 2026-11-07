@@ -166,7 +166,6 @@ export function CentersPage() {
                   render: (row) => (
                     <Button
                       variant="secondary"
-                      size="sm"
                       aria-label={`Edit ${row.name}`}
                       onClick={() => {
                         setEditing(row);

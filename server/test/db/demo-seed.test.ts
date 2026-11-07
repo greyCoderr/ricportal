@@ -44,7 +44,7 @@ describe("seedDemo", () => {
     await seedDemo(prisma, OPTIONS);
     const state = await counts();
     expect(state.teachers).toBe(1);
-    expect(state.parents).toBe(3);
+    expect(state.parents).toBe(4);
     expect(state.students).toBe(18);
     expect(state.menuDays).toBe(84);
     expect(state.assignments).toBeGreaterThan(0);
@@ -60,6 +60,46 @@ describe("seedDemo", () => {
     expect((schedule.body as { data: unknown[] }).data.length).toBeGreaterThan(
       0,
     );
+  });
+
+  it("each week has a team of 4, and each feeding day 2 of them (D4)", async () => {
+    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+    const res = await teacher.get("/api/assignments/week?week=2026-11-09");
+    const { team, days } = (
+      res.body as {
+        data: {
+          team: { username: string }[];
+          days: { menuName: string | null; parents: unknown[] }[];
+        };
+      }
+    ).data;
+    expect(team.map((row) => row.username).sort()).toEqual([
+      "parent1",
+      "parent2",
+      "parent3",
+      "parent4",
+    ]);
+    const feeding = days.filter((day) => day.menuName !== null);
+    expect(feeding.length).toBeGreaterThan(0);
+    for (const day of feeding) {
+      expect(day.parents).toHaveLength(2);
+    }
+  });
+
+  it("the partly filled day has rows by the Teacher and by a Parent (D3)", async () => {
+    const rows = await prisma.purchaseItem.findMany({
+      where: {
+        purchaseRequest: { feedingDate: new Date("2026-11-10T00:00:00Z") },
+      },
+    });
+    const teacher = await prisma.user.findUniqueOrThrow({
+      where: { username: "teacher.sibujo" },
+    });
+    const parent2 = await prisma.user.findUniqueOrThrow({
+      where: { username: "parent2" },
+    });
+    const creators = new Set(rows.map((row) => row.createdBy));
+    expect(creators).toEqual(new Set([teacher.id, parent2.id]));
   });
 
   it("the partly filled day has rows with and without costs", async () => {

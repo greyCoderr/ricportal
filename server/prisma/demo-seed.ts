@@ -20,6 +20,7 @@ const PARENTS = [
   { username: "parent1", fullName: "Rosa Dela Cruz", childName: "Maria" },
   { username: "parent2", fullName: "Lito Santos", childName: "Jose" },
   { username: "parent3", fullName: "Nena Bautista", childName: "Ana" },
+  { username: "parent4", fullName: "Lito Ramos", childName: "Ben" },
 ];
 // The account the demo script's step 2 creates, removed so it can be redone.
 const LIVE_DEMO_TEACHER = "teacher.bahay";
@@ -113,7 +114,7 @@ export async function seedDemo(
       tokenVersion: { increment: 1 },
     },
   });
-  const parentRows = [];
+  const parentRows: { id: number }[] = [];
   for (const parent of PARENTS) {
     parentRows.push(
       await prisma.user.create({
@@ -176,23 +177,34 @@ export async function seedDemo(
   };
 
   // This week and next week, so a demo after the weekend still has a schedule.
+  // Each week has a team of all four Parents, and each feeding day two of them (D4).
   const assignments = createAssignmentsService(
     createAssignmentsRepository(prisma),
   );
   const monday = mondayOf(manilaToday(options.now));
-  let turn = 0;
+  const team = parentRows.map((row) => row.id);
+  const parentsOf = (index: number) => [
+    parentRows[index % parentRows.length],
+    parentRows[(index + 1) % parentRows.length],
+  ];
   const feedingDays: string[] = [];
   for (const start of [monday, addDays(monday, 7)]) {
-    for (const row of await assignments.week(teacher, start)) {
-      if (row.menuName !== null) {
-        feedingDays.push(row.date);
-        const parent = parentRows[turn % parentRows.length];
-        turn += 1;
-        if (parent !== undefined) {
-          await assignments.replace(teacher, row.date, [parent.id]);
-        }
+    const week = await assignments.week(teacher, start);
+    const days = week.flatMap((row) => {
+      if (row.menuName === null) {
+        return [];
       }
-    }
+      const parentIds = parentsOf(feedingDays.length).flatMap((parent) =>
+        parent === undefined ? [] : [parent.id],
+      );
+      feedingDays.push(row.date);
+      return [{ date: row.date, parentIds }];
+    });
+    await assignments.saveWeek(teacher, {
+      week: start,
+      teamParentIds: team,
+      days,
+    });
   }
 
   // One locked day, one partly filled, one with only the list.
@@ -205,11 +217,12 @@ export async function seedDemo(
   async function addRows(
     date: string,
     rows: [string, string | null, string | null, string | null][],
+    by: AuthUser = teacher,
   ) {
     for (const [description, unit, quantity, unitCost] of rows) {
-      const item = await purchase.addItem(teacher, date, description);
+      const item = await purchase.addItem(by, date, description);
       if (unit !== null) {
-        await purchase.updateItem(teacher, item.id, {
+        await purchase.updateItem(by, item.id, {
           version: item.version,
           unit: unit as "kg",
           quantity,
@@ -232,6 +245,23 @@ export async function seedDemo(
       ["Chicken", "kg", "1", null],
       ["Malunggay leaves", null, null, null],
     ]);
+    // The second feeding day's first Parent has added rows too (D3).
+    const helper = parentRows[1 % parentRows.length];
+    if (helper !== undefined) {
+      await addRows(
+        partlyDay,
+        [
+          ["Ginger", "pcs", "2", "5.00"],
+          ["Patis", null, null, null],
+        ],
+        {
+          id: helper.id,
+          role: "PARENT",
+          centerId: center.id,
+          mustChangePassword: false,
+        },
+      );
+    }
   }
   if (listDay !== undefined) {
     await addRows(listDay, [

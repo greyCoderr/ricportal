@@ -116,7 +116,7 @@ export function ReportsPage() {
       render: (row) => (
         <Link
           to={`/reports/${String(row.id)}`}
-          className="font-medium text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+          className="inline-flex min-h-11 items-center font-medium text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text md:min-h-0"
         >
           {periodTitle(row)}
         </Link>

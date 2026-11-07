@@ -97,7 +97,7 @@ export function AddressRow({
 }) {
   const labels = ["Barangay", "Municipality", "Province", "Region"];
   return (
-    <div className="grid gap-4 md:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
       {first}
       {keys.map((name, index) => (
         <ExtraText
@@ -214,7 +214,7 @@ export function BirthRegistered({
 }
 
 const FAMILY_COLUMNS =
-  "md:grid-cols-[1.5rem_1.6fr_1fr_1fr_0.7fr_1fr_1.1fr_1fr_1fr]";
+  "xl:grid-cols-[1.5rem_1.6fr_1fr_1fr_0.7fr_1fr_1.1fr_1fr_1fr]";
 
 export function FamilyTable({
   draft,
@@ -246,10 +246,10 @@ export function FamilyTable({
   const textColumns = [["relationship", "c. Relationship"]] as const;
 
   return (
-    <div className="flex flex-col gap-3 md:gap-2">
+    <div className="flex flex-col gap-3 xl:gap-2">
       <div
         aria-hidden="true"
-        className={`hidden gap-2 border-b border-border-subtle pb-2 text-12 md:grid ${FAMILY_COLUMNS}`}
+        className={`hidden gap-2 border-b border-border-subtle pb-2 text-12 xl:grid ${FAMILY_COLUMNS}`}
       >
         {headers.map((header) => (
           <span key={header}>{header}</span>
@@ -260,13 +260,13 @@ export function FamilyTable({
         return (
           <fieldset
             key={number}
-            className={`grid gap-2 rounded-control border border-border-subtle p-3 md:items-center md:rounded-none md:border-0 md:p-0 ${FAMILY_COLUMNS}`}
+            className={`grid gap-2 rounded-control border border-border-subtle p-3 sm:grid-cols-2 xl:items-center xl:rounded-none xl:border-0 xl:p-0 ${FAMILY_COLUMNS}`}
           >
             <legend className="sr-only">Family member {number}</legend>
             <span aria-hidden="true" className="text-13 font-medium">
               {number}.
             </span>
-            <FormField label="11a. Full Name" hideLabelFrom="md">
+            <FormField label="11a. Full Name" hideLabelFrom="xl">
               {(field) => (
                 <Input
                   {...field}
@@ -277,7 +277,7 @@ export function FamilyTable({
                 />
               )}
             </FormField>
-            <FormField label="b. Birthday" hideLabelFrom="md">
+            <FormField label="b. Birthday" hideLabelFrom="xl">
               {(field) => (
                 <DateInput
                   {...field}
@@ -289,7 +289,7 @@ export function FamilyTable({
               )}
             </FormField>
             {textColumns.map(([key, label]) => (
-              <FormField key={key} label={label} hideLabelFrom="md">
+              <FormField key={key} label={label} hideLabelFrom="xl">
                 {(field) => (
                   <Input
                     {...field}
@@ -301,7 +301,7 @@ export function FamilyTable({
                 )}
               </FormField>
             ))}
-            <FormField label="d. Sex" hideLabelFrom="md">
+            <FormField label="d. Sex" hideLabelFrom="xl">
               {(field) => (
                 <Select
                   {...field}
@@ -323,7 +323,7 @@ export function FamilyTable({
                 ["occupation", "g. Occupation"],
               ] as const
             ).map(([key, label]) => (
-              <FormField key={key} label={label} hideLabelFrom="md">
+              <FormField key={key} label={label} hideLabelFrom="xl">
                 {(field) => (
                   <Input
                     {...field}
@@ -335,7 +335,7 @@ export function FamilyTable({
                 )}
               </FormField>
             ))}
-            <FormField label="h. Monthly Income" hideLabelFrom="md">
+            <FormField label="h. Monthly Income" hideLabelFrom="xl">
               {(field) => (
                 <Input
                   {...field}

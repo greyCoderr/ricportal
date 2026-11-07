@@ -43,17 +43,11 @@ function EntryActions({
 }) {
   return (
     <div className="flex gap-2">
-      <Button
-        variant="secondary"
-        size="sm"
-        aria-label={`Edit ${label}`}
-        onClick={onEdit}
-      >
+      <Button variant="secondary" aria-label={`Edit ${label}`} onClick={onEdit}>
         Edit
       </Button>
       <Button
         variant="secondary"
-        size="sm"
         aria-label={`Delete ${label}`}
         onClick={onDelete}
       >

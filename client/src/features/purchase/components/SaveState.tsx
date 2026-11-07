@@ -28,7 +28,7 @@ export function SaveState({
       {state === "failed" && (
         <span className="flex flex-wrap items-center gap-2 text-danger-text">
           <span>Failed{message === null ? "" : `: ${message}`}</span>
-          <Button variant="secondary" size="sm" onClick={onRetry}>
+          <Button variant="secondary" onClick={onRetry}>
             Retry
           </Button>
         </span>

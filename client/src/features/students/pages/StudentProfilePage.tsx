@@ -228,7 +228,7 @@ export function StudentProfilePage() {
           <p className="mb-2 text-13">
             <Link
               to="/students"
-              className="text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+              className="inline-flex min-h-11 items-center text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
             >
               Back to Enrolled Students
             </Link>

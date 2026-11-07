@@ -117,3 +117,29 @@ Summary (F5, 2026-11-07):
 - Tests first: 7 scoping tests, 5 seen failing before the code and all passing after. The 2 that passed at once cover own-center report scoping, which already worked, and lock it in. Targeted runs are green; full check is at the end of F6.
 - Decisions: DEC-041.
 - Not seen in a browser. Developer, please compare at 1440x900 and 390x844 against 175:1023, 78:284 and 78:276.
+
+## F6 Responsive pass, fixes, demo readiness
+
+Plan:
+1. Check once for Playwright (not connected, so no browser checks) and log it.
+2. Source audit for the failure patterns the plan lists; fix each finding; add scan tests so they stay fixed.
+3. Demo seed: 4 parents, a week team, rows by both roles.
+4. docs/DEMO_SCRIPT.md for everything F1 to F5 changed, with the hand-check list.
+5. Full check in foreground steps, docs, commit, tag v0.9.1-demo.
+
+Findings fixed:
+
+| Finding | Where | Fix |
+| --- | --- | --- |
+| Buttons 32 px high, under the 44 px tap target | Pagination, Centers, SaveState Retry, Liquidation overlay, report detail, Child's Record rows | Default 44 px size. The `sm` variant stays in the kit (DEC-028 and its test) but no screen uses it |
+| Back links and report links too small to tap | Report detail, student profile, reports list | `min-h-11` |
+| "Welcome Back" had a -100 px margin inside a clipped column, so it would be cut off near 1024 px | Login | Removed the margin; the heading stays at the column's left and the form is centered |
+| Nine family columns from 768 px, about 75 px each | Student form | Cards until 1280 px; address rows get five columns from 1024 px |
+
+Already in place from F1 to F5: tables are cards under 768 px or scroll inside their own region, drawers are bottom sheets under 768 px, the sidebar is the menu under 1024 px, `min-w-0` on page columns.
+
+New guard: `client/test/responsive-scan.test.ts` (no 32 px buttons on screens, no native date pickers, no fixed width over 360 px, a capped phone drawer, no clipped negative margins). It failed on 3 of 5 rules before the fixes, and passes now.
+
+**Not done as the plan asked:** the width-by-width check in a browser (360 to 1920 px). The Playwright server failed to connect at session start and no other browser tool is available here. The source audit above is a substitute and can miss visual problems. docs/DEMO_SCRIPT.md has the list for the Developer.
+
+Status of F6 (2026-11-07): NOT finished. The final full test run was stopped by the system because memory was critically low, so it gave no result. It was not restarted (DEC-035). Typecheck, lint, format check and targeted tests passed on the F6 code. Still to do once memory is free: `npm run test`, `npm run build`, PHASE_LOG, CHANGELOG and INDEX entries, the F6 commit, tag v0.9.1-demo.

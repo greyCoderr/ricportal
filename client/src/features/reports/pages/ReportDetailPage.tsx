@@ -110,7 +110,7 @@ export function ReportDetailPage() {
           <p className="mb-2 text-13">
             <Link
               to="/reports"
-              className="text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+              className="inline-flex min-h-11 items-center text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
             >
               Back to reports
             </Link>
@@ -172,7 +172,6 @@ export function ReportDetailPage() {
                       ) : (
                         <Button
                           variant="secondary"
-                          size="sm"
                           aria-label={`Purchase Request PDF for ${formatDate(day.date)}`}
                           onClick={() => {
                             openPdf(

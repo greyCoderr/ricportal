@@ -24,7 +24,6 @@ export function Pagination({
     >
       <Button
         variant="secondary"
-        size="sm"
         aria-label="Previous page"
         disabled={page <= 1}
         onClick={() => {
@@ -38,7 +37,6 @@ export function Pagination({
       </p>
       <Button
         variant="secondary"
-        size="sm"
         aria-label="Next page"
         disabled={page >= pages}
         onClick={() => {

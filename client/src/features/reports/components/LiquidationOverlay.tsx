@@ -65,7 +65,6 @@ function PurchaseRequestsTab({ days }: { days: LiquidationDay[] }) {
             ) : (
               <Button
                 variant="secondary"
-                size="sm"
                 aria-label={`Purchase Request PDF for ${formatDate(day.date)}`}
                 onClick={() => {
                   openPdf(livePurchaseRequestUrl(day.date));
