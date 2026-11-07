@@ -140,6 +140,7 @@ export function CentersPage() {
         ) : (
           <>
             <Table
+              cardsOnPhone
               caption="RIC Children Centers"
               rows={centers.data?.data ?? []}
               rowKey={(row) => row.id}

@@ -77,6 +77,7 @@ export function MenuImportsPage() {
         ) : (
           <>
             <Table
+              cardsOnPhone
               caption="Imported batches"
               rows={batches.data?.data ?? []}
               rowKey={(row) => row.id}

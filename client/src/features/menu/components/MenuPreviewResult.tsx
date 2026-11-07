@@ -22,6 +22,7 @@ export function MenuPreviewResult({
       <h2 className="mb-2 text-18 font-semibold">{preview.fileName}</h2>
       {preview.batches.length > 0 && (
         <Table
+          cardsOnPhone
           caption="Sheets found in the file"
           rows={preview.batches}
           rowKey={(row) => row.sheetName}
