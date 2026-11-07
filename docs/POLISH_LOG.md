@@ -142,4 +142,17 @@ New guard: `client/test/responsive-scan.test.ts` (no 32 px buttons on screens, n
 
 **Not done as the plan asked:** the width-by-width check in a browser (360 to 1920 px). The Playwright server failed to connect at session start and no other browser tool is available here. The source audit above is a substitute and can miss visual problems. docs/DEMO_SCRIPT.md has the list for the Developer.
 
-Status of F6 (2026-11-07): NOT finished. The final full test run was stopped by the system because memory was critically low, so it gave no result. It was not restarted (DEC-035). Typecheck, lint, format check and targeted tests passed on the F6 code. Still to do once memory is free: `npm run test`, `npm run build`, PHASE_LOG, CHANGELOG and INDEX entries, the F6 commit, tag v0.9.1-demo.
+Summary (F6, 2026-11-07):
+
+- The first final test run was stopped by the system for low memory and gave no result. It was then run per project on one worker (DEC-042).
+- Checks: unit 297 of 297 in 55 s; db 519 of 519 in 273 s; client 396 of 396 in 328 s; 1212 tests in all. Typecheck, lint and format clean. Build succeeds; the main script is over 500 kB, which is harmless on localhost.
+- **One intermittent failure, cause not proven.** The first db run failed 1 of 519: "a Parent adds a row, which keeps who created it" in `assignments-week.db.test.ts` got 404 where it expected 201. The file passed alone (31 of 31), and the whole db project passed on the rerun. That group's `beforeEach` did not check its own save, so a failed save would look exactly like this 404, but this was not observed. The setup now asserts that the save returned 200 and prints the answer, so a repeat will show the real cause. Nothing was weakened and no timeout changed.
+- Smoke test of the built app on port 3000 (`npm start`), read-only apart from login times, 14 of 14: `/`, the built script, the SPA fallback, `/api/health` (db up), login as admin, teacher.sibujo and parent1, the calendar API for November as Admin and Teacher (30 days), the Parent schedule (30 days, 5 assigned, no budget fields), the Enrollment Form PDF (starts with %PDF, 8760 bytes), the dashboard summary, and 403 for a Parent on the dashboard.
+- The smoke test used the demo data already in the local database. **The new seed was not run on it**, because it clears Sibujo's data. The seed itself is tested on the test database. Run `npm run db:seed:demo` on demo morning.
+- The server logs two notices from the PDF library when a PDF is made: no URL or local access policy is defined. This was not looked into. BACKLOG item for hardening.
+- Docs: DEMO_SCRIPT has the new pages, the Assign Parents flow, the Parent flow, the default password reset and a short visual checklist. DEC-042.
+- **Still not done: the plan's width-by-width check and Figma comparison in a browser.** Playwright did not connect during F1 to F6. It connected at the start of this final session, but this session's instructions were to start nothing new, so no page was opened. docs/DEMO_SCRIPT.md has the checklist.
+
+## Polish summary
+
+F1 to F6 done on branch demo-polish, tag v0.9.1-demo, not pushed. 31 of 120 Figma calls used. Decisions DEC-037 to DEC-042. Nothing was started on Objective 3 beyond the placeholders D10 asks for.

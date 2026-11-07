@@ -385,10 +385,11 @@ describe("Parent rows (D3)", () => {
   let otherParent: Agent;
 
   beforeEach(async () => {
-    await save({
+    const saved = await save({
       teamParentIds: [team[0], team[1]],
       days: [{ date: TUE, parentIds: [team[0], team[1]] }],
     });
+    expect(saved.status, JSON.stringify(saved.body)).toBe(200);
     parent = await loginAs(app, "parent.a");
     otherParent = await loginAs(app, "parent.c1");
   });

@@ -62,6 +62,11 @@ Started empty; later tasks append to them (see blueprint Section 8.1).
 | [DESIGN_LANGUAGE.md](DESIGN_LANGUAGE.md) | RICPortal design language: fills gaps Figma leaves open; the client's Figma always wins |
 | [SPRINT_PLAN.md](SPRINT_PLAN.md) | The demo sprint plan |
 | [SPRINT_LOG.md](SPRINT_LOG.md) | Progress of the demo sprint, stage by stage |
+| [POLISH_PLAN.md](POLISH_PLAN.md) | The demo polish plan: Figma fidelity, Parent flow, fixes |
+| [POLISH_LOG.md](POLISH_LOG.md) | Progress of the demo polish, stage by stage |
+| [ui-specs/shell.md](ui-specs/shell.md) | App shell, Login, footer and Profile |
+| [ui-specs/calendar.md](ui-specs/calendar.md) | Calendar, day panels and the Assign Parents modal |
+| [ui-specs/student-form.md](ui-specs/student-form.md) | Student form field mapping, for client confirmation |
 | [SPRINT_SHORTCUTS.md](SPRINT_SHORTCUTS.md) | What was cut or simplified for the demo, and how to restore it |
 | [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | How to start the demo, the accounts and the click path |
 | [components.md](components.md) | UI kit components: Figma calls, node ids read (one read per node), source of each component |

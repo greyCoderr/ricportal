@@ -24,3 +24,5 @@ Deferred ideas: item, who asked, reason, and the phase it might belong to.
 
 - Remove `@fullcalendar/list`, unused since the polish F2 (DEC-038). Left in place so package files do not change this close to the demo. Asked by: Claude. Phase: 8.
 - Remove `generateTemporaryPassword` and its test, unused since D6 (DEC-040). Asked by: Claude. Phase: 8.
+- Look at the PDF library's notices about URL and local file access policies, and set them if needed (POLISH_LOG, F6). Asked by: Claude. Phase: 8.
+- Watch for the intermittent 404 in `assignments-week.db.test.ts` (POLISH_LOG, F6). The setup now prints the real cause if it returns. Asked by: Claude. Phase: 8.

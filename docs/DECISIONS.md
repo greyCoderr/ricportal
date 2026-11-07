@@ -492,3 +492,10 @@ Decision:
 - Report Status steps follow BR-07 (Submitted, Need Revision, Approved). Figma's Pending and For Approval are not agreed statuses (DEC-028).
 - Admin Feedback lists only feedback on returned reports (D10). Figma's Approved with Remarks and Resolved cards, status timeline, Feedback Guide and filters have no data before Objective 3 and are left out. Figma's report-type, year and search filters likewise.
 - "Revise Report" goes to the Calendar, where the days are fixed and the report is submitted again.
+
+## DEC-042: One test worker for the final runs
+
+Context: the final full test run of F6 was stopped by the system because memory was critically low. The Developer asked for the tests per project, on the lowest worker settings that work. Vitest 5 docs, read through Context7: `--maxWorkers` is a CLI option, and `--no-file-parallelism` overrides it to 1.
+Decision:
+- Final runs on this laptop: `npx vitest run --project unit --maxWorkers=1`, then `db`, then `client`, one after another. All three finished on one worker.
+- A CLI flag for these runs only. `vitest.config.mjs` keeps `maxWorkers: 2` (DEC-035), so nothing else changes. `npm run test` still runs all projects together, about 10 minutes on two workers, and is what memory stopped.
