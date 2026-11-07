@@ -50,7 +50,8 @@ function PreviewResult({
             {
               key: "period",
               header: "Period",
-              render: (row) => `${row.periodStart} to ${row.periodEnd}`,
+              render: (row) =>
+                `${formatDate(row.periodStart)} to ${formatDate(row.periodEnd)}`,
             },
             {
               key: "days",
@@ -74,8 +75,9 @@ function PreviewResult({
         {preview.overlaps.length > 0 && (
           <Banner tone="warning" title="These dates already have a menu">
             {preview.overlaps.length} date(s) overlap, from{" "}
-            {preview.overlaps[0]} to {preview.overlaps.at(-1)}. Remove them from
-            the file and upload it again.
+            {formatDate(preview.overlaps[0] ?? "")} to{" "}
+            {formatDate(preview.overlaps.at(-1) ?? "")}. Remove them from the
+            file and upload it again.
           </Banner>
         )}
         {warnings.length > 0 && (
@@ -209,7 +211,8 @@ export function MenuImportsPage() {
                 {
                   key: "period",
                   header: "Period",
-                  render: (row) => `${row.periodStart} to ${row.periodEnd}`,
+                  render: (row) =>
+                    `${formatDate(row.periodStart)} to ${formatDate(row.periodEnd)}`,
                 },
                 {
                   key: "days",

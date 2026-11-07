@@ -189,11 +189,42 @@ Checks after the fixes: typecheck and lint clean, client project 398 of 398 on o
 
 Not checked:
 
-- Saving in the browser: SAVE in the modal, and a Parent's add, edit and delete. The API and component tests cover these. The check left the demo data untouched on purpose.
-- Pages with report data. The local database has no reports, so Reports, Report Status and Admin Feedback were seen empty, and the report detail page was not seen.
+- Saving in the browser. Done afterwards; see "Save flows and report pages" below.
+- Pages with report data. Done afterwards; see "Save flows and report pages" below.
 - The new demo seed on the local database.
 - Figma was compared by eye from screenshots, not measured.
 - Real phones, and browsers other than Chromium.
 - The PDFs next to the official forms.
 
 Open: port 3000 was still held by a server after the last `npm start` was stopped, probably that session's node process surviving. A check that would identify it was refused by the permission system, so it was left running. It serves the current build. Close it, or restart the laptop, before `npm start` on demo day.
+
+## Save flows and report pages (2026-11-07)
+
+Asked for by the Developer. Playwright against the built app on port 3000, saving to the local database through the real screens.
+
+Passed:
+
+- Accounts: add a Teacher with a blank password, disable and enable, reset to the default password, forced change on login. Parent sign-up, the pending message, approval, login, reset and disable.
+- Students: the full form with a family row, profile fields, edit, conference note, archive and restore, Enrollment PDF, Profile edit.
+- Feeding: Assign Parents SAVE, Apply to all days, autosave, Price and Total, the budget warning, the bad number message. Teacher deletes a Parent's row. A Parent adds, edits and deletes only their own row, and sees no budget. An unassigned Parent gets 404. Two browsers on one row: the second save is refused and the row refreshes. Lock, the Parent's banner, No feeding, Unlock.
+- Reports: a refused submit shows its message. PR, Summary and Transmittal PDFs. Submit, the 409 on unlock after submit, Report Status, Home counts, dashboard, filters. Need Revision refuses blank feedback. Admin Feedback, resubmit as version 2, Approve, the Admin's 403 on day edits, the 409 on an approved day.
+
+Three checks in the first report run failed because the script searched for uppercase stamp text, which is uppercase only through CSS. Two earlier failures were also script mistakes: a wrong button label, and a check that ran behind an open modal. All were rerun or confirmed from later steps and the API.
+
+Bugs found and fixed:
+
+| Bug | Fix |
+| --- | --- |
+| Report detail showed YYYY-MM-DD | formatDate. A new source scan fails on raw period dates; it was seen failing first |
+| Menu Imports showed YYYY-MM-DD in the preview, the overlap warning and History | formatDate. The overlap warning line was changed but not seen in the browser |
+| Reports hid Status and Actions at 1440 px, because the filter panel squeezed the table | The panel sits beside the table only from 1720 px. The first attempt, 1536 px, still cut off Status when rechecked |
+| Report link only 20 px tall at 768 px | 44 px until 1024 px |
+
+Reports after the fix: the table fits for both roles from 1366 px up, and for the Teacher from 1280 px. It still scrolls inside its own box for the Admin at 1024 px (333 px) and 1280 px (77 px), and for the Teacher at 1024 px (159 px). The page itself does not scroll sideways. The Admin can open a report from its title when the eye icon is out of view. Measured with one report row.
+
+Re-seeding: a new test on the test database runs a whole rehearsal (new Teacher, new Parent, assignment, a row, submit, Need Revision, resubmit, Approve), then seeds, and confirms the demo state is back. The seed was not re-run on the local database.
+
+Checks: typecheck and lint clean before the last layout change, which only changed class names. Client project 399 of 399 on one worker after it, demo-seed test file 7 of 7, build succeeds. The full unit and db projects were not rerun, because only this test file changed on the server side.
+
+Local database after this check: it holds practice data (teacher.bahay, rosa.demo, student Delos Reyes, an approved report, locked days). `npm run db:seed:demo` clears the data of the demo center and teacher.bahay; rosa.demo belongs to Sibujo and goes with it.
+

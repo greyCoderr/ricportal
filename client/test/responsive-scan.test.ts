@@ -24,6 +24,14 @@ describe("responsive and date rules", () => {
     expect(filesWith(/type="date"/)).toEqual([]);
   });
 
+  it("no raw YYYY-MM-DD period or overlap date on a screen (D7)", () => {
+    expect(
+      filesWith(
+        /\$\{[\w.?]*period(Start|End)\}|\{preview\.overlaps(\[0\]|\.at\(-1\))\}/,
+      ),
+    ).toEqual([]);
+  });
+
   it("no fixed width wider than a small phone (360 px)", () => {
     const wide: string[] = [];
     for (const file of clientSourceFiles()) {

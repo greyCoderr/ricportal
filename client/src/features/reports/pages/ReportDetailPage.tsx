@@ -118,7 +118,7 @@ export function ReportDetailPage() {
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <PageHeader
               title={`Liquidation, ${data.centerName}`}
-              description={`${data.periodStart} to ${data.periodEnd}. Version ${String(data.currentVersion)}, by ${data.teacherName}.`}
+              description={`${formatDate(data.periodStart)} to ${formatDate(data.periodEnd)}. Version ${String(data.currentVersion)}, by ${data.teacherName}.`}
             />
             <Stamp status={data.status} />
           </div>

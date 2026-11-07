@@ -94,11 +94,10 @@ Cut or simplified: see docs/SPRINT_SHORTCUTS.md (Progress tab, Admin students-by
 
 Layout at every width from 360 to 1920 px, the calendar, the sidebar, the phone menu and the Assign Parents modal were checked in a real browser (Chromium) with the older demo data; see docs/POLISH_LOG.md. These remain for you:
 
-- [ ] Run `npm run db:seed:demo` first. The new seed (parent4, the week team, rows by both roles) has run only on the test database.
+- [ ] Run `npm run db:seed:demo` first. The local database holds practice data from the save-flow check.
 - [ ] If `npm start` says port 3000 is in use, an earlier server is still running. Close it first, or restart the laptop.
-- [ ] Walk the click path once, with real saves: **SAVE** in Assign Parents, a Parent's add, edit and delete, and Lock day. The browser check saved nothing.
-- [ ] After submitting a report, look at the pages that were empty in the check: **REPORTS**, the report with its Stamp, **REPORT STATUS** and **ADMIN FEEDBACK**.
+- [ ] Rehearse the click path once yourself, then run the seed again. The save flows passed in the browser, including a report taken to Approved; see docs/POLISH_LOG.md.
+- [ ] Show **REPORTS** on a screen at least 1366 px wide. Below that, the Admin's table scrolls inside its box to reach Actions.
 - [ ] Log in on a real phone if you have one on the same network.
 - [ ] Compare the login photo on the demo screen. It is exported small to stay under 300 KB and may look soft.
 - [ ] **PDFs** next to the photos of the official forms.
-- [ ] Two browsers on one day: Teacher and Parent editing the same row shows "Updated by someone else. Your change was not saved."

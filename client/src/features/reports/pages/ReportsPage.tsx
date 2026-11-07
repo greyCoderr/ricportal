@@ -116,7 +116,7 @@ export function ReportsPage() {
       render: (row) => (
         <Link
           to={`/reports/${String(row.id)}`}
-          className="inline-flex min-h-11 items-center font-medium text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text md:min-h-0"
+          className="inline-flex min-h-11 items-center font-medium text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text lg:min-h-0"
         >
           {periodTitle(row)}
         </Link>
@@ -196,7 +196,7 @@ export function ReportsPage() {
           : `Track the status of your report. Liquidation reports of ${center}.`}
       </p>
       {isAdmin && <AdminStatusCards />}
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
+      <div className="grid gap-4 min-[1720px]:grid-cols-[minmax(0,1fr)_20rem] min-[1720px]:items-start">
         <section className="min-w-0 rounded-control border border-border-subtle p-3">
           <h2 className="mb-2 text-15 font-semibold">All Reports List</h2>
           <QueryBoundary
@@ -236,7 +236,7 @@ export function ReportsPage() {
             )}
           </QueryBoundary>
         </section>
-        <aside className="flex min-w-0 flex-col gap-3">
+        <aside className="grid min-w-0 content-start gap-3 lg:grid-cols-2 min-[1720px]:grid-cols-1">
           {!isAdmin && selected !== null && (
             <SelectedReportDetails reportId={selected} />
           )}
