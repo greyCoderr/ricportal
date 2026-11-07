@@ -164,3 +164,8 @@ Polish calls so far: 31 of 120.
 | AssignParentsModal | `features/purchase/components/AssignParentsModal.tsx` | 166:1553 (Step 1) | Figma Step 1; Step 2 is Developer-designed from D4 |
 | DateInput | `ui/DateInput.tsx` | none | Masked MM/DD/YYYY text field (D7), built on Input |
 | StudentForm, StudentExtraSections | `features/students/components` | 258:5447 | Figma layout and labels |
+
+## Polish Round 2 frames read (docs/POLISH_PLAN_2.md)
+
+- 267:9689 ADMIN dashboard, 1920 x 1080: design-context read (sparse response, 2026-11-08).
+- 175:1023 RIC dashboard (Teacher Home), 1920 x 1671: design-context read (sparse response, 2026-11-08).

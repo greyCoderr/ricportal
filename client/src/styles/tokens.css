@@ -68,6 +68,9 @@
   --text-48: 48px;
   --tracking-label: 0.1em;
 
+  /* Every h-11, size-11 and min-h-11 reads the control height (D1). */
+  --spacing-11: var(--control-h);
+
   /* Radius */
   --radius-*: initial;
   --radius-cell: 2px;
@@ -80,4 +83,44 @@
   --shadow-header: 0 4px 20px 4px #00000040;
   --shadow-card: 1px 1px 10px 1px #00000040;
   --shadow-panel: 2px 2px 8px 1px #00000040;
+}
+
+@custom-variant compact (@media (min-width: 1024px) and (pointer: fine));
+
+/* COMFORTABLE: touch, or under 1024 px. Tap targets 44 px, inputs 16 px (D1). */
+:root {
+  --control-h: 44px;
+  --sidebar-w: 0px;
+  --text-body: 16px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --sidebar-w: 290px;
+  }
+}
+
+/* COMPACT: a mouse on a wide screen. Formula and measurements: docs/tokens.md. */
+@media (min-width: 1024px) and (pointer: fine) {
+  html {
+    font-size: clamp(12px, 6.08px + 0.433vw, 16px);
+  }
+
+  :root {
+    --control-h: clamp(32px, 2.75rem, 40px);
+    --sidebar-w: clamp(240px, 15.104vw, 290px);
+    --text-body: var(--text-13);
+    --text-10: clamp(11px, 0.75rem, 11px);
+    --text-11: clamp(11px, 0.8rem, 12px);
+    --text-12: clamp(12px, 0.8rem, 12px);
+    --text-13: clamp(12px, 0.875rem, 13px);
+    --text-15: clamp(12px, 0.9rem, 13px);
+    --text-16: clamp(13px, 1rem, 14px);
+    --text-18: clamp(14px, 1.15rem, 16px);
+    --text-20: clamp(16px, 1.25rem, 18px);
+    --text-24: clamp(20px, 1.5rem, 24px);
+    --text-40: clamp(20px, 1.67rem, 24px);
+    --text-42: clamp(28px, 2.625rem, 40px);
+    --text-48: clamp(32px, 3rem, 48px);
+  }
 }

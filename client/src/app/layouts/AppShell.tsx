@@ -1,6 +1,12 @@
 import type { Role } from "@ricportal/shared";
-import { useCallback, useState, type ReactNode } from "react";
-import { NavLink } from "react-router";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { NavLink, useLocation } from "react-router";
 import avatar from "../../assets/avatar-placeholder.png";
 import logoutIcon from "../../assets/nav-logout.png";
 import emblem from "../../assets/ric-emblem.png";
@@ -9,6 +15,7 @@ import { useNativeDialog } from "../../components/ui/useNativeDialog";
 import { LABELS } from "../../lib/labels";
 import { AppFooter } from "./AppFooter";
 import { LOGOUT_LABEL, NAV_BY_ROLE } from "./nav";
+import { EMBLEM_ALT, SidebarBrand } from "./SidebarBrand";
 
 export type ShellUser = {
   fullName: string;
@@ -22,7 +29,6 @@ type AppShellProps = {
   children: ReactNode;
 };
 
-const EMBLEM_ALT = "Rural Improvement Club emblem";
 const NAV_FOCUS =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nav-text";
 
@@ -34,50 +40,8 @@ function roleLine(user: ShellUser): string {
   return user.centerName ? `${label}, ${user.centerName}` : label;
 }
 
-// The Admin frames center a large emblem and fill the selected item in red
-// (267:9689). The Teacher frames use a small emblem and a pink item with a red
-// strip (166:910). A Parent has no frame, so it follows the Teacher.
-function SidebarBrand({ role }: { role: Role }) {
-  if (role === "ADMIN") {
-    return (
-      <div className="flex shrink-0 flex-col items-center border-b border-nav-text px-3.5 py-5 text-center text-nav-text">
-        <img
-          src={emblem}
-          alt={EMBLEM_ALT}
-          className="size-[124px] rounded-full object-cover"
-        />
-        <p className="mt-2 text-24 tracking-label">
-          <span className="text-primary">RIC</span>Portal
-        </p>
-        <p className="text-12 tracking-label">Rural Improvement Club</p>
-        <p className="text-12 tracking-label">Libmanan, Camarines Sur</p>
-      </div>
-    );
-  }
-  return (
-    <div className="flex shrink-0 items-center gap-3 border-b border-primary py-5 pr-1 pl-6 text-nav-text">
-      <img
-        src={emblem}
-        alt={EMBLEM_ALT}
-        className="size-[54px] shrink-0 rounded-full object-cover"
-      />
-      <div className="min-w-0">
-        <p className="text-20 tracking-label">
-          <span className="text-primary">RIC</span>Portal
-        </p>
-        <p className="text-12 tracking-label whitespace-nowrap">
-          Rural Improvement Club
-        </p>
-        <p className="text-12 tracking-label whitespace-nowrap">
-          Libmanan, Camarines Sur
-        </p>
-      </div>
-    </div>
-  );
-}
-
 function itemClass(role: Role, isActive: boolean): string {
-  const base = `flex h-[53px] shrink-0 items-center gap-3 rounded-card px-3 text-left tracking-label whitespace-nowrap ${NAV_FOCUS}`;
+  const base = `flex h-[3.3125rem] shrink-0 items-center gap-3 rounded-card px-3 text-left tracking-label whitespace-nowrap ${NAV_FOCUS}`;
   const weight =
     role === "ADMIN" ? "text-15 font-medium" : "text-15 font-light";
   if (!isActive) {
@@ -99,7 +63,7 @@ function SidebarContent({
 }) {
   return (
     <>
-      <SidebarBrand role={user.role} />
+      <SidebarBrand />
       <nav
         aria-label="Main"
         className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-3.5"
@@ -148,18 +112,30 @@ function SidebarContent({
 // Sidebar and top bar for every role (D10, D12). From 1024 px the sidebar is
 // fixed to the viewport, its menu scrolls and logout stays at the bottom. Below
 // 1024 px the menu is a drawer opened from the top bar (no Figma frame; DEC-037).
+// The shell is one screen high and the document never scrolls (D3). In compact
+// the content area scrolls and the footer stays put; otherwise the column scrolls
+// with the footer at its end, because the full footer is taller than a phone.
 export function AppShell({ user, onLogout, children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = useCallback(() => {
     setMenuOpen(false);
   }, []);
   const drawerRef = useNativeDialog(menuOpen, closeMenu);
+  const { pathname } = useLocation();
+  const columnRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+
+  // The window no longer scrolls, so a new page must reset the scrollers.
+  useEffect(() => {
+    columnRef.current?.scrollTo?.(0, 0);
+    mainRef.current?.scrollTo?.(0, 0);
+  }, [pathname]);
 
   return (
-    <div className="flex bg-surface text-text">
+    <div className="relative flex h-dvh overflow-hidden bg-surface text-text">
       <aside
         data-testid="sidebar"
-        className="sticky top-0 hidden h-dvh w-[290px] shrink-0 flex-col bg-nav lg:flex"
+        className="sticky top-0 hidden h-dvh w-(--sidebar-w) shrink-0 flex-col bg-nav lg:flex"
       >
         <SidebarContent
           user={user}
@@ -190,10 +166,11 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
       </dialog>
 
       <div
+        ref={columnRef}
         data-testid="page-column"
-        className="flex min-h-dvh min-w-0 flex-1 flex-col"
+        className="flex h-dvh min-h-dvh min-w-0 flex-1 flex-col overflow-y-auto compact:overflow-hidden"
       >
-        <header className="sticky top-0 z-10 flex min-h-16 items-center gap-3 bg-nav px-4 text-nav-text shadow-header lg:min-h-[94px] lg:bg-header lg:text-text">
+        <header className="sticky top-0 z-10 flex min-h-16 shrink-0 items-center gap-3 bg-nav px-4 text-nav-text shadow-header lg:min-h-[5.875rem] lg:bg-header lg:text-text">
           <button
             type="button"
             aria-expanded={menuOpen}
@@ -222,7 +199,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
             <img
               src={avatar}
               alt=""
-              className="size-11 shrink-0 rounded-full border-2 border-accent bg-surface object-cover lg:size-[70px]"
+              className="size-11 shrink-0 rounded-full border-2 border-accent bg-surface object-cover lg:size-[4.375rem]"
             />
             <div className="hidden min-w-0 lg:block">
               <p className="truncate text-13 font-medium tracking-label lg:text-20">
@@ -234,7 +211,12 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
             </div>
           </div>
         </header>
-        <main className="min-w-0 flex-1 p-4 lg:p-6">{children}</main>
+        <main
+          ref={mainRef}
+          className="min-w-0 flex-1 p-4 lg:p-6 compact:min-h-0 compact:overflow-y-auto"
+        >
+          {children}
+        </main>
         <AppFooter role={user.role} />
       </div>
     </div>

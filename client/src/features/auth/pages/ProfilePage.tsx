@@ -169,7 +169,7 @@ function ProfileDetails({ profile }: { profile: ProfileDto }) {
         <img
           src={avatar}
           alt=""
-          className="size-[120px] shrink-0 rounded-full object-cover lg:size-[166px]"
+          className="size-[7.5rem] shrink-0 rounded-full object-cover lg:size-[10.375rem]"
         />
         <div className="min-w-0 md:w-64">
           <p className="text-20 font-bold tracking-label">{profile.fullName}</p>

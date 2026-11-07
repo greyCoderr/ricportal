@@ -24,10 +24,10 @@ export function Modal({
     <dialog
       ref={ref}
       aria-labelledby={titleId}
-      className={`m-auto w-[calc(100%-2rem)] ${wide ? "max-w-3xl" : "max-w-lg"} rounded-card bg-surface text-text shadow-panel backdrop:bg-overlay`}
+      className={`ric-modal m-auto ${wide ? "ric-modal-wide" : ""} rounded-card bg-surface text-text shadow-panel backdrop:bg-overlay`}
     >
       {open && (
-        <div className="flex max-h-[85vh] flex-col">
+        <div className="flex max-h-[85dvh] flex-col">
           <header className="flex items-center justify-between gap-4 border-b border-border-subtle px-4 py-2">
             <h2 id={titleId} className="text-18 font-semibold">
               {title}

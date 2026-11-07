@@ -236,3 +236,35 @@ Result: not reproduced in 8 runs; assertion kept.
 
 The cause of the one failure seen in F6 is still unknown. The assertion in the setup prints the real answer if it comes back.
 
+# Round 2 (docs/POLISH_PLAN_2.md)
+
+Branch demo-polish-2, confirmed with git status and git branch before starting. `.claude/settings.json` and the untracked `server/test/fixtures/SF MENU for 30 days.xlsx` were already there and are not committed by this round.
+
+Setup notes:
+- The plan says to number decisions from DEC-043, but DEC-043 already exists. This round starts at DEC-044.
+- The Playwright MCP server timed out on connect in this session (CONNECT_TIMEOUT, 30 s). Browser checks run through the same Playwright package from the local npx cache, driven by a script outside the repository. Nothing is added to the project.
+
+## G1 Density, viewport and shared pieces
+
+Plan:
+1. Root font size only on html, inside one desktop-fine media block. Figma frames are 1920 x 1080.
+2. Text tokens get rem values with floors in that block; comfortable values stay as they are.
+3. A `compact` variant for the same media query, so no page repeats it.
+4. `--control-h` drives Tailwind's spacing 11, so every h-11, size-11 and min-h-11 reads it.
+5. `--sidebar-w` on :root, fluid in compact.
+6. AppShell 100 dvh; the content area scrolls, the document never does.
+7. Modal centered in the content area with at least 24 px of margin.
+8. One SidebarBrand for every role, Teacher proportions.
+9. Tests: the responsive scan, SidebarBrand, the dialog CSS.
+10. Browser check at the seven sizes, then commit.
+
+
+Summary of G1, done:
+- Tests written first and seen failing (11), then passing. Client tests in client/test, the layouts and the UI kit: all pass.
+- Browser, seven sizes, all three roles on their home pages: document scroll 0, sideways scroll 0.
+- Assign Parents modal, seven sizes: 0 px off the content-area center, at least 232 px to the sidebar on desktop and 16 px to the screen edges under 1024 px, focus returns to the button after closing.
+- Dashboards still scroll inside the content area at every desktop size. G2 and G3 fix their layouts, as the plan orders.
+
+Figma calls used so far: 2 of 89.
+
+Port 3000: another server was already running and I did not start it (my own start failed with EADDRINUSE). The automatic permission check refused my attempt to look up which process it is, so I left it alone. It serves the fresh client build from disk, so G1's measurements are valid, but its API code is older than any server change in this round.

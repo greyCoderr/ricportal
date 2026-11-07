@@ -275,6 +275,8 @@ export function Icon({
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
+      // In rem, so an icon follows the density scale (D2). 16 is the base size.
+      style={{ width: `${size / 16}rem`, height: `${size / 16}rem` }}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

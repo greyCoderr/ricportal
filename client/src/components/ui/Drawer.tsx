@@ -20,12 +20,12 @@ export function Drawer({
       ref={ref}
       aria-labelledby={titleId}
       className={cx(
-        "m-0 mt-auto max-h-[85vh] w-full max-w-none rounded-t-card bg-surface text-text shadow-panel backdrop:bg-overlay md:mt-0 md:ml-auto md:h-full md:max-h-full md:rounded-none",
+        "m-0 mt-auto max-h-[85dvh] w-full max-w-none rounded-t-card bg-surface text-text shadow-panel backdrop:bg-overlay md:mt-0 md:ml-auto md:h-full md:max-h-full md:rounded-none",
         wide ? "md:w-[56rem]" : "md:w-[32rem]",
       )}
     >
       {open && (
-        <div className="flex h-full max-h-[85vh] flex-col md:max-h-full">
+        <div className="flex h-full max-h-[85dvh] flex-col md:max-h-full">
           <header className="flex items-center justify-between gap-4 border-b border-border-subtle px-4 py-2">
             <h2 id={titleId} className="text-18 font-semibold">
               {title}

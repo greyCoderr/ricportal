@@ -147,6 +147,57 @@ describe("sidebar layout (D12)", () => {
   });
 });
 
+describe("viewport fit (D3, D5 of docs/POLISH_PLAN_2.md)", () => {
+  it("the shell is one screen high and never scrolls the document", () => {
+    shell("ADMIN");
+    const column = screen.getByTestId("page-column");
+    expect(column.classList).toContain("h-dvh");
+    expect(column.parentElement?.classList).toContain("h-dvh");
+    expect(column.parentElement?.classList).toContain("overflow-hidden");
+  });
+
+  it("on a desktop the content area scrolls and can shrink", () => {
+    shell("ADMIN");
+    const main = screen.getByRole("main");
+    for (const name of [
+      "flex-1",
+      "compact:min-h-0",
+      "compact:overflow-y-auto",
+    ]) {
+      expect(main.classList).toContain(name);
+    }
+  });
+
+  it("the sidebar width comes from --sidebar-w", () => {
+    shell("ADMIN");
+    expect(screen.getByTestId("sidebar").classList).toContain(
+      "w-(--sidebar-w)",
+    );
+  });
+
+  it("Admin and Teacher get exactly the same sidebar header", () => {
+    const brandOf = (role: ShellUser["role"]) => {
+      const view = render(
+        <MemoryRouter>
+          <AppShell
+            user={{ fullName: "Ana Cruz", role, centerName: "Sibujo" }}
+            onLogout={() => undefined}
+          >
+            <p>Page body</p>
+          </AppShell>
+        </MemoryRouter>,
+      );
+      const html = within(view.container).getByTestId(
+        "sidebar-brand",
+      ).outerHTML;
+      view.unmount();
+      return html;
+    };
+    expect(brandOf("ADMIN")).toBe(brandOf("TEACHER"));
+    expect(brandOf("PARENT")).toBe(brandOf("TEACHER"));
+  });
+});
+
 describe("AppFooter (Figma 268:10479, 267:9689)", () => {
   function footer(role: ShellUser["role"]) {
     render(

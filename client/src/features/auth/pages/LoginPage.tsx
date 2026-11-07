@@ -45,7 +45,7 @@ export function LoginPage() {
           <img
             src={emblem}
             alt="Rural Improvement Club emblem"
-            className="size-[97px] shrink-0 rounded-full object-cover lg:size-[113px]"
+            className="size-[6.0625rem] shrink-0 rounded-full object-cover lg:size-[7.0625rem]"
           />
           <div>
             <p className="text-24 font-bold tracking-[0.22em] text-primary lg:text-42">
@@ -66,7 +66,7 @@ export function LoginPage() {
             Please log in to continue to your account
           </p>
 
-          <div className="mx-auto flex w-full max-w-[480px] flex-col">
+          <div className="mx-auto flex w-full max-w-[30rem] flex-col">
             <form
               noValidate
               className="flex flex-col gap-4"

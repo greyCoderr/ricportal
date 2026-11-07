@@ -510,3 +510,14 @@ Decision:
 - The family table becomes a table from 1536 px (cards before that), because it clipped MM/DD/YYYY at 1440 px.
 - The five dashboard cards share one row from 1280 px, as Figma shows.
 - useNativeDialog restores focus when a dialog is removed while open, because the browser does this only on close().
+
+## DEC-044: Density modes and viewport fit (Polish Round 2, G1)
+
+Context: docs/POLISH_PLAN_2.md D1 to D5. Details the plan leaves open. No question asked, as the plan says. The plan numbers decisions from DEC-043, but that number was already used, so this round starts at DEC-044.
+Decision:
+- Compact and comfortable modes as in docs/tokens.md. Tailwind's spacing 11 is mapped to `--control-h`, so the class names on the components stay as they were and their tests still hold.
+- The root formula changed from the plan's starting value after measuring. See docs/tokens.md.
+- D3 says the footer stays put, but the full Teacher footer is 383 px tall in Figma and much taller when stacked on a phone. So the footer is pinned only in compact, as a compact band with the same content (about 145 px at 1366 x 768). In the comfortable mode the page column scrolls with the footer at its end. The document scrolls in neither.
+- A Modal is inset by `--sidebar-w`, which is 0 under 1024 px. A Modal outside the shell would be off center from 1024 px, but none exists today: the only Modal in the auth pages is on Profile, which is inside the shell.
+- One SidebarBrand for every role, with the Teacher frame's values. The Admin's divider becomes red like the Teacher's. Figma's larger Admin emblem (267:9689) is replaced, as D5 says.
+- The window no longer scrolls, so AppShell resets its scrollers when the route changes.

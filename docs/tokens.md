@@ -115,3 +115,30 @@ Only three tokens (DESIGN_LANGUAGE rule 7). The file has no saved effect styles;
 - **Dashboard card** (267:9808): 225 x 225, `surface` fill, `accent` border inside (per-side widths not read), `rounded-card`, `shadow-card`. Number Montserrat SemiBold 40 #003800 (not tokenized); label Montserrat Light 15 `text`; icon circle `accent-soft` 95 x 95.
 - **Quick-action tile** (267:9816): 329 x 100, `accent-soft` fill, 1px #AAAAAA border inside (not tokenized), radius 0, no shadow. Icon box 80 x 80 `accent`, `rounded-icon`. Title Montserrat SemiBold 15; description Montserrat Medium 12.
 - **Add enroll form** (258:5447): absolute positions, no auto layout. Inputs 44 high, `surface`, 1px border, `rounded-control`. Labels Montserrat Medium 15 `text`; placeholders Medium 15; section headings Medium 15 `primary`; helper `text-muted`. Button "Save Student" 140 x 32 `primary`, `rounded-cell`, text Medium 13 `primary-contrast`. The pixel gaps are hand-placed and not copied (Tailwind spacing scale instead).
+
+## Density modes (DEC-044, docs/POLISH_PLAN_2.md D1 and D2)
+
+Figma's desktop frames are 1920 x 1080. All rules live in one `@media (min-width: 1024px) and (pointer: fine)` block in tokens.css, and the `compact:` variant uses the same query.
+
+| | COMFORTABLE (touch, or under 1024 px) | COMPACT (mouse, 1024 px and up) |
+| --- | --- | --- |
+| Root font size | browser default, 16 px | `clamp(12px, 6.08px + 0.433vw, 16px)` |
+| `--control-h` (every h-11, size-11, min-h-11) | 44 px | `clamp(32px, 2.75rem, 40px)` |
+| `--sidebar-w` | 0 under 1024 px, 290 px from there | `clamp(240px, 15.104vw, 290px)` (290 / 1920) |
+| Text tokens | the px in the Type table | rem with a floor and a ceiling, tokens.css |
+| Body text | 16 px | `--text-13`, 12 to 13 px |
+
+The plan's starting formula, `clamp(12px, 0.75vw, 16px)`, stayed at the 12 px floor up to 1600 px wide, so the four smaller sizes looked the same. The final formula keeps its 12 px at 1366 and 14.4 px at 1920 and is fluid between them.
+
+Measured with getBoundingClientRect and getComputedStyle, 2026-11-08:
+
+| Viewport | Root px | Body px | Sidebar px |
+| --- | --- | --- | --- |
+| 1280 x 720 | 12 | 12 | 240 |
+| 1366 x 768 | 12 | 12 | 240 |
+| 1440 x 900 | 12.32 | 12 | 240 |
+| 1536 x 864 | 12.73 | 12 | 240 |
+| 1920 x 1080 | 14.39 | 12.59 | 290 |
+| 768 x 1024, 390 x 844 | 16 | 16 | drawer |
+
+The sidebar holds 240 px below 1590 px wide, wider than the Figma proportion, because the brand text must stay at 11 px or more (D2: hold the text and shrink the rest). The comfortable mode keeps the 10 px text it already had in the phone top bar and the footer.
