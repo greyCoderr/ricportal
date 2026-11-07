@@ -328,6 +328,7 @@ export function TeachersPage() {
             <>
               <Table
                 cardsOnPhone
+                cardsUntilDesktop
                 caption="RIC Teachers"
                 rows={teachers.data?.data ?? []}
                 rowKey={(row) => row.id}

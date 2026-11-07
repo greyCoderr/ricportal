@@ -114,4 +114,21 @@ describe("Pagination", () => {
     );
     expect(container.firstChild).toBe(null);
   });
+
+  it("cardsUntilDesktop keeps the cards until 1024 px", () => {
+    const { container } = render(
+      <Table
+        cardsOnPhone
+        cardsUntilDesktop
+        caption="Wide table"
+        rows={[{ id: 1 }]}
+        rowKey={(row) => row.id}
+        columns={[{ key: "id", header: "Id", render: (row) => String(row.id) }]}
+      />,
+    );
+    expect(container.querySelector('[role="region"]')?.classList).toContain(
+      "lg:block",
+    );
+    expect(container.querySelector("ul")?.classList).toContain("lg:hidden");
+  });
 });

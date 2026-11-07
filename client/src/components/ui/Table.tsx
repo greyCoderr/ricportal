@@ -17,6 +17,8 @@ type TableProps<T> = {
   rowKey: (row: T) => Key;
   // Under 768 px each row becomes a card, as the client's phone frames show.
   cardsOnPhone?: boolean;
+  // For a table too wide for a tablet: the cards stay until 1024 px.
+  cardsUntilDesktop?: boolean;
   rowClassName?: (row: T) => string;
 };
 
@@ -29,6 +31,7 @@ export function Table<T>({
   rows,
   rowKey,
   cardsOnPhone = false,
+  cardsUntilDesktop = false,
   rowClassName,
 }: TableProps<T>) {
   return (
@@ -39,7 +42,8 @@ export function Table<T>({
         tabIndex={0}
         className={cx(
           "overflow-x-auto focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text",
-          cardsOnPhone && "hidden md:block",
+          cardsOnPhone &&
+            (cardsUntilDesktop ? "hidden lg:block" : "hidden md:block"),
         )}
       >
         <table className="w-full border-collapse text-13">
@@ -92,7 +96,13 @@ export function Table<T>({
         </table>
       </div>
       {cardsOnPhone && (
-        <ul aria-label={caption} className="flex flex-col gap-3 md:hidden">
+        <ul
+          aria-label={caption}
+          className={cx(
+            "flex flex-col gap-3",
+            cardsUntilDesktop ? "lg:hidden" : "md:hidden",
+          )}
+        >
           {rows.map((row) => (
             <li
               key={rowKey(row)}
