@@ -1,4 +1,5 @@
 import { fireEvent, screen, waitFor, within } from "@testing-library/react";
+import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithQuery } from "../../../../test/render";
 import { ToastProvider } from "../../../components/toast/ToastProvider";
@@ -86,7 +87,9 @@ function mockApi(rows: object[] = [ACTIVE, DISABLED]) {
 function renderPage() {
   renderWithQuery(
     <ToastProvider>
-      <TeachersPage />
+      <MemoryRouter>
+        <TeachersPage />
+      </MemoryRouter>
     </ToastProvider>,
   );
 }
@@ -119,9 +122,11 @@ describe("TeachersPage", () => {
     renderPage();
     await screen.findAllByText("Ben Reyes");
     const row = tableRow("Ben Reyes");
-    expect(within(row).getByText("Disabled").className).toContain(
-      "text-danger-text",
-    );
+    expect(
+      within(row)
+        .getAllByText("Disabled")
+        .some((element) => element.className.includes("text-danger-text")),
+    ).toBe(true);
     expect(row.className).toContain("bg-header");
     expect(
       within(row).getByRole("button", { name: "Enable Ben Reyes" }),
@@ -142,28 +147,61 @@ describe("TeachersPage", () => {
     expect(within(tableRow("Ben Reyes")).getByText("Never")).toBeDefined();
   });
 
-  it("reset asks first, then shows only the confirmation", async () => {
+  it("D8: the row has View Profile and the toggle, and no Edit or reset", async () => {
+    mockApi();
+    renderPage();
+    await screen.findAllByText("Ana Cruz");
+    const row = tableRow("Ana Cruz");
+    expect(
+      within(row)
+        .getByRole("link", { name: "View profile of Ana Cruz" })
+        .getAttribute("href"),
+    ).toBe("/teachers/7");
+    expect(within(row).queryByRole("button", { name: /^Edit/ })).toBe(null);
+    expect(within(row).queryByRole("button", { name: /^Reset/ })).toBe(null);
+  });
+
+  it("D8: the toggle shows its state in words, in aria-pressed and in a tooltip", async () => {
+    mockApi();
+    renderPage();
+    await screen.findAllByText("Ana Cruz");
+    const on = within(tableRow("Ana Cruz")).getByRole("button", {
+      name: "Disable Ana Cruz",
+    });
+    expect(on.getAttribute("aria-pressed")).toBe("true");
+    expect(on.getAttribute("title")).toBe("Active, click to disable");
+    expect(on.textContent).toBe("Active");
+    expect(on.className).toContain("bg-accent-soft");
+    const off = within(tableRow("Ben Reyes")).getByRole("button", {
+      name: "Enable Ben Reyes",
+    });
+    expect(off.getAttribute("aria-pressed")).toBe("false");
+    expect(off.getAttribute("title")).toBe("Disabled, click to enable");
+    expect(off.textContent).toBe("Disabled");
+    expect(off.className).toContain("bg-nav");
+  });
+
+  it("D8: the toggle sends the opposite status, in both directions", async () => {
     const calls = mockApi();
     renderPage();
     await screen.findAllByText("Ana Cruz");
     fireEvent.click(
       within(tableRow("Ana Cruz")).getByRole("button", {
-        name: "Reset password of Ana Cruz",
+        name: "Disable Ana Cruz",
       }),
     );
-    expect(calls.some((call) => call.path.endsWith("/reset-password"))).toBe(
-      false,
-    );
-    const dialog = screen.getByRole("dialog");
     fireEvent.click(
-      within(dialog).getByRole("button", { name: "Reset to default" }),
+      within(tableRow("Ben Reyes")).getByRole("button", {
+        name: "Enable Ben Reyes",
+      }),
     );
-    expect(
-      await screen.findByText(
-        "The password was reset to the default. Ana Cruz must change it at the next login.",
-      ),
-    ).toBeDefined();
-    expect(document.body.textContent).not.toContain("RICPortal2026");
+    await waitFor(() => {
+      const patches = calls.filter((call) => call.method === "PATCH");
+      expect(patches.map((call) => [call.path, call.body])).toEqual([
+        ["/api/teachers/7", { status: "DISABLED" }],
+        ["/api/teachers/8", { status: "ACTIVE" }],
+      ]);
+    });
   });
 
   it("the password is optional on a new account, and blank is sent as blank", async () => {

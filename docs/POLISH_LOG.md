@@ -268,3 +268,30 @@ Summary of G1, done:
 Figma calls used so far: 2 of 89.
 
 Port 3000: another server was already running and I did not start it (my own start failed with EADDRINUSE). The automatic permission check refused my attempt to look up which process it is, so I left it alone. It serves the fresh client build from disk, so G1's measurements are valid, but its API code is older than any server change in this round.
+
+## G2 Admin
+
+Plan:
+1. Additive migration: two report types, six nullable profile columns.
+2. DB tests first: the six counts, the toggle, reset, View Profile, column validation, matrix row.
+3. Summary and GET /api/teachers/:id.
+4. Dashboard layout and six cards that fit the screen.
+5. Upload panel on the Admin Calendar, one shared import hook.
+6. Status toggle and View Profile. Edit and reset move inside it.
+7. Profile page with every field that has a data source.
+8. Browser check, compare with Figma, full check in foreground steps.
+
+Summary of G2:
+- Migration created and applied to the local database. It is additive, and no drift appeared.
+- Browser, Admin dashboard at 1280x720, 1366x768, 1440x900, 1536x864 and 1920x1080: page scroll 0, content-area scroll 0, sideways scroll 0.
+- Toggle in a real browser: light with aria-pressed true and Active, dark with aria-pressed false and Disabled, tooltips right, row muted. Put back to Active afterwards.
+- Reset dialog: 0 px off the content-area center, focus returns to the button. Cancel only, so the demo Teacher's password did not change. Reset itself is verified by the DB and component tests.
+- Upload panel with the fixture `SF MENU for 30 days.xlsx`: the file parses (Sheet1 SF-2026-003 and Sheet2 SF-2026-004, 42 days each), and the preview opens centered.
+- NOT verified in a browser: the Confirm step of the panel. All 84 dates of the fixture are already in the local database, so the app refuses the file and offers no Confirm button. I did not clear menus to get past this. The confirm path is covered by the component test with a mocked API.
+- Fixed along the way: the selected day's ring and tap target now cover the whole calendar cell.
+- Compared with Figma: cards, calendar and upload panel follow the frames. Known differences are listed in docs/SPRINT_SHORTCUTS.md (Polish Round 2).
+- A console error on calendar pages, FullCalendar's icon font blocked by the Content Security Policy, is in docs/BACKLOG.md.
+
+Figma calls used so far: 6 of 89.
+
+Full check for G2, in foreground steps: typecheck clean; lint clean after one fix (the import hook's methods became arrow functions); format clean; unit 297 of 297, client 428 of 428, db 549 of 549, each on one worker; build succeeds.

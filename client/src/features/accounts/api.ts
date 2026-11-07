@@ -7,6 +7,7 @@ import type {
   PageMeta,
   ParentDto,
   TeacherCreateInput,
+  TeacherDetailDto,
   TeacherDto,
   TeacherPatchInput,
   UserStatus,
@@ -46,6 +47,10 @@ export async function fetchTeachers(page: number, filters: TeacherListQuery) {
     search.set("centerId", String(filters.centerId));
   }
   return apiGet<TeacherDto[], PageMeta>(`/api/teachers?${search.toString()}`);
+}
+
+export async function fetchTeacher(id: number) {
+  return (await apiGet<TeacherDetailDto>(`/api/teachers/${String(id)}`)).data;
 }
 
 export async function createTeacher(input: TeacherCreateInput) {

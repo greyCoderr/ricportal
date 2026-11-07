@@ -521,3 +521,17 @@ Decision:
 - A Modal is inset by `--sidebar-w`, which is 0 under 1024 px. A Modal outside the shell would be off center from 1024 px, but none exists today: the only Modal in the auth pages is on Profile, which is inside the shell.
 - One SidebarBrand for every role, with the Teacher frame's values. The Admin's divider becomes red like the Teacher's. Figma's larger Admin emblem (267:9689) is replaced, as D5 says.
 - The window no longer scrolls, so AppShell resets its scrollers when the route changes.
+
+## DEC-045: Defaults chosen in G2 (Admin)
+
+Context: details that docs/POLISH_PLAN_2.md D6 to D9 leave open. No question asked, as the plan says.
+Decision:
+- D6's labels use Figma's spelling: Registered RIC Teacher, Total Enrolled Students, Enrollment Reports Submitted, Accomplishment Reports Submitted, Reports for Revision. The third card has no Figma card, so it is "Reports Submitted", plural like the rest. The plan's capitals come from CSS, so the text stays as Figma spells it.
+- The "Reports Approved" card is removed, as D6's list has no such card. The count stays in the API because nothing else changes there.
+- The Upload panel tells the truth about the importer: .xlsx only. A file that overlaps menu dates already imported is still refused, with no Confirm button.
+- The panel's preview opens in a Modal. The import history stays on /menu-imports, which also keeps its own full flow, and the panel links there.
+- The Admin's header has no grey bar and a small user block, as 267:9689 shows. This gives the dashboard the height it needs to fit.
+- The dashboard's calendar shows one line per day, with the full name in a tooltip, so six weeks fit. The Calendar page keeps wrapped names.
+- Sex is Female or Male only, as the frame shows. A birth date cannot be in the future.
+- The profile saves only the extra fields that changed, so an unchanged form never overwrites them.
+- Test changes, all required by the plan: the dashboard test's Reports Approved row became D6's cards. The reset test moved from TeachersPage.test.tsx to TeacherProfilePage.test.tsx with the same assertions, because D8 moves the button. The Disabled badge assertion now looks among two matches, because the toggle shows the same word.

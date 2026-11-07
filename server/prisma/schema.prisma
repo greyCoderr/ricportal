@@ -58,6 +58,12 @@ model User {
   passwordHash       String              @map("password_hash") @db.VarChar(100)
   fullName           String              @map("full_name") @db.VarChar(120)
   mobile             String?             @db.VarChar(20)
+  email              String?             @db.VarChar(120)
+  address            String?             @db.VarChar(255)
+  position           String?             @db.VarChar(120)
+  sex                String?             @db.VarChar(10)
+  birthDate          DateTime?           @map("birth_date") @db.Date
+  qualification      String?             @db.VarChar(160)
   centerId           Int?                @map("center_id")
   status             UserStatus          @default(ACTIVE)
   mustChangePassword Boolean             @default(false) @map("must_change_password")
@@ -296,6 +302,8 @@ model PurchaseItem {
 
 enum ReportType {
   LIQUIDATION
+  ENROLLMENT
+  ACCOMPLISHMENT
 }
 
 enum ReportStatus {

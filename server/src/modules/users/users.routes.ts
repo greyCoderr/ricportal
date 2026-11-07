@@ -11,6 +11,7 @@ export function createTeachersRouter(
   const guard = [authenticate, requireRole("ADMIN")];
   router.get("/", guard, controller.listTeachers);
   router.post("/", guard, controller.createTeacher);
+  router.get("/:id", guard, controller.getTeacher);
   router.patch("/:id", guard, controller.updateTeacher);
   router.post("/:id/reset-password", guard, controller.resetTeacherPassword);
   return router;

@@ -3,6 +3,7 @@ import {
   type PasswordResetResult,
   type ParentDto,
   type teacherCreateSchema,
+  type TeacherDetailDto,
   type TeacherDto,
   type TeacherListQuery,
   type teacherPatchSchema,
@@ -15,6 +16,7 @@ import {
   RuleViolationError,
   StateInvalidError,
 } from "../../core/errors.js";
+import { fromDbDate } from "../../core/dates.js";
 import { hashPassword } from "../../core/password.js";
 import type { UsersRepository } from "./users.repository.js";
 
@@ -111,6 +113,23 @@ export function createUsersService(deps: {
     ) {
       const { rows, total } = await repository.listTeachers(input);
       return { rows: rows.map(toTeacherDto), total };
+    },
+
+    async getTeacher(id: number): Promise<TeacherDetailDto> {
+      const row = await repository.findTeacherDetail(id);
+      if (row === null) {
+        throw new NotFoundError("This RIC Teacher was not found.");
+      }
+      return {
+        ...toTeacherDto(row),
+        email: row.email,
+        address: row.address,
+        position: row.position,
+        sex: row.sex,
+        birthDate: row.birthDate === null ? null : fromDbDate(row.birthDate),
+        qualification: row.qualification,
+        createdAt: row.createdAt.toISOString(),
+      };
     },
 
     async createTeacher(

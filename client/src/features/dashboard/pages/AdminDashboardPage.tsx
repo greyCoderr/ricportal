@@ -31,19 +31,19 @@ function CountCard({
   return (
     <Card
       variant="stat"
-      className={`flex flex-col items-center p-4 text-center ${alert ? "border-danger" : ""}`}
+      className={`flex min-w-0 flex-col items-center p-2 text-center ${alert ? "border-danger" : ""}`}
     >
       <span
-        className={`inline-flex size-16 items-center justify-center rounded-full ${
+        className={`inline-flex size-[3.25rem] items-center justify-center rounded-full ${
           alert
             ? "bg-danger-soft text-danger-text"
             : "bg-accent-soft text-accent"
         }`}
       >
-        <Icon name={icon} size={32} />
+        <Icon name={icon} size={26} />
       </span>
-      <p className="mt-2 text-40 font-semibold tabular-nums">{value ?? "-"}</p>
-      <p className="text-15 font-light">{label}</p>
+      <p className="mt-1 text-40 font-semibold tabular-nums">{value ?? "-"}</p>
+      <p className="text-11 font-medium uppercase">{label}</p>
     </Card>
   );
 }
@@ -62,10 +62,10 @@ function QuickAction({
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 border border-border-subtle bg-accent-soft p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+      className="flex min-w-0 items-center gap-3 border border-border-subtle bg-accent-soft p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
     >
-      <span className="inline-flex size-16 shrink-0 items-center justify-center rounded-icon bg-accent text-primary-contrast">
-        <Icon name={icon} size={32} />
+      <span className="inline-flex size-[3.25rem] shrink-0 items-center justify-center rounded-icon bg-accent text-primary-contrast">
+        <Icon name={icon} size={26} />
       </span>
       <span className="min-w-0">
         <span className="block text-15 font-semibold">{title}</span>
@@ -87,9 +87,9 @@ const ACTION_DETAILS: Record<string, { icon: IconName; description: string }> =
     },
   };
 
-// Admin Dashboard (Figma 267:9689). Real counts on the Figma cards (D10). The
-// client's card names for report types are replaced by status, because only
-// liquidation reports exist before Objective 3 (DEC-040).
+// Admin Dashboard (Figma 267:9689). The six cards of D6, with real counts. The
+// enrollment and accomplishment counts stay 0 until Objective 3. On a desktop the
+// page fits the content area with no scrolling (D3).
 export function AdminDashboardPage() {
   const navigate = useNavigate();
   const summary = useDashboardSummary();
@@ -106,13 +106,13 @@ export function AdminDashboardPage() {
   }, []);
 
   return (
-    <>
-      <h1 className="mb-4 text-24 font-semibold lg:text-40">Admin Dashboard</h1>
+    <div className="flex flex-col compact:h-full compact:min-h-0">
+      <h1 className="mb-2 text-24 font-semibold lg:text-40">Admin Dashboard</h1>
       <QueryBoundary
         query={summary}
         errorTitle="Could not load the dashboard counts."
       >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid shrink-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 compact:grid-cols-6">
           <CountCard
             icon="users"
             value={counts?.activeTeachers}
@@ -129,9 +129,14 @@ export function AdminDashboardPage() {
             label="Reports Submitted"
           />
           <CountCard
+            icon="file-text"
+            value={counts?.submittedByType.enrollment}
+            label="Enrollment Reports Submitted"
+          />
+          <CountCard
             icon="circle-check"
-            value={counts?.reports.approved}
-            label="Reports Approved"
+            value={counts?.submittedByType.accomplishment}
+            label="Accomplishment Reports Submitted"
           />
           <CountCard
             alert
@@ -142,11 +147,11 @@ export function AdminDashboardPage() {
         </div>
       </QueryBoundary>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-2">
-        <div className="flex min-w-0 flex-col gap-6">
-          <section>
-            <h2 className="mb-2 text-16 tracking-label">Quick Actions</h2>
-            <div className="grid gap-4 rounded-control border border-border-subtle p-4 sm:grid-cols-2">
+      <div className="mt-3 grid gap-4 xl:grid-cols-2 compact:min-h-0 compact:flex-1 compact:grid-cols-2">
+        <div className="flex min-w-0 flex-col gap-3 compact:min-h-0">
+          <section className="shrink-0">
+            <h2 className="mb-1 text-16 tracking-label">Quick Actions</h2>
+            <div className="grid gap-2 rounded-control border border-border-subtle p-2 sm:grid-cols-2">
               <QuickAction
                 to="/reports"
                 icon="file-text"
@@ -174,8 +179,8 @@ export function AdminDashboardPage() {
             </div>
           </section>
 
-          <section className="rounded-control border border-border-subtle p-4">
-            <h2 className="mb-2 text-16">Recent Reports</h2>
+          <section className="rounded-control border border-border-subtle p-2 compact:min-h-0 compact:flex-1 compact:overflow-hidden">
+            <h2 className="mb-1 text-16">Recent Reports</h2>
             <QueryBoundary
               query={reports}
               errorTitle="Could not load the recent reports."
@@ -213,10 +218,10 @@ export function AdminDashboardPage() {
                       },
                     ]}
                   />
-                  <p className="mt-2 text-center">
+                  <p className="text-center">
                     <Link
                       to="/reports"
-                      className="inline-flex min-h-11 items-center text-13 text-accent underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+                      className="inline-flex min-h-11 items-center text-13 compact:min-h-6 text-accent underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
                     >
                       View All Reports
                     </Link>
@@ -227,25 +232,29 @@ export function AdminDashboardPage() {
           </section>
         </div>
 
-        <section className="min-w-0">
-          <FeedingCalendar
-            days={calendar.data ?? []}
-            selectedDate={manilaToday()}
-            onRangeChange={handleRange}
-            onDayClick={() => {
-              void navigate("/calendar");
-            }}
-          />
-          <p className="mt-4 text-center">
+        <section className="flex min-w-0 flex-col compact:min-h-0">
+          <div className="compact:min-h-0 compact:flex-1">
+            <FeedingCalendar
+              fit
+              days={calendar.data ?? []}
+              selectedDate={manilaToday()}
+              onRangeChange={handleRange}
+              onDayClick={() => {
+                void navigate("/calendar");
+              }}
+            />
+          </div>
+          <p className="mt-2 shrink-0 text-center">
             <Link
-              to="/menu-imports"
-              className="inline-flex min-h-11 items-center text-15 font-medium text-primary underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+              to="/calendar"
+              className="inline-flex min-h-11 items-center gap-2 rounded-control border border-dashed border-danger-text bg-danger-soft px-4 text-13 font-medium text-danger-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
             >
-              Upload Menu Document
+              <Icon name="upload" size={16} />
+              Upload Menu/Food Rotation
             </Link>
           </p>
         </section>
       </div>
-    </>
+    </div>
   );
 }

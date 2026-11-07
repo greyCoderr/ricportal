@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { type Role, type UserStatus } from "./enums.js";
+import { calendarDateSchema } from "./students.js";
 
 // Validation shared by the client forms and the server (P1-T01). The messages
 // are shown under the fields.
@@ -131,11 +132,37 @@ export const teacherListQuerySchema = z.object({
 });
 export type TeacherListQuery = z.output<typeof teacherListQuerySchema>;
 
-// A user edits only their own name and mobile (D11). A blank mobile clears it,
-// except for a Parent, whose mobile is required since sign-up (service rule).
+// Left out keeps the stored value; a blank clears it (D9).
+const clearable = <T extends z.ZodType<string>>(schema: T) =>
+  schema
+    .optional()
+    .or(z.literal("").transform(() => null))
+    .or(z.null());
+
+const clearableText = (max: number) =>
+  clearable(
+    z
+      .string()
+      .trim()
+      .max(max, `Must be at most ${String(max)} characters.`),
+  ).transform((value) => (value === "" ? null : value));
+
+export const SEX_OPTIONS = ["Female", "Male"] as const;
+
+// A user edits only their own profile (D11, D9). A blank mobile clears it, except
+// for a Parent, whose mobile is required since sign-up (service rule). The birth
+// date is checked against today in the service, which knows the clock.
 export const profileUpdateSchema = z.object({
   fullName: fullNameSchema,
   mobile: mobileSchema.optional().or(z.literal("").transform(() => undefined)),
+  email: clearable(
+    z.string().trim().max(120).email("Enter an email like name@example.com."),
+  ),
+  address: clearableText(255),
+  position: clearableText(120),
+  sex: clearable(z.enum(SEX_OPTIONS, "Choose Female or Male.")),
+  birthDate: clearable(calendarDateSchema),
+  qualification: clearableText(160),
 });
 export type ProfileUpdateInput = z.input<typeof profileUpdateSchema>;
 
@@ -148,6 +175,14 @@ export type ProfileDto = {
   centerId: number | null;
   centerName: string | null;
   status: UserStatus;
+  email: string | null;
+  address: string | null;
+  position: string | null;
+  sex: string | null;
+  birthDate: string | null;
+  qualification: string | null;
+  createdAt: string;
+  lastLoginAt: string | null;
 };
 
 export type SessionUser = {
@@ -181,6 +216,17 @@ export type TeacherDto = {
   lastLoginAt: string | null;
 };
 
+// The View Profile screen (D8): the list row plus what the Teacher fills in.
+export type TeacherDetailDto = TeacherDto & {
+  email: string | null;
+  address: string | null;
+  position: string | null;
+  sex: string | null;
+  birthDate: string | null;
+  qualification: string | null;
+  createdAt: string;
+};
+
 export type ParentDto = {
   id: number;
   username: string;
@@ -201,6 +247,8 @@ export type DashboardSummary = {
   centersWithTeacher: number;
   enrolledStudents: number;
   reports: { submitted: number; needRevision: number; approved: number };
+  // Reports with status SUBMITTED, by type (D6). 0 until Objective 3.
+  submittedByType: { enrollment: number; accomplishment: number };
 };
 
 export type SignupResult = { centerName: string };

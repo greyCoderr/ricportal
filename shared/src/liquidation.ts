@@ -83,7 +83,7 @@ export type ReportDto = {
   centerId: number;
   centerName: string;
   teacherName: string;
-  type: "LIQUIDATION";
+  type: "LIQUIDATION" | "ENROLLMENT" | "ACCOMPLISHMENT";
   periodStart: string;
   periodEnd: string;
   status: ReportStatus;

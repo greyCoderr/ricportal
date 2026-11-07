@@ -91,3 +91,10 @@ Migration `20261106152044_reports_liquidation`. Additive. `report_versions` and 
 ## Demo polish (F3)
 
 - `students.profile_extra` TEXT NULL: the extra fields of the Figma form as JSON text, validated with `profileExtraSchema` on the way in and out (D9). Not the Json type (polish plan, section 3). Mapping: docs/ui-specs/student-form.md.
+
+## Polish Round 2 (G2)
+
+Migration `20261107162151_polish2_report_types_profile_fields`, additive.
+
+- `ReportType` gains ENROLLMENT and ACCOMPLISHMENT. Nothing creates them before Objective 3.
+- `users` gains nullable `email` (120), `address` (255), `position` (120), `sex` (10), `birth_date` (DATE) and `qualification` (160). Each user edits their own.

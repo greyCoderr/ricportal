@@ -1,6 +1,7 @@
 import {
   INVALID_LOGIN_MESSAGE,
   LOCKED_MESSAGE,
+  manilaToday,
   STATUS_LOGIN_MESSAGES,
   type changePasswordSchema,
   type loginSchema,
@@ -15,6 +16,7 @@ import {
 import type { z } from "zod";
 import { LOGIN_LOCK_MS, LOGIN_MAX_FAILURES } from "../../config/limits.js";
 import { signSessionToken, type TokenConfig } from "../../core/auth-token.js";
+import { fromDbDate, toDbDate } from "../../core/dates.js";
 import {
   ConflictError,
   ForbiddenError,
@@ -56,6 +58,14 @@ function toProfile(row: ProfileRow): ProfileDto {
     centerId: row.centerId,
     centerName: row.center?.name ?? null,
     status: row.status,
+    email: row.email,
+    address: row.address,
+    position: row.position,
+    sex: row.sex,
+    birthDate: row.birthDate === null ? null : fromDbDate(row.birthDate),
+    qualification: row.qualification,
+    createdAt: row.createdAt.toISOString(),
+    lastLoginAt: row.lastLoginAt?.toISOString() ?? null,
   };
 }
 
@@ -197,10 +207,40 @@ export function createAuthService(deps: {
           },
         ]);
       }
+      const today = manilaToday(now());
+      if (
+        input.birthDate !== undefined &&
+        input.birthDate !== null &&
+        input.birthDate > today
+      ) {
+        throw new ValidationError("Some fields are not valid.", [
+          {
+            field: "birthDate",
+            message: "The birth date cannot be in the future.",
+          },
+        ]);
+      }
+      // Left out keeps the stored value; null clears it (D9).
+      const extras: Omit<
+        Parameters<AuthRepository["updateProfile"]>[1],
+        "fullName" | "mobile"
+      > = {};
+      if (input.email !== undefined) extras.email = input.email;
+      if (input.address !== undefined) extras.address = input.address;
+      if (input.position !== undefined) extras.position = input.position;
+      if (input.sex !== undefined) extras.sex = input.sex;
+      if (input.qualification !== undefined) {
+        extras.qualification = input.qualification;
+      }
+      if (input.birthDate !== undefined) {
+        extras.birthDate =
+          input.birthDate === null ? null : toDbDate(input.birthDate);
+      }
       return toProfile(
         await repository.updateProfile(user.id, {
           fullName: input.fullName,
           mobile: input.mobile ?? null,
+          ...extras,
         }),
       );
     },

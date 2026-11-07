@@ -189,3 +189,12 @@ Money travels as decimal strings, computed on the server with half-up rounding t
 | Endpoint | Role | Notes |
 | --- | --- | --- |
 | GET /api/reports/feedback | Teacher | Feedback on the own center's returned reports, newest first, paginated: `{ id, reportId, periodStart, periodEnd, versionNo, feedback, reviewedAt, reportStatus }`. The center comes from the login |
+
+## Polish Round 2: Admin (G2)
+
+| Endpoint | Role | Change |
+| --- | --- | --- |
+| GET /api/dashboard/summary | Admin | New `submittedByType: { enrollment, accomplishment }`: reports with status SUBMITTED, by type. Both are 0 until Objective 3 |
+| GET /api/teachers/:id | Admin | New. The TeacherDto plus `email`, `address`, `position`, `sex`, `birthDate`, `qualification`, `createdAt`. No secrets. 400 bad id, 401, 403 other roles, 404 unknown id or not a Teacher. An Admin works across centers, so no center scope applies |
+| GET /api/auth/profile | Every role | Also `email`, `address`, `position`, `sex`, `birthDate`, `qualification`, `createdAt`, `lastLoginAt` |
+| PATCH /api/auth/profile | Every role | Also accepts those six editable fields. Left out keeps the stored value; `""` or `null` clears it. 400 for a bad email, a too-long text, a sex other than Female or Male, or a birth date that is invalid or in the future |

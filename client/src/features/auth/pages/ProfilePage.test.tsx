@@ -15,6 +15,14 @@ const PROFILE = {
   centerId: 21,
   centerName: "Sibujo",
   status: "ACTIVE",
+  email: null,
+  address: null,
+  position: null,
+  sex: null,
+  birthDate: null,
+  qualification: null,
+  createdAt: "2026-03-01T02:00:00.000Z",
+  lastLoginAt: null,
 };
 
 function mockApi(answers: Record<string, { status: number; body: unknown }>) {
@@ -72,6 +80,63 @@ describe("ProfilePage (D11)", () => {
     expect(screen.getByText("RIC Teacher")).toBeDefined();
     expect(screen.getByText("Sibujo")).toBeDefined();
     expect(screen.getByText("09171234567")).toBeDefined();
+  });
+
+  it("D9: shows the frame's fields, and Not set for an empty one", async () => {
+    mockApi({
+      "GET /api/auth/profile": {
+        status: 200,
+        body: {
+          data: {
+            ...PROFILE,
+            email: "ana@example.com",
+            address: "Purok 2",
+            sex: "Female",
+            birthDate: "1990-03-14",
+          },
+          meta: {},
+        },
+      },
+    });
+    renderPage();
+    await screen.findByRole("heading", { name: "RIC Teacher Profile" });
+    for (const text of [
+      "RIC-TCHR-002",
+      "03/01/2026",
+      "ana@example.com",
+      "Purok 2",
+      "Female",
+      "03/14/1990",
+      "Never",
+    ]) {
+      expect(screen.getByText(text)).toBeDefined();
+    }
+    expect(screen.getAllByText("Not set").length).toBeGreaterThan(0);
+  });
+
+  it("D9: saves a new field, and only what changed", async () => {
+    const calls = mockApi({
+      ...READ,
+      "PATCH /api/auth/profile": {
+        status: 200,
+        body: { data: { ...PROFILE, address: "Purok 2" }, meta: {} },
+      },
+    });
+    renderPage();
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Edit Profile" }),
+    );
+    fireEvent.change(screen.getByLabelText(/^Address/), {
+      target: { value: "Purok 2" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() => {
+      expect(calls.find((call) => call.method === "PATCH")?.body).toEqual({
+        fullName: "Ana Cruz",
+        mobile: "09171234567",
+        address: "Purok 2",
+      });
+    });
   });
 
   it("shows an error with Retry when loading fails", async () => {

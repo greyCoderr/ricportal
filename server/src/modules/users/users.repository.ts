@@ -12,6 +12,17 @@ const TEACHER_SELECT = {
   center: { select: { name: true } },
 } as const;
 
+const TEACHER_DETAIL_SELECT = {
+  ...TEACHER_SELECT,
+  email: true,
+  address: true,
+  position: true,
+  sex: true,
+  birthDate: true,
+  qualification: true,
+  createdAt: true,
+} as const;
+
 const PARENT_SELECT = {
   id: true,
   username: true,
@@ -62,6 +73,13 @@ export function createUsersRepository(prisma: PrismaClient) {
       return prisma.user.findFirst({
         where: { id, role: "TEACHER" },
         select: TEACHER_SELECT,
+      });
+    },
+
+    findTeacherDetail(id: number) {
+      return prisma.user.findFirst({
+        where: { id, role: "TEACHER" },
+        select: TEACHER_DETAIL_SELECT,
       });
     },
 

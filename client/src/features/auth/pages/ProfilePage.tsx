@@ -1,15 +1,24 @@
 import {
   changePasswordSchema,
   profileUpdateSchema,
+  SEX_OPTIONS,
   type ProfileDto,
+  type ProfileUpdateInput,
   type Role,
 } from "@ricportal/shared";
 import { useState } from "react";
-import avatar from "../../../assets/avatar-placeholder.png";
-import { PasswordField, TextField } from "../../../components/form/fields";
+import {
+  DateField,
+  PasswordField,
+  SelectField,
+  TextField,
+} from "../../../components/form/fields";
+import { NOT_SET, ProfileCard } from "../../../components/ProfileCard";
 import { QueryBoundary } from "../../../components/QueryBoundary";
 import { Badge, Banner, Button, Modal } from "../../../components/ui";
+import { formatDate, formatInstantDate } from "../../../lib/format";
 import { LABELS } from "../../../lib/labels";
+import { userCode } from "../../../lib/user-code";
 import { useZodForm } from "../../../lib/use-zod-form";
 import { useChangePassword, useProfile, useUpdateProfile } from "../hooks";
 
@@ -25,19 +34,46 @@ const TITLE: Record<Role, string> = {
   PARENT: "Parent Profile",
 };
 
+const ID_LABEL: Record<Role, string> = {
+  ADMIN: "User ID",
+  TEACHER: "Teacher ID",
+  PARENT: "Parent ID",
+};
+
 const ACTIVE_BADGE: Record<Role, string> = {
   ADMIN: "Active Administrator",
   TEACHER: "Active Teacher",
   PARENT: "Active Parent",
 };
 
-function Detail({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-12 tracking-label text-text-secondary">{label}</dt>
-      <dd className="mt-1 text-13 tracking-label">{value}</dd>
-    </div>
-  );
+const EXTRA_FIELDS = [
+  "email",
+  "address",
+  "position",
+  "sex",
+  "birthDate",
+  "qualification",
+] as const;
+
+// Sends an extra field only when it changed: left out keeps the stored value.
+function profilePatch(
+  profile: ProfileDto,
+  data: {
+    fullName: string;
+    mobile?: string | undefined;
+  } & Partial<Record<(typeof EXTRA_FIELDS)[number], string | null | undefined>>,
+): ProfileUpdateInput {
+  const patch: Record<string, string> = {
+    fullName: data.fullName,
+    mobile: data.mobile ?? "",
+  };
+  for (const field of EXTRA_FIELDS) {
+    const next = data[field] ?? "";
+    if (next !== (profile[field] ?? "")) {
+      patch[field] = next;
+    }
+  }
+  return patch as ProfileUpdateInput;
 }
 
 function EditProfileDialog({
@@ -51,6 +87,12 @@ function EditProfileDialog({
   const form = useZodForm(profileUpdateSchema, {
     fullName: profile.fullName,
     mobile: profile.mobile ?? "",
+    email: profile.email ?? "",
+    address: profile.address ?? "",
+    position: profile.position ?? "",
+    sex: profile.sex ?? "",
+    birthDate: profile.birthDate ?? "",
+    qualification: profile.qualification ?? "",
   });
   return (
     <Modal open onClose={onClose} title="Edit Profile">
@@ -58,15 +100,12 @@ function EditProfileDialog({
         noValidate
         className="flex flex-col gap-4"
         onSubmit={form.handleSubmit((data) => {
-          update.mutate(
-            { fullName: data.fullName, mobile: data.mobile ?? "" },
-            {
-              onSuccess: onClose,
-              onError: (error) => {
-                form.applyError(error);
-              },
+          update.mutate(profilePatch(profile, data), {
+            onSuccess: onClose,
+            onError: (error) => {
+              form.applyError(error);
             },
-          );
+          });
         })}
       >
         <TextField form={form} name="fullName" label="Full name" required />
@@ -78,6 +117,23 @@ function EditProfileDialog({
           autoComplete="tel"
           required={profile.role === "PARENT"}
         />
+        <TextField
+          form={form}
+          name="email"
+          label="Email"
+          autoComplete="email"
+        />
+        <TextField form={form} name="address" label="Address" />
+        <TextField form={form} name="position" label="Position" />
+        <SelectField form={form} name="sex" label="Sex" placeholder="Select...">
+          {SEX_OPTIONS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </SelectField>
+        <DateField form={form} name="birthDate" label="Birth date" />
+        <TextField form={form} name="qualification" label="Qualification" />
         {form.formError !== null && (
           <Banner tone="danger">{form.formError}</Banner>
         )}
@@ -165,27 +221,53 @@ function ProfileDetails({ profile }: { profile: ProfileDto }) {
           <Banner tone="success">Your password was changed.</Banner>
         </div>
       )}
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <img
-          src={avatar}
-          alt=""
-          className="size-[7.5rem] shrink-0 rounded-full object-cover lg:size-[10.375rem]"
-        />
-        <div className="min-w-0 md:w-64">
-          <p className="text-20 font-bold tracking-label">{profile.fullName}</p>
-          <div className="mt-2">
-            <Badge tone="success">{ACTIVE_BADGE[profile.role]}</Badge>
-          </div>
-        </div>
-        <dl className="grid min-w-0 flex-1 gap-4 sm:grid-cols-2 md:border-l md:border-border-subtle md:pl-8">
-          <Detail label="Username" value={profile.username} />
-          <Detail label="Role" value={ROLE_LABEL[profile.role]} />
-          {profile.centerName !== null && (
-            <Detail label={LABELS.center} value={profile.centerName} />
-          )}
-          <Detail label="Mobile number" value={profile.mobile ?? "Not set"} />
-        </dl>
-      </div>
+      <ProfileCard
+        name={profile.fullName}
+        badge={<Badge tone="success">{ACTIVE_BADGE[profile.role]}</Badge>}
+        contacts={[
+          profile.email ?? "No email yet",
+          profile.mobile ?? "No mobile number yet",
+          profile.address ?? "No address yet",
+        ]}
+        columns={[
+          [
+            {
+              label: ID_LABEL[profile.role],
+              value: userCode(profile.role, profile.id),
+            },
+            {
+              label: "Date Registered",
+              value: formatInstantDate(profile.createdAt),
+            },
+            ...(profile.centerName === null
+              ? []
+              : [{ label: LABELS.center, value: profile.centerName }]),
+          ],
+          [
+            { label: "Sex", value: profile.sex ?? NOT_SET },
+            {
+              label: "BirthDate",
+              value:
+                profile.birthDate === null
+                  ? NOT_SET
+                  : formatDate(profile.birthDate),
+            },
+            { label: "Qualification", value: profile.qualification ?? NOT_SET },
+          ],
+          [
+            { label: "Username", value: profile.username },
+            { label: "Role", value: ROLE_LABEL[profile.role] },
+            { label: "Position", value: profile.position ?? NOT_SET },
+            {
+              label: "Last Login",
+              value:
+                profile.lastLoginAt === null
+                  ? "Never"
+                  : formatInstantDate(profile.lastLoginAt),
+            },
+          ],
+        ]}
+      />
       <div className="mt-6 flex flex-wrap gap-3">
         <Button
           variant="secondary"
@@ -222,8 +304,8 @@ function ProfileDetails({ profile }: { profile: ProfileDto }) {
   );
 }
 
-// Profile (Figma 88:695 and 378:16539; D11). Only the fields D11 lists are real
-// here; the report cards and activity lists of the frame are not (DEC-037).
+// Profile (Figma 88:695 and 378:16539; D9). Every field of the frame with a data
+// source. The report cards and activity lists are left out (SPRINT_SHORTCUTS).
 export function ProfilePage() {
   const profile = useProfile();
   return (

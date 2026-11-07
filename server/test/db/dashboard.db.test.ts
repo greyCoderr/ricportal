@@ -140,6 +140,7 @@ describe("GET /api/dashboard/summary (D10)", () => {
       centersWithTeacher: 0,
       enrolledStudents: 0,
       reports: { submitted: 0, needRevision: 0, approved: 0 },
+      submittedByType: { enrollment: 0, accomplishment: 0 },
     });
   });
 

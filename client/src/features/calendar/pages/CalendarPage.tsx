@@ -14,6 +14,7 @@ import {
 import { formatPeso } from "../../../lib/format";
 import { useCenters } from "../../accounts/hooks";
 import { useCurrentUser } from "../../auth/components/guards";
+import { MenuUploadPanel } from "../../menu/components/MenuUploadPanel";
 import { AssignParentsModal } from "../../purchase/components/AssignParentsModal";
 import {
   AdminPurchaseRequest,
@@ -259,12 +260,21 @@ export function CalendarPage() {
             No menu uploaded for this month.
           </p>
         ))}
-      <FeedingCalendar
-        days={days}
-        selectedDate={selected}
-        onRangeChange={handleRange}
-        onDayClick={setSelected}
-      />
+      <div
+        className={
+          user.role === "ADMIN"
+            ? "grid items-start gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]"
+            : ""
+        }
+      >
+        <FeedingCalendar
+          days={days}
+          selectedDate={selected}
+          onRangeChange={handleRange}
+          onDayClick={setSelected}
+        />
+        {user.role === "ADMIN" && <MenuUploadPanel />}
+      </div>
       {user.role === "TEACHER" ? (
         <>
           <TeacherDayPanels

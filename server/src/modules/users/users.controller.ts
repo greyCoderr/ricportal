@@ -29,6 +29,10 @@ export function createUsersController(service: UsersService) {
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },
 
+    getTeacher: async (req: Request, res: Response) => {
+      ok(res, await service.getTeacher(parseId(req.params.id)));
+    },
+
     createTeacher: async (req: Request, res: Response) => {
       created(
         res,

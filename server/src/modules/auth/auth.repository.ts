@@ -20,6 +20,14 @@ const PROFILE_SELECT = {
   mobile: true,
   centerId: true,
   status: true,
+  email: true,
+  address: true,
+  position: true,
+  sex: true,
+  birthDate: true,
+  qualification: true,
+  createdAt: true,
+  lastLoginAt: true,
   center: { select: { name: true } },
 } as const;
 
@@ -53,7 +61,16 @@ export function createAuthRepository(prisma: PrismaClient) {
 
     updateProfile(
       id: number,
-      input: { fullName: string; mobile: string | null },
+      input: {
+        fullName: string;
+        mobile: string | null;
+        email?: string | null;
+        address?: string | null;
+        position?: string | null;
+        sex?: string | null;
+        birthDate?: Date | null;
+        qualification?: string | null;
+      },
     ) {
       return prisma.user.update({
         where: { id },

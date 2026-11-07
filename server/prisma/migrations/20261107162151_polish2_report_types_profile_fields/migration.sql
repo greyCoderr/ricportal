@@ -1,0 +1,10 @@
+-- AlterTable
+ALTER TABLE `reports` MODIFY `type` ENUM('LIQUIDATION', 'ENROLLMENT', 'ACCOMPLISHMENT') NOT NULL;
+
+-- AlterTable
+ALTER TABLE `users` ADD COLUMN `address` VARCHAR(255) NULL,
+    ADD COLUMN `birth_date` DATE NULL,
+    ADD COLUMN `email` VARCHAR(120) NULL,
+    ADD COLUMN `position` VARCHAR(120) NULL,
+    ADD COLUMN `qualification` VARCHAR(160) NULL,
+    ADD COLUMN `sex` VARCHAR(10) NULL;

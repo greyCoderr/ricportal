@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import { CentersPage } from "../features/accounts/pages/CentersPage";
 import { ParentsPage } from "../features/accounts/pages/ParentsPage";
+import { TeacherProfilePage } from "../features/accounts/pages/TeacherProfilePage";
 import { TeachersPage } from "../features/accounts/pages/TeachersPage";
 import {
   RequireRole,
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "/centers", element: <CentersPage /> },
           { path: "/teachers", element: <TeachersPage /> },
+          { path: "/teachers/:id", element: <TeacherProfilePage /> },
           { path: "/menu-imports", element: <MenuImportsPage /> },
         ],
       },

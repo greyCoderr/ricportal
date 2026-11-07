@@ -170,7 +170,13 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
         data-testid="page-column"
         className="flex h-dvh min-h-dvh min-w-0 flex-1 flex-col overflow-y-auto compact:overflow-hidden"
       >
-        <header className="sticky top-0 z-10 flex min-h-16 shrink-0 items-center gap-3 bg-nav px-4 text-nav-text shadow-header lg:min-h-[5.875rem] lg:bg-header lg:text-text">
+        <header
+          className={`sticky top-0 z-10 flex min-h-16 shrink-0 items-center gap-3 bg-nav px-4 text-nav-text shadow-header lg:text-text ${
+            user.role === "ADMIN"
+              ? "lg:min-h-[3.5rem] lg:bg-surface lg:shadow-none"
+              : "lg:min-h-[5.875rem] lg:bg-header"
+          }`}
+        >
           <button
             type="button"
             aria-expanded={menuOpen}
@@ -199,7 +205,9 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
             <img
               src={avatar}
               alt=""
-              className="size-11 shrink-0 rounded-full border-2 border-accent bg-surface object-cover lg:size-[4.375rem]"
+              className={`size-11 shrink-0 rounded-full border-2 border-accent bg-surface object-cover ${
+                user.role === "ADMIN" ? "" : "lg:size-[4.375rem]"
+              }`}
             />
             <div className="hidden min-w-0 lg:block">
               <p className="truncate text-13 font-medium tracking-label lg:text-20">

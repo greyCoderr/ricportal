@@ -29,6 +29,14 @@ export function createDashboardRepository(prisma: PrismaClient) {
         _count: { _all: true },
       });
     },
+
+    submittedReportCountsByType() {
+      return prisma.report.groupBy({
+        by: ["type"],
+        where: { status: "SUBMITTED" },
+        _count: { _all: true },
+      });
+    },
   };
 }
 

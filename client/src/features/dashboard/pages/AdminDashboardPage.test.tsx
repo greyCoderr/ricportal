@@ -15,7 +15,8 @@ const SUMMARY = {
   disabledTeachers: 2,
   centersWithTeacher: 27,
   enrolledStudents: 432,
-  reports: { submitted: 18, needRevision: 6, approved: 15 },
+  reports: { submitted: 18, needRevision: 6, approved: 99 },
+  submittedByType: { enrollment: 5, accomplishment: 7 },
 };
 
 const REPORT = {
@@ -85,13 +86,34 @@ describe("AdminDashboardPage (D10)", () => {
       ["29", "Registered RIC Teacher"],
       ["432", "Total Enrolled Students"],
       ["18", "Reports Submitted"],
-      ["15", "Reports Approved"],
+      ["5", "Enrollment Reports Submitted"],
+      ["7", "Accomplishment Reports Submitted"],
       ["6", "Reports for Revision"],
     ] as const) {
       const card = (await screen.findByText(label)).parentElement;
       if (card === null) throw new Error(label);
       expect(within(card).getByText(value)).toBeDefined();
     }
+  });
+
+  it("D6: six cards in the agreed order, and approved reports on none", async () => {
+    mockApi();
+    renderPage();
+    await screen.findByText("Registered RIC Teacher");
+    const labels = screen
+      .getAllByText(/Teacher$|Students$|Submitted$|Revision$/)
+      .filter((element) => element.className.includes("uppercase"))
+      .map((element) => element.textContent);
+    expect(labels).toEqual([
+      "Registered RIC Teacher",
+      "Total Enrolled Students",
+      "Reports Submitted",
+      "Enrollment Reports Submitted",
+      "Accomplishment Reports Submitted",
+      "Reports for Revision",
+    ]);
+    expect(screen.queryByText("Reports Approved")).toBe(null);
+    expect(screen.queryByText("99")).toBe(null);
   });
 
   it("keeps Centers and Menu Imports one click away", async () => {

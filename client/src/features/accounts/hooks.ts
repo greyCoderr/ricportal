@@ -15,6 +15,7 @@ import {
   createTeacher,
   fetchCenters,
   fetchParents,
+  fetchTeacher,
   fetchTeachers,
   moveParent,
   resetParentPassword,
@@ -60,6 +61,13 @@ export function useTeachers(page: number, filters: TeacherListQuery = {}) {
     queryKey: ["teachers", page, filters],
     queryFn: () => fetchTeachers(page, filters),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useTeacher(id: number) {
+  return useQuery({
+    queryKey: ["teachers", "detail", id],
+    queryFn: () => fetchTeacher(id),
   });
 }
 

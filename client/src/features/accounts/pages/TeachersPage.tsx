@@ -1,10 +1,6 @@
-import {
-  teacherCreateSchema,
-  teacherPatchSchema,
-  type TeacherDto,
-  type TeacherListQuery,
-} from "@ricportal/shared";
+import { teacherCreateSchema, type TeacherListQuery } from "@ricportal/shared";
 import { useState } from "react";
+import { Link } from "react-router";
 import {
   PasswordField,
   SelectField,
@@ -16,7 +12,6 @@ import {
   Banner,
   Button,
   Card,
-  ConfirmDialog,
   EmptyState,
   FormField,
   Icon,
@@ -28,26 +23,21 @@ import {
   type IconName,
 } from "../../../components/ui";
 import { formatInstantDate } from "../../../lib/format";
+import { userCode } from "../../../lib/user-code";
 import { useZodForm } from "../../../lib/use-zod-form";
 import { useDashboardSummary } from "../../dashboard/hooks";
+import { useActiveCenterOptions } from "../components/EditTeacherForm";
 import { AccountStatusBadge } from "../components/StatusBadges";
+import { StatusToggle } from "../components/StatusToggle";
 import {
   useCenters,
   useCreateTeacher,
-  useResetTeacherPassword,
   useTeachers,
   useUpdateTeacher,
 } from "../hooks";
 
-function useActiveCenterOptions() {
-  const centers = useCenters({ page: 1, pageSize: 100 });
-  return (centers.data?.data ?? []).filter((center) => center.isActive);
-}
-
-// Figma shows "RIC-TCHR-2025-001"; the blueprint has no such field, so this is a
-// display code from the row id, not stored (DEC-040).
 export function teacherCode(id: number): string {
-  return `RIC-TCHR-${String(id).padStart(3, "0")}`;
+  return userCode("TEACHER", id);
 }
 
 function CreateTeacherForm({ onClose }: { onClose: () => void }) {
@@ -133,84 +123,6 @@ function CreateTeacherForm({ onClose }: { onClose: () => void }) {
   );
 }
 
-function EditTeacherForm({
-  teacher,
-  onClose,
-}: {
-  teacher: TeacherDto;
-  onClose: () => void;
-}) {
-  const update = useUpdateTeacher();
-  const centers = useActiveCenterOptions();
-  const form = useZodForm(teacherPatchSchema, {
-    fullName: teacher.fullName,
-    mobile: teacher.mobile ?? "",
-    centerId: teacher.centerId === null ? "" : String(teacher.centerId),
-  });
-
-  return (
-    <Modal
-      open
-      onClose={onClose}
-      title={`Edit ${teacher.fullName}`}
-      footer={
-        <>
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            form="teacher-edit-form"
-            loading={update.isPending}
-          >
-            Save
-          </Button>
-        </>
-      }
-    >
-      <form
-        id="teacher-edit-form"
-        noValidate
-        className="flex flex-col gap-4"
-        onSubmit={form.handleSubmit((data) => {
-          update.mutate(
-            { id: teacher.id, patch: data },
-            {
-              onSuccess: onClose,
-              onError: (error) => {
-                form.applyError(error);
-              },
-            },
-          );
-        })}
-      >
-        <TextField form={form} name="fullName" label="Full name" required />
-        <TextField
-          form={form}
-          name="mobile"
-          label="Mobile number"
-          inputMode="tel"
-        />
-        <SelectField
-          form={form}
-          name="centerId"
-          label="RIC Children Center"
-          required
-        >
-          {centers.map((center) => (
-            <option key={center.id} value={String(center.id)}>
-              {center.name}
-            </option>
-          ))}
-        </SelectField>
-        {form.formError !== null && (
-          <Banner tone="danger">{form.formError}</Banner>
-        )}
-      </form>
-    </Modal>
-  );
-}
-
 function StatCard({
   icon,
   value,
@@ -238,13 +150,10 @@ export function TeachersPage() {
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<TeacherListQuery>({});
   const [adding, setAdding] = useState(false);
-  const [editing, setEditing] = useState<TeacherDto | null>(null);
-  const [confirmReset, setConfirmReset] = useState<TeacherDto | null>(null);
   const teachers = useTeachers(page, filters);
   const summary = useDashboardSummary();
   const centers = useCenters({ page: 1, pageSize: 100 });
   const update = useUpdateTeacher();
-  const reset = useResetTeacherPassword();
   const toast = useToast();
   const counts = summary.data;
   const hasFilters =
@@ -257,7 +166,7 @@ export function TeachersPage() {
     setPage(1);
   }
 
-  function toggleStatus(teacher: TeacherDto) {
+  function toggleStatus(teacher: { id: number; status: string }) {
     update.mutate(
       {
         id: teacher.id,
@@ -469,33 +378,21 @@ export function TeachersPage() {
                     header: "Action",
                     render: (row) => (
                       <div className="flex flex-wrap gap-2">
-                        <Button
-                          variant="secondary"
-                          aria-label={`Edit ${row.fullName}`}
-                          onClick={() => {
-                            setEditing(row);
-                          }}
+                        <Link
+                          to={`/teachers/${String(row.id)}`}
+                          aria-label={`View profile of ${row.fullName}`}
+                          className="inline-flex h-11 items-center gap-2 rounded-control border border-border-subtle bg-surface px-3 text-13 font-medium whitespace-nowrap hover:border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
                         >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          aria-label={`${row.status === "ACTIVE" ? "Disable" : "Enable"} ${row.fullName}`}
-                          onClick={() => {
+                          <Icon name="eye" size={16} />
+                          View Profile
+                        </Link>
+                        <StatusToggle
+                          name={row.fullName}
+                          status={row.status}
+                          onToggle={() => {
                             toggleStatus(row);
                           }}
-                        >
-                          {row.status === "ACTIVE" ? "Disable" : "Enable"}
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          aria-label={`Reset password of ${row.fullName}`}
-                          onClick={() => {
-                            setConfirmReset(row);
-                          }}
-                        >
-                          Reset to default
-                        </Button>
+                        />
                       </div>
                     ),
                   },
@@ -519,44 +416,6 @@ export function TeachersPage() {
           }}
         />
       )}
-      {editing !== null && (
-        <EditTeacherForm
-          teacher={editing}
-          onClose={() => {
-            setEditing(null);
-          }}
-        />
-      )}
-      <ConfirmDialog
-        open={confirmReset !== null}
-        title="Reset this password?"
-        confirmLabel="Reset to default"
-        loading={reset.isPending}
-        onCancel={() => {
-          setConfirmReset(null);
-        }}
-        onConfirm={() => {
-          if (confirmReset === null) {
-            return;
-          }
-          reset.mutate(confirmReset.id, {
-            onSuccess: (result) => {
-              toast.show({
-                kind: "success",
-                message: `${result.message} ${confirmReset.fullName} must change it at the next login.`,
-              });
-              setConfirmReset(null);
-            },
-            onError: (error) => {
-              setConfirmReset(null);
-              toast.show({ kind: "error", message: error.message });
-            },
-          });
-        }}
-      >
-        The password of {confirmReset?.fullName} goes back to the default, and
-        they must change it at the next login.
-      </ConfirmDialog>
     </>
   );
 }

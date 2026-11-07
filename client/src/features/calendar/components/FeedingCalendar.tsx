@@ -2,7 +2,7 @@ import type { DatesSetArg, EventClickArg } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import FullCalendar from "@fullcalendar/react";
 import { addDays, weekdayIndex } from "@ricportal/shared";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatDate, formatMenuName } from "../../../lib/format";
 import type { DayRange } from "../hooks";
 
@@ -60,10 +60,32 @@ export function splitTitle(title: string): { month: string; year: string } {
   return { month: month.toUpperCase(), year };
 }
 
+const COMPACT_QUERY = "(min-width: 1024px) and (pointer: fine)";
+
+function useCompactScreen(): boolean {
+  const [compact, setCompact] = useState(
+    () => window.matchMedia?.(COMPACT_QUERY).matches ?? false,
+  );
+  useEffect(() => {
+    const query = window.matchMedia?.(COMPACT_QUERY);
+    if (query === undefined) return undefined;
+    const update = () => {
+      setCompact(query.matches);
+    };
+    query.addEventListener("change", update);
+    return () => {
+      query.removeEventListener("change", update);
+    };
+  }, []);
+  return compact;
+}
+
 type FeedingCalendarProps = {
   days: CalendarEntry[];
   selectedDate: string;
   tone?: "green" | "red";
+  // Fill the parent's height on a desktop, for a dashboard that must not scroll.
+  fit?: boolean;
   onRangeChange: (range: DayRange) => void;
   onDayClick: (date: string) => void;
 };
@@ -74,6 +96,7 @@ export function FeedingCalendar({
   days,
   selectedDate,
   tone = "green",
+  fit = false,
   onRangeChange,
   onDayClick,
 }: FeedingCalendarProps) {
@@ -81,10 +104,12 @@ export function FeedingCalendar({
   const calendar = useRef<FullCalendar>(null);
   const [title, setTitle] = useState({ month: "", year: "" });
   const titleColor = tone === "red" ? "text-primary" : "text-accent";
+  const compact = useCompactScreen();
+  const filling = fit && compact;
 
   return (
     <div
-      className={`ric-calendar ${tone === "red" ? "ric-calendar-parent" : ""}`}
+      className={`ric-calendar ${tone === "red" ? "ric-calendar-parent" : ""} ${filling ? "ric-calendar-fit" : ""}`}
     >
       <div className={`mb-2 flex items-center gap-1 ${titleColor}`}>
         <button
@@ -110,46 +135,52 @@ export function FeedingCalendar({
           {title.year}
         </p>
       </div>
-      <FullCalendar
-        ref={calendar}
-        plugins={[dayGridPlugin]}
-        initialView="dayGridMonth"
-        headerToolbar={false}
-        height="auto"
-        firstDay={0}
-        editable={false}
-        selectable={false}
-        eventInteractive
-        dayMaxEventRows={false}
-        events={events}
-        dayHeaderContent={(arg) => WEEKDAY_LABELS[arg.date.getDay()]}
-        dayCellClassNames={(arg) =>
-          cellDate(arg.date) === selectedDate ? ["ric-selected"] : []
-        }
-        dayCellContent={(arg) => {
-          const date = cellDate(arg.date);
-          return (
-            <button
-              type="button"
-              className="ric-day-button"
-              aria-pressed={date === selectedDate}
-              aria-label={`Show ${formatDate(date)}`}
-              onClick={() => {
-                onDayClick(date);
-              }}
-            >
-              {arg.dayNumberText}
-            </button>
-          );
-        }}
-        eventClick={(info: EventClickArg) => {
-          onDayClick(info.event.id);
-        }}
-        datesSet={(info: DatesSetArg) => {
-          setTitle(splitTitle(info.view.title));
-          onRangeChange(rangeFromDates(info.startStr, info.endStr));
-        }}
-      />
+      <div className={filling ? "min-h-0 flex-1" : ""}>
+        <FullCalendar
+          ref={calendar}
+          plugins={[dayGridPlugin]}
+          initialView="dayGridMonth"
+          headerToolbar={false}
+          height={filling ? "100%" : "auto"}
+          // One line per day when filling: the whole name stays in the tooltip.
+          eventDidMount={(info) => {
+            info.el.title = info.event.title;
+          }}
+          firstDay={0}
+          editable={false}
+          selectable={false}
+          eventInteractive
+          dayMaxEventRows={false}
+          events={events}
+          dayHeaderContent={(arg) => WEEKDAY_LABELS[arg.date.getDay()]}
+          dayCellClassNames={(arg) =>
+            cellDate(arg.date) === selectedDate ? ["ric-selected"] : []
+          }
+          dayCellContent={(arg) => {
+            const date = cellDate(arg.date);
+            return (
+              <button
+                type="button"
+                className="ric-day-button"
+                aria-pressed={date === selectedDate}
+                aria-label={`Show ${formatDate(date)}`}
+                onClick={() => {
+                  onDayClick(date);
+                }}
+              >
+                {arg.dayNumberText}
+              </button>
+            );
+          }}
+          eventClick={(info: EventClickArg) => {
+            onDayClick(info.event.id);
+          }}
+          datesSet={(info: DatesSetArg) => {
+            setTitle(splitTitle(info.view.title));
+            onRangeChange(rangeFromDates(info.startStr, info.endStr));
+          }}
+        />
+      </div>
     </div>
   );
 }

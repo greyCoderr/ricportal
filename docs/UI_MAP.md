@@ -75,3 +75,13 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | Teacher Home | `/` | Teacher | polished | DEC-041 |
 | Report Status | `/reports` | Teacher | polished | DEC-041 |
 | Admin Feedback | `/admin-feedback` | Teacher | polished | DEC-041 |
+
+## Polish Round 2 screens (G2)
+
+| Screen | Route | Role | State | Notes |
+| --- | --- | --- | --- | --- |
+| Admin Dashboard | `/` | Admin | polished | Six cards (D6), fits the screen on a desktop (267:9689) |
+| Calendar | `/calendar` | Admin | polished | Upload Menu/Food Rotation panel always visible (268:11404, D7) |
+| RIC Teachers | `/teachers` | Admin | polished | View Profile and the status toggle (267:9862, D8) |
+| RIC Teacher Profile | `/teachers/:id` | Admin | new | Developer-designed from 88:695. Edit, reset and the toggle live here (D8) |
+| Profile | `/profile` | Every role | polished | All the fields of 88:695 with a data source (D9) |

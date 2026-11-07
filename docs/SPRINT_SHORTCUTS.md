@@ -69,3 +69,14 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 | Notification bell with a count | Left out; there are no notifications | Build notifications if the client asks |
 | Profile report cards, activity lists, date of birth, address, two-factor, sessions | Left out; only the D11 fields are shown | A change request with the client |
 | Footer Facebook and Gmail icons | Shown as images; no Facebook address is in Figma | Link them when the client gives the page |
+
+## Polish Round 2 (G2)
+
+| What | Instead | To finish |
+| --- | --- | --- |
+| Cards ENROLLMENT REPORTS SUBMITTED and ACCOMPLISHMENT REPORTS SUBMITTED | Real database counts, always 0 until Objective 3 creates these report types | Objective 3 |
+| Profile widgets in 88:695: Total Enrolled Students and report cards, Recent Submitted Reports, Recent Status Activity | Left out of Profile. The Teacher's counts are on Home | A change request with the client |
+| Figma's Upload panel says PDF, DOCX, XLSX | The panel says .xlsx, because the importer reads only the DSWD Excel file (DEC-045) | Change the importer if the client needs the other formats |
+| Figma's Admin quick actions: Send Feedback, Monitor Enrolled Students, Review Applications | The existing four tiles stay, because the Admin has no such pages | A change request with the client |
+| Figma's Recent Reports tabs on the Admin dashboard (Enrollment, Accomplishment) | One list, because only liquidation reports exist | Objective 3 |
+| Figma's Email and Date Approved columns on RIC Teachers | Username and Last Login stay in the table; email and registration date are on View Profile | Move them if the client asks |
