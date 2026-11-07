@@ -100,6 +100,18 @@ export type ReportReviewDto = {
   createdAt: string;
 };
 
+// One piece of Admin feedback on a returned report (D10).
+export type FeedbackDto = {
+  id: number;
+  reportId: number;
+  periodStart: string;
+  periodEnd: string;
+  versionNo: number;
+  feedback: string;
+  reviewedAt: string;
+  reportStatus: ReportStatus;
+};
+
 export type ReportDetailDto = ReportDto & { reviews: ReportReviewDto[] };
 
 export type ReportSnapshotDto = {

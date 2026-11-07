@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import {
+  fetchFeedback,
   fetchLiquidationPreview,
   fetchReport,
   fetchReports,
@@ -43,6 +44,14 @@ export function useReports(page: number, status?: ReportStatus) {
   return useQuery({
     queryKey: ["reports", "list", page, status],
     queryFn: () => fetchReports(page, status),
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function useFeedback(page: number) {
+  return useQuery({
+    queryKey: ["reports", "feedback", page],
+    queryFn: () => fetchFeedback(page),
     placeholderData: keepPreviousData,
   });
 }

@@ -169,6 +169,33 @@ export function createLiquidationRepository(prisma: PrismaClient) {
       return { rows, total };
     },
 
+    // Returned reports of one center, newest first.
+    async listFeedback(input: {
+      centerId: number;
+      skip: number;
+      take: number;
+    }) {
+      const where = {
+        decision: "NEED_REVISION" as const,
+        report: { centerId: input.centerId },
+      };
+      const [rows, total] = await prisma.$transaction([
+        prisma.reportReview.findMany({
+          where,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          skip: input.skip,
+          take: input.take,
+          include: {
+            report: {
+              select: { periodStart: true, periodEnd: true, status: true },
+            },
+          },
+        }),
+        prisma.reportReview.count({ where }),
+      ]);
+      return { rows, total };
+    },
+
     findReport(id: number) {
       return prisma.report.findUnique({
         where: { id },

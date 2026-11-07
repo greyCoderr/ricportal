@@ -18,6 +18,7 @@ import {
 import { formatDate, formatInstantDate, formatPeso } from "../../../lib/format";
 import { useCurrentUser } from "../../auth/components/guards";
 import { useDashboardSummary } from "../../dashboard/hooks";
+import { SelectedReportDetails } from "../components/SelectedReportDetails";
 import { useReports } from "../hooks";
 
 const STATUS_FILTERS: { value: ReportStatus; label: string }[] = [
@@ -89,6 +90,8 @@ export function ReportsPage() {
   const [status, setStatus] = useState<ReportStatus | undefined>(undefined);
   const reports = useReports(page, status);
   const rows = reports.data?.data ?? [];
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const selected = selectedId ?? rows[0]?.id ?? null;
   const firstNumber = (page - 1) * (reports.data?.meta.pageSize ?? 20) + 1;
 
   function apply(next: ReportStatus | "") {
@@ -157,15 +160,28 @@ export function ReportsPage() {
     {
       key: "actions",
       header: "Actions",
-      render: (row) => (
-        <Link
-          to={`/reports/${String(row.id)}`}
-          aria-label={`View the report for ${periodTitle(row)}`}
-          className="inline-flex size-11 items-center justify-center rounded-control border border-border-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
-        >
-          <Icon name="eye" size={20} />
-        </Link>
-      ),
+      render: (row) =>
+        isAdmin ? (
+          <Link
+            to={`/reports/${String(row.id)}`}
+            aria-label={`View the report for ${periodTitle(row)}`}
+            className="inline-flex size-11 items-center justify-center rounded-control border border-border-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+          >
+            <Icon name="eye" size={20} />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            aria-label={`Show the details of ${periodTitle(row)}`}
+            aria-pressed={row.id === selected}
+            className="inline-flex size-11 items-center justify-center rounded-control border border-border-subtle focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text aria-pressed:bg-header"
+            onClick={() => {
+              setSelectedId(row.id);
+            }}
+          >
+            <Icon name="eye" size={20} />
+          </button>
+        ),
     },
   ];
 
@@ -177,10 +193,10 @@ export function ReportsPage() {
       <p className="mb-4 text-15 text-text-secondary">
         {isAdmin
           ? "Liquidation reports submitted by the RIC Teachers."
-          : `Liquidation reports of ${center}.`}
+          : `Track the status of your report. Liquidation reports of ${center}.`}
       </p>
       {isAdmin && <AdminStatusCards />}
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_16rem] xl:items-start">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
         <section className="min-w-0 rounded-control border border-border-subtle p-3">
           <h2 className="mb-2 text-15 font-semibold">All Reports List</h2>
           <QueryBoundary
@@ -220,43 +236,48 @@ export function ReportsPage() {
             )}
           </QueryBoundary>
         </section>
-        <aside className="flex flex-col gap-3 rounded-control border border-border-subtle p-4">
-          <h2 className="text-15 font-semibold">Filter Reports</h2>
-          <FormField label="Status">
-            {(field) => (
-              <Select
-                {...field}
-                value={draft}
-                onChange={(event) => {
-                  setDraft(event.target.value as ReportStatus | "");
-                }}
-              >
-                <option value="">All Status</option>
-                {STATUS_FILTERS.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {item.label}
-                  </option>
-                ))}
-              </Select>
-            )}
-          </FormField>
-          <Button
-            onClick={() => {
-              apply(draft);
-            }}
-          >
-            Apply Filter
-          </Button>
-          <Button
-            variant="secondary"
-            icon="refresh-cw"
-            onClick={() => {
-              setDraft("");
-              apply("");
-            }}
-          >
-            Reset Filter
-          </Button>
+        <aside className="flex min-w-0 flex-col gap-3">
+          {!isAdmin && selected !== null && (
+            <SelectedReportDetails reportId={selected} />
+          )}
+          <div className="flex flex-col gap-3 rounded-control border border-border-subtle p-4">
+            <h2 className="text-15 font-semibold">Filter Reports</h2>
+            <FormField label="Status">
+              {(field) => (
+                <Select
+                  {...field}
+                  value={draft}
+                  onChange={(event) => {
+                    setDraft(event.target.value as ReportStatus | "");
+                  }}
+                >
+                  <option value="">All Status</option>
+                  {STATUS_FILTERS.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </FormField>
+            <Button
+              onClick={() => {
+                apply(draft);
+              }}
+            >
+              Apply Filter
+            </Button>
+            <Button
+              variant="secondary"
+              icon="refresh-cw"
+              onClick={() => {
+                setDraft("");
+                apply("");
+              }}
+            >
+              Reset Filter
+            </Button>
+          </div>
         </aside>
       </div>
     </>

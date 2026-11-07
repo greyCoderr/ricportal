@@ -482,3 +482,13 @@ Decision:
 - Table can render cards under 768 px (`cardsOnPhone`), used by the Teachers, Parents and Reports lists and the dashboard.
 - The Teachers page reads its cards from `GET /api/dashboard/summary` too, so there is one place that counts.
 Consequences: `DEFAULT_PASSWORD` is added to .env.example and the release runbook. TemporaryPasswordDialog is removed. **Before a real deployment, set your own DEFAULT_PASSWORD:** anyone who knows it can log in to a freshly reset account until its owner changes it.
+
+## DEC-041: Defaults chosen in F5 (Teacher pages)
+
+Context: details D10 leaves open. No question asked, per docs/POLISH_PLAN.md.
+Decision:
+- Teacher Home: Pending Reports counts reports waiting for the Admin (Submitted), and Return for Revision counts Need Revision. Figma's Report Tracking box is left out because Report Status shows the same thing.
+- Quick Action "Submit Report" goes to the "Coming soon" page as D10 says. The liquidation Submit Report stays in the Calendar's Liquidation Forms.
+- Report Status steps follow BR-07 (Submitted, Need Revision, Approved). Figma's Pending and For Approval are not agreed statuses (DEC-028).
+- Admin Feedback lists only feedback on returned reports (D10). Figma's Approved with Remarks and Resolved cards, status timeline, Feedback Guide and filters have no data before Objective 3 and are left out. Figma's report-type, year and search filters likewise.
+- "Revise Report" goes to the Calendar, where the days are fixed and the report is submitted again.

@@ -1,4 +1,4 @@
-import type { ReportStatus } from "@ricportal/shared";
+import type { FeedbackDto, ReportStatus } from "@ricportal/shared";
 import type {
   LiquidationData,
   ReportDetailDto,
@@ -264,6 +264,31 @@ export function createLiquidationService(deps: {
         ...page,
       });
       return { rows: rows.map(toReportDto), total };
+    },
+
+    // D10: what the Admin wrote on the Teacher's returned reports. The center comes
+    // from the login, so another center's notes cannot be asked for.
+    async listFeedback(
+      user: AuthUser,
+      page: { skip: number; take: number },
+    ): Promise<{ rows: FeedbackDto[]; total: number }> {
+      const { rows, total } = await repository.listFeedback({
+        centerId: ownCenterId(user),
+        ...page,
+      });
+      return {
+        rows: rows.map((row) => ({
+          id: row.id,
+          reportId: row.reportId,
+          periodStart: fromDbDate(row.report.periodStart),
+          periodEnd: fromDbDate(row.report.periodEnd),
+          versionNo: row.versionNo,
+          feedback: row.feedback ?? "",
+          reviewedAt: row.createdAt.toISOString(),
+          reportStatus: row.report.status,
+        })),
+        total,
+      };
     },
 
     async getReport(user: AuthUser, id: number): Promise<ReportDetailDto> {

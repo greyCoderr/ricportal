@@ -99,3 +99,21 @@ Summary (F4, 2026-11-07):
 - Decisions: DEC-040. **Set your own DEFAULT_PASSWORD before any real deployment.**
 - Not seen in a browser. Developer, please compare at 1440x900 and 390x844: Teachers against 267:9862 and 378:16285, Reports against 268:12661 and 378:15917, Dashboard against 267:9689.
 - Full check at the end of F4: typecheck, lint and format clean, 1189 tests pass in 74 files, build succeeds. The test run took 610 s, past the 600 s foreground limit, so it finished as a background task with nothing else running.
+
+## F5 Teacher pages
+
+Plan:
+1. Tests first: Report Status shows only own submissions; Admin Feedback shows only the own center's feedback.
+2. `GET /api/reports/feedback` (Teacher, own center, paginated).
+3. Teacher Home like 175:1023 with real counts, quick actions, calendar, recent reports and students.
+4. Report Status like 78:284: list and Selected Report Details with the status steps and feedback.
+5. Admin Feedback like 78:276: cards, records, selected details.
+6. Submit Report stays the clear "Coming soon" page; Parent Requests was done in F4.
+7. Targeted checks, docs, commit. Full check is at the end of F6.
+
+Summary (F5, 2026-11-07):
+
+- Built: `GET /api/reports/feedback`; Teacher Home like 175:1023; Report Status with Selected Report Details like 78:284; Admin Feedback like 78:276. Submit Report stays "Coming soon".
+- Tests first: 7 scoping tests, 5 seen failing before the code and all passing after. The 2 that passed at once cover own-center report scoping, which already worked, and lock it in. Targeted runs are green; full check is at the end of F6.
+- Decisions: DEC-041.
+- Not seen in a browser. Developer, please compare at 1440x900 and 390x844 against 175:1023, 78:284 and 78:276.

@@ -147,7 +147,9 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 
 | 2026-11-07 | F4 | `get_screenshot` | 268:12661, 267:9862, 267:9887, 268:11404 | Reports, RIC Teachers, Admin Profile, Admin Calendar |
 
-Polish calls so far: 28 of 120.
+| 2026-11-07 | F5 | `get_screenshot` | 175:1023, 78:284, 78:276 | Teacher Home, Report Status, Admin Feedback |
+
+Polish calls so far: 31 of 120.
 
 ## Polish layout components
 

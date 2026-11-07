@@ -14,6 +14,7 @@ import { HealthPage } from "../features/health/pages/HealthPage";
 import { HomePage } from "../features/home/HomePage";
 import { CalendarPage } from "../features/calendar/pages/CalendarPage";
 import { MenuImportsPage } from "../features/menu/pages/MenuImportsPage";
+import { AdminFeedbackPage } from "../features/reports/pages/AdminFeedbackPage";
 import { ReportDetailPage } from "../features/reports/pages/ReportDetailPage";
 import { ReportsPage } from "../features/reports/pages/ReportsPage";
 import { StudentFormPage } from "../features/students/pages/StudentFormPage";
@@ -61,10 +62,7 @@ export const router = createBrowserRouter([
             path: "/submit-report",
             element: <ComingSoonPage title="Submit Report" />,
           },
-          {
-            path: "/admin-feedback",
-            element: <ComingSoonPage title="Admin Feedback" />,
-          },
+          { path: "/admin-feedback", element: <AdminFeedbackPage /> },
         ],
       },
       { path: "*", element: <NotFoundPage /> },

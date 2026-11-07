@@ -1,4 +1,5 @@
 import type {
+  FeedbackDto,
   ReportStatus,
   LiquidationData,
   PageMeta,
@@ -52,6 +53,12 @@ export function fetchReports(page: number, status?: ReportStatus) {
   const search = new URLSearchParams({ page: String(page) });
   if (status !== undefined) search.set("status", status);
   return apiGet<ReportDto[], PageMeta>(`/api/reports?${search.toString()}`);
+}
+
+export function fetchFeedback(page: number) {
+  return apiGet<FeedbackDto[], PageMeta>(
+    `/api/reports/feedback?page=${String(page)}`,
+  );
 }
 
 export async function fetchReport(id: number) {

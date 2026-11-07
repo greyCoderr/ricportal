@@ -183,3 +183,9 @@ Money travels as decimal strings, computed on the server with half-up rounding t
 | GET /api/teachers | Admin | Now also `q` (name or username), `status` (ACTIVE, DISABLED), `centerId` |
 | GET /api/reports | Admin, Teacher | Now also `status`. A Teacher still sees only the own center |
 
+
+## Demo polish: Teacher pages (F5)
+
+| Endpoint | Role | Notes |
+| --- | --- | --- |
+| GET /api/reports/feedback | Teacher | Feedback on the own center's returned reports, newest first, paginated: `{ id, reportId, periodStart, periodEnd, versionNo, feedback, reviewedAt, reportStatus }`. The center comes from the login |

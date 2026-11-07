@@ -67,3 +67,11 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | S-P1-04 RIC Teachers | `/teachers` | Admin | polished | DEC-040 |
 | S-P3-02 Reports queue | `/reports` | Admin | polished | DEC-040 |
 | S-P1-05 Parent Requests | `/parents` | Teacher | D6 and D8 applied | DEC-040 |
+
+## Demo polish screens (F5)
+
+| Screen ID | Route | Role | Status | Spec |
+| --- | --- | --- | --- | --- |
+| Teacher Home | `/` | Teacher | polished | DEC-041 |
+| Report Status | `/reports` | Teacher | polished | DEC-041 |
+| Admin Feedback | `/admin-feedback` | Teacher | polished | DEC-041 |

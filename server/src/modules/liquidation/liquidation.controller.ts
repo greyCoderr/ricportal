@@ -64,6 +64,15 @@ export function createLiquidationController(service: LiquidationService) {
       paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
     },
 
+    listFeedback: async (req: Request, res: Response) => {
+      const page = parsePagination(req.query);
+      const { rows, total } = await service.listFeedback(currentUser(req), {
+        skip: page.skip,
+        take: page.take,
+      });
+      paginated(res, rows, { page: page.page, pageSize: page.pageSize, total });
+    },
+
     getReport: async (req: Request, res: Response) => {
       ok(
         res,

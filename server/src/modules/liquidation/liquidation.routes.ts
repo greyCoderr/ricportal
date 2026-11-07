@@ -24,6 +24,13 @@ export function createReportsRouter(
   const router = Router();
   const read = [authenticate, requireRole("ADMIN", "TEACHER")];
   router.get("/", read, controller.listReports);
+  // Before "/:id", so "feedback" is not read as an id.
+  router.get(
+    "/feedback",
+    authenticate,
+    requireRole("TEACHER"),
+    controller.listFeedback,
+  );
   router.get("/:id", read, controller.getReport);
   router.get("/:id/snapshot", read, controller.snapshot);
   router.post(
