@@ -5,7 +5,10 @@ import {
   type changePasswordSchema,
   type loginSchema,
   type parentSignupSchema,
+  type ProfileDto,
+  type profileUpdateSchema,
   type PublicCenter,
+  type Role,
   type SessionUser,
   type SignupResult,
 } from "@ricportal/shared";
@@ -36,6 +39,23 @@ function toSessionUser(row: SessionRow): SessionUser {
     centerId: row.centerId,
     centerName: row.center?.name ?? null,
     mustChangePassword: row.mustChangePassword,
+  };
+}
+
+type ProfileRow = NonNullable<
+  Awaited<ReturnType<AuthRepository["findProfile"]>>
+>;
+
+function toProfile(row: ProfileRow): ProfileDto {
+  return {
+    id: row.id,
+    role: row.role,
+    username: row.username,
+    fullName: row.fullName,
+    mobile: row.mobile,
+    centerId: row.centerId,
+    centerName: row.center?.name ?? null,
+    status: row.status,
   };
 }
 
@@ -155,6 +175,34 @@ export function createAuthService(deps: {
         throw new UnauthenticatedError();
       }
       return toSessionUser(row);
+    },
+
+    async profile(userId: number): Promise<ProfileDto> {
+      const row = await repository.findProfile(userId);
+      if (row === null) {
+        throw new UnauthenticatedError();
+      }
+      return toProfile(row);
+    },
+
+    async updateProfile(
+      user: { id: number; role: Role },
+      input: z.output<typeof profileUpdateSchema>,
+    ): Promise<ProfileDto> {
+      if (user.role === "PARENT" && input.mobile === undefined) {
+        throw new ValidationError("Some fields are not valid.", [
+          {
+            field: "mobile",
+            message: "Enter a mobile number like 09171234567.",
+          },
+        ]);
+      }
+      return toProfile(
+        await repository.updateProfile(user.id, {
+          fullName: input.fullName,
+          mobile: input.mobile ?? null,
+        }),
+      );
     },
 
     async changePassword(

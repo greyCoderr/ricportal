@@ -120,6 +120,25 @@ export const teacherPatchSchema = z.object({
 });
 export type TeacherPatchInput = z.input<typeof teacherPatchSchema>;
 
+// A user edits only their own name and mobile (D11). A blank mobile clears it,
+// except for a Parent, whose mobile is required since sign-up (service rule).
+export const profileUpdateSchema = z.object({
+  fullName: fullNameSchema,
+  mobile: mobileSchema.optional().or(z.literal("").transform(() => undefined)),
+});
+export type ProfileUpdateInput = z.input<typeof profileUpdateSchema>;
+
+export type ProfileDto = {
+  id: number;
+  role: Role;
+  username: string;
+  fullName: string;
+  mobile: string | null;
+  centerId: number | null;
+  centerName: string | null;
+  status: UserStatus;
+};
+
 export type SessionUser = {
   id: number;
   role: Role;

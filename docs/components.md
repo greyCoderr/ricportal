@@ -125,3 +125,28 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 | LedgerTable | `ui/LedgerTable.tsx` | none | Developer-designed, approved spec in ui-kit.md | Ruled rows, right-aligned tabular numbers, total row with a single rule above and a double rule below; built in S4 as the sprint plan asks |
 | Stamp | `ui/Stamp.tsx` | none | Developer-designed, approved spec in ui-kit.md | Outlined, 2px, uppercase, rotated 2 degrees, BR-07 words; built in S5 as the sprint plan asks |
 | Toast | `components/toast` | none | Aligned to Banner | Same tone classes and icons as Banner (`tones.ts`), plus `shadow-panel`; API unchanged (success, error uses danger, info) |
+
+## Demo polish Figma calls (limit 120)
+
+| Date | Stage | Call | Node | Result |
+| --- | --- | --- | --- | --- |
+| 2026-11-07 | F1 | `create_session` | file | Session for the polish reads |
+| 2026-11-07 | F1 | `get_metadata` | 393:1101 | Parent page: PARENT LOGIN 393:1102, PARENT CALENDAR 393:1133 |
+| 2026-11-07 | F1 | `get_design_context` | 241:1732 | Login desktop: layout, texts, photo, emblem, waves |
+| 2026-11-07 | F1 | `get_design_context` | 88:695 | Teacher profile: sidebar, top bar, footer (output truncated at the tool limit) |
+| 2026-11-07 | F1 | `download_assets` | 268:10485, 268:10498, 268:10507 | Footer logos: DSWD, seal, MAO |
+| 2026-11-07 | F1 | `download_assets` | 241:1085 | Login waves |
+| 2026-11-07 | F1 | `download_assets` x3 | 241:1101 | Login photo at 1.5x (868 KB), 0.85x (380 KB), 0.7x (280 KB, kept) |
+| 2026-11-07 | F1 | `get_metadata` | 267:9688, 0:1 | Admin and Teacher pages, saved locally and parsed |
+| 2026-11-07 | F1 | `get_screenshot` | 267:9689, 378:16539, 380:1149 | Admin dashboard, Admin Profile mobile, Admin phone login |
+
+Polish calls so far: 16 of 120.
+
+## Polish layout components
+
+| Component | File | Figma node(s) | Source |
+| --- | --- | --- | --- |
+| AppShell | `app/layouts/AppShell.tsx` | 166:910, 267:9689, 111:959 | Figma; the mobile drawer is Developer-designed (DEC-037) |
+| AppFooter | `app/layouts/AppFooter.tsx` | 268:10479, 267:9689 | Figma |
+| StatusPage | `app/pages/StatusPage.tsx` | none | Developer-designed from tokens |
+| ProfilePage | `features/auth/pages/ProfilePage.tsx` | 88:695, 378:16539 | Figma, D11 fields only |

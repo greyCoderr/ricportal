@@ -55,3 +55,17 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 | Signatories settings screen and endpoint | No screen (settings screens are out). The PDFs read approvedByName, approvedByTitle, notedByName and notedByTitle from the settings table; blank by default | A Settings page for the Admin |
 | Blocking days link back to their day panels | A plain list of the days in the confirm dialog | Links that open the day panel |
 | report_versions table | A version number on the report, and one snapshot per version | Add with file uploads (Objective 3) |
+
+## Demo polish (D10 and F1)
+
+| Item | What the demo does | To restore or finish |
+| --- | --- | --- |
+| Photo and emblem on Login | Restored with the client's permission (DEC-037); the first table's rows for them no longer apply | Nothing |
+| Teacher SUBMIT REPORT | A "Coming soon" page (Objective 3). The liquidation Submit Report stays in the Calendar overlay | Build with file uploads in Objective 3 |
+| Admin DASHBOARD | Real counts (F4) | Nothing further for the demo |
+| Admin REPORTS | The liquidation queue only | Add the enrollment and accomplishment reports in Objective 3 |
+| Teacher REPORT STATUS | Own liquidation submissions with status | Same |
+| Teacher ADMIN FEEDBACK | Feedback on returned reports (F5) | Same |
+| Notification bell with a count | Left out; there are no notifications | Build notifications if the client asks |
+| Profile report cards, activity lists, date of birth, address, two-factor, sessions | Left out; only the D11 fields are shown | A change request with the client |
+| Footer Facebook and Gmail icons | Shown as images; no Facebook address is in Figma | Link them when the client gives the page |

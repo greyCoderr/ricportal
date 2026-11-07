@@ -1,26 +1,63 @@
 import type { Role } from "@ricportal/shared";
-import type { IconName } from "../../components/ui";
+import calendarIcon from "../../assets/nav-calendar.png";
+import feedbackIcon from "../../assets/nav-feedback.png";
+import parentRequestsIcon from "../../assets/nav-form.png";
+import homeIcon from "../../assets/nav-home.png";
+import profileIcon from "../../assets/nav-profile.png";
+import reportStatusIcon from "../../assets/nav-report-status.png";
+import studentsIcon from "../../assets/nav-students.png";
+import submitReportIcon from "../../assets/nav-submit-report.png";
 
-export type NavItem = { to: string; label: string; icon: IconName };
+// Icons are the client's images (Figma 166:910). They sit beside their label,
+// so they are decorative and carry an empty alt.
+export type NavItem = { to: string; label: string; icon: string };
 
-// Labels from the Figma sidebar (166:910) where the screen exists there. Only
-// the screens in the demo sprint scope are listed (docs/SPRINT_PLAN.md).
+export const LOGOUT_LABEL = "LOGOUT";
+
+const CALENDAR: NavItem = {
+  to: "/calendar",
+  label: "CALENDAR",
+  icon: calendarIcon,
+};
+const PROFILE: NavItem = {
+  to: "/profile",
+  label: "PROFILE",
+  icon: profileIcon,
+};
+
+// Exact labels and order from D10 (docs/POLISH_PLAN.md, DEC-037).
 export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   ADMIN: [
-    { to: "/", label: "Home", icon: "house" },
-    { to: "/centers", label: "Centers", icon: "map-pin" },
-    { to: "/teachers", label: "RIC Teachers", icon: "users" },
-    { to: "/menu-imports", label: "Menu Imports", icon: "upload" },
-    { to: "/calendar", label: "Calendar", icon: "calendar-days" },
-    { to: "/reports", label: "Reports", icon: "file-text" },
+    { to: "/", label: "DASHBOARD", icon: homeIcon },
+    CALENDAR,
+    { to: "/reports", label: "REPORTS", icon: reportStatusIcon },
+    { to: "/teachers", label: "RIC TEACHERS", icon: studentsIcon },
+    PROFILE,
   ],
   TEACHER: [
-    { to: "/", label: "Home", icon: "house" },
-    { to: "/students", label: "Enrolled Students", icon: "users" },
-    { to: "/calendar", label: "Calendar", icon: "calendar-days" },
-    { to: "/assignments", label: "Assignments", icon: "pencil" },
-    { to: "/parents", label: "Parent Requests", icon: "inbox" },
-    { to: "/reports", label: "Report Status", icon: "file-text" },
+    { to: "/", label: "HOME", icon: homeIcon },
+    { to: "/students", label: "ENROLLED STUDENTS", icon: studentsIcon },
+    CALENDAR,
+    { to: "/submit-report", label: "SUBMIT REPORT", icon: submitReportIcon },
+    { to: "/reports", label: "REPORT STATUS", icon: reportStatusIcon },
+    { to: "/admin-feedback", label: "ADMIN FEEDBACK", icon: feedbackIcon },
+    { to: "/parents", label: "PARENT REQUESTS", icon: parentRequestsIcon },
+    PROFILE,
   ],
-  PARENT: [{ to: "/", label: "My Schedule", icon: "calendar-days" }],
+  // The Parent home is the calendar (DEC-024).
+  PARENT: [{ ...CALENDAR, to: "/" }, PROFILE],
+};
+
+// Pages the demo still needs but D10 leaves out of the menu. They are linked
+// from the home page so they stay reachable (DEC-037).
+export const EXTRA_LINKS_BY_ROLE: Record<
+  Role,
+  { to: string; label: string }[]
+> = {
+  ADMIN: [
+    { to: "/centers", label: "Centers" },
+    { to: "/menu-imports", label: "Menu Imports" },
+  ],
+  TEACHER: [{ to: "/assignments", label: "Assignments" }],
+  PARENT: [],
 };

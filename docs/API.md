@@ -77,6 +77,8 @@ Session: httpOnly cookie `rp_session` (HS256, 8 hours, SameSite=Lax, Secure from
 | POST /api/auth/logout | Any | Clears the cookie |
 | GET /api/auth/me | Any | Current user and center |
 | POST /api/auth/change-password | Any | Current and new password; increments `token_version` and sets a fresh cookie |
+| GET /api/auth/profile | Any role | Own profile: id, role, username, fullName, mobile, centerId, centerName, status. 403 during a forced password change (D11) |
+| PATCH /api/auth/profile | Any role | `fullName` and `mobile` only (Zod `profileUpdateSchema`). A blank mobile clears it, except for a Parent (400) |
 | GET, POST /api/centers; PATCH /api/centers/:id | Admin | List (`q`, pagination), create, edit, `isActive`. 409 duplicate name, 422 deactivating a center with an active Teacher |
 | GET, POST /api/teachers; PATCH /api/teachers/:id | Admin | List, create (temporary password returned once), edit, enable or disable. 409 second active Teacher in a center (BR-04), 422 inactive center |
 | POST /api/teachers/:id/reset-password | Admin | Temporary password returned once; ends old sessions |

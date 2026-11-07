@@ -8,6 +8,7 @@ import {
 } from "../features/auth/components/guards";
 import { ChangePasswordPage } from "../features/auth/pages/ChangePasswordPage";
 import { LoginPage } from "../features/auth/pages/LoginPage";
+import { ProfilePage } from "../features/auth/pages/ProfilePage";
 import { RequestSentPage, SignupPage } from "../features/auth/pages/SignupPage";
 import { HealthPage } from "../features/health/pages/HealthPage";
 import { HomePage } from "../features/home/HomePage";
@@ -18,6 +19,7 @@ import { ReportDetailPage } from "../features/reports/pages/ReportDetailPage";
 import { ReportsPage } from "../features/reports/pages/ReportsPage";
 import { StudentProfilePage } from "../features/students/pages/StudentProfilePage";
 import { StudentsPage } from "../features/students/pages/StudentsPage";
+import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 export const router = createBrowserRouter([
@@ -30,6 +32,7 @@ export const router = createBrowserRouter([
     element: <RequireSession />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: "/profile", element: <ProfilePage /> },
       {
         element: <RequireRole roles={["ADMIN"]} />,
         children: [
@@ -53,6 +56,14 @@ export const router = createBrowserRouter([
           { path: "/assignments", element: <AssignmentsPage /> },
           { path: "/students", element: <StudentsPage /> },
           { path: "/students/:id", element: <StudentProfilePage /> },
+          {
+            path: "/submit-report",
+            element: <ComingSoonPage title="Submit Report" />,
+          },
+          {
+            path: "/admin-feedback",
+            element: <ComingSoonPage title="Admin Feedback" />,
+          },
         ],
       },
       { path: "*", element: <NotFoundPage /> },

@@ -398,3 +398,34 @@ Decision:
 - The parsed preview is held in server memory for 30 minutes and the uploaded file is never stored (sprint plan). A restart forgets open previews; the Admin uploads again.
 - Phase 4 asks for 410 on an expired token, but the shared error codes (blueprint 4.8) have no 410. An expired, used or unknown token answers 409 STATE_INVALID, "This preview has expired. Please upload the file again."
 - `replaceOverlap` is not built (S3 cut): a file that overlaps existing dates can be previewed and shows the overlapping dates, but it gets no token and cannot be confirmed.
+
+## DEC-037: Demo polish decisions (D1 to D13) and shell defaults
+
+Context: docs/POLISH_PLAN.md section 1, decided by the Developer on 2026-11-07. Where Figma and an earlier decision differ, Figma wins on layout and labels and these decisions win on business rules.
+Decision:
+- D1 Image permission: the client allowed using the images, logos and layouts from their Figma file. Assets are exported only from that file into `client/src/assets`, each under 300 KB. This replaces the photo and emblem parts of DEC-034, and DEC-033 (sidebar icons are now the client's images). DEC-034 stays for Username, no forgot-password link and no terms box.
+- D2 A Parent sees the whole calendar of their own center (menu names and assigned parents' names on every day), but purchase request details and editing only on assigned days. Replaces A-06 and DEC-024 for visibility.
+- D3 On assigned OPEN days a Parent may add rows, edit unit, quantity, unit cost and description of any row, and delete only rows they created. A Teacher may edit or delete any row. Rows keep `created_by`. Budget, child count and rate stay hidden from Parents. Replaces A-14 and BR-12 for Parents.
+- D4 A week (Monday to Sunday) has a team of at most 4 distinct approved parents of the Teacher's center; each feeding day gets zero to four of them. `PUT /api/assignments/week` saves the whole week in one transaction.
+- D5 The Summary of Disbursement table moves into the Liquidation Forms overlay; the calendar page keeps a one-line month summary linking to it.
+- D6 Setting DEFAULT_PASSWORD, default `RICPortal2026!` for development and the demo; production sets its own. A reset sets it and forces a change at next login; no password is logged or returned. A blank password on account creation means the default.
+- D7 Every date in tables, forms and PDFs is MM/DD/YYYY; long dates only in headings. One shared formatter. Inputs are masked text fields; the API keeps YYYY-MM-DD.
+- D8 Disabled users: red "Disabled" badge, muted row, action button reads Enable; never color alone.
+- D9 The student form copies Figma "add enroll". Extra fields go in one nullable TEXT column `profile_extra` holding Zod-validated JSON. Flagged for client confirmation (A-17).
+- D10 Navigation labels and pages as in docs/ui-specs/shell.md. Unbuilt Objective 3 pages are marked in docs/SPRINT_SHORTCUTS.md.
+- D11 Every role has a Profile page: name, username, role, center, mobile; edit name and mobile; change password.
+- D12 The sidebar is fixed to the viewport height with a scrolling menu and a pinned LOGOUT.
+- D13 Desktop pages have the Figma footer at the bottom of a full-height page column.
+
+Defaults chosen for F1 (no question asked, per the plan):
+- D10 writes LOGOUT and upper-case Teacher labels where Figma has "Log out" and title case. D10 lists them as exact, so its text is used. "DASHBOARD (HOME)" is the label DASHBOARD on the home route.
+- D10 leaves Centers and Menu Imports out of the Admin menu, and Assignments out of the Teacher menu. The demo needs them, so the routes stay and the home page links to them. Assignments goes away when F2 moves it into the calendar.
+- One AppShell for all three roles. Parent frames are phone-only with no sidebar, and D10 and D11 give the Parent the same menu, so ParentLayout is removed. Its test was replaced by Parent menu tests (docs/POLISH_LOG.md lists this).
+- Selected nav text and icon stay black on the pink item (DEC-023). The "RIC" wordmark in `primary` on black is 3.9:1, below AA for its size. Kept because it is the client's logotype.
+- Copyright year 2026 (real data) where Figma has 2025. The footer tagline uses Montserrat because Figma's Mozilla Headline is not installed.
+- The notification bell with its count (111:965) is left out: there are no notifications, and a fake count would mislead.
+- Profile shows only the D11 fields. The frame's report cards, activity lists, date of birth, address, two-factor and session panels have no data behind them.
+- Phones use PARENT LOGIN 393:1102 for the login page because it keeps the red brand. The Admin phone login (380:1149) is green with the title unreadable over the photo.
+- No Figma frame shows a mobile top bar or menu drawer, so both are Developer-designed from tokens (docs/ui-specs/shell.md). Client approval requested.
+- The login photo is exported at 0.7x (378 x 714) to stay under 300 KB, not at 2x. It may look soft on large screens.
+Consequences: blueprint rows BR-05, BR-12, BR-14, A-06, A-14 and A-17 are updated. Recorded in BUSINESS_RULES.md.

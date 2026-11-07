@@ -12,6 +12,17 @@ const SESSION_SELECT = {
   center: { select: { name: true } },
 } as const;
 
+const PROFILE_SELECT = {
+  id: true,
+  role: true,
+  username: true,
+  fullName: true,
+  mobile: true,
+  centerId: true,
+  status: true,
+  center: { select: { name: true } },
+} as const;
+
 export function createAuthRepository(prisma: PrismaClient) {
   return {
     findForLogin(username: string) {
@@ -30,6 +41,24 @@ export function createAuthRepository(prisma: PrismaClient) {
       return prisma.user.findUnique({
         where: { id },
         select: SESSION_SELECT,
+      });
+    },
+
+    findProfile(id: number) {
+      return prisma.user.findUnique({
+        where: { id },
+        select: PROFILE_SELECT,
+      });
+    },
+
+    updateProfile(
+      id: number,
+      input: { fullName: string; mobile: string | null },
+    ) {
+      return prisma.user.update({
+        where: { id },
+        data: input,
+        select: PROFILE_SELECT,
       });
     },
 

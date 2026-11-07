@@ -142,16 +142,16 @@ Tasks cite these by ID. If a rule changes, change it here first.
 | BR-02 | Teachers and Parents only ever see data of their own center. Admin sees all. Enforced in the service layer on every query |
 | BR-03 | A Parent sign-up is PENDING. Only the Teacher of the chosen center can approve or decline. PENDING, DECLINED and DISABLED users cannot log in and see a clear message |
 | BR-04 | Admin creates Teacher accounts and assigns one center. One active Teacher per center (A-02) |
-| BR-05 | Password reset is done by the approver: Admin resets Teacher, Teacher resets Parent. A temporary password is shown once, and the user must change it at next login. No email is sent |
+| BR-05 | Password reset is done by the approver: Admin resets Teacher, Teacher resets Parent. The reset sets the default password from the DEFAULT_PASSWORD setting and forces a change at next login; no password is logged or returned (D6, DEC-037). No email is sent |
 | BR-06 | One report per center, type and month. A Teacher may submit only when none exists or the latest is NEED_REVISION |
 | BR-07 | Report status flow: SUBMITTED to APPROVED or NEED_REVISION (Admin only, feedback required for NEED_REVISION). NEED_REVISION to SUBMITTED by Teacher resubmission. APPROVED is final |
 | BR-08 | One DSWD file serves all centers. Each sheet is one batch. feeding_date is unique. Replacing overlapping dates needs explicit confirmation and is refused if any Purchase Request exists on those dates |
 | BR-09 | Calendar days are date-only strings (YYYY-MM-DD) in Asia/Manila. Never convert them through JS Date or ISO timestamps |
 | BR-10 | Daily budget = number of ACTIVE students in the center for the current school year x per-child daily rate (A-03). Computed live while OPEN, snapshotted on lock |
 | BR-11 | One Purchase Request per center per feeding day. Items numbered 1 to n. Money uses Decimal. Server computes totals. Rounding is half-up to 2 decimals |
-| BR-12 | While a PR is OPEN: the Teacher can add or delete ingredient rows and edit any field; an assigned Parent can edit unit, quantity and unit cost of existing rows only (A-14). LOCKED, NO_FEEDING or submitted PRs are read-only. The Teacher can unlock until the day is part of a submitted liquidation report |
+| BR-12 | While a PR is OPEN: the Teacher can add or delete ingredient rows and edit any field; an assigned Parent can add rows, edit unit, quantity, unit cost and description of any row, and delete only rows they created (D3, DEC-037). LOCKED, NO_FEEDING or submitted PRs are read-only. The Teacher can unlock until the day is part of a submitted liquidation report |
 | BR-13 | The Teacher plans assignments weekly (Monday to Sunday). Each feeding day has zero or more APPROVED Parents of the same center. Next week is assigned again |
-| BR-14 | A Parent sees only the days they are assigned to (A-06) |
+| BR-14 | A Parent sees the whole calendar of their own center (menu names and assigned parents' names), but purchase request details and editing only on days they are assigned to (D2, DEC-037) |
 | BR-15 | The Teacher can mark a feeding day NO_FEEDING (A-05). Such days are excluded from budget, the Summary of Disbursement and totals |
 | BR-16 | Submitting a liquidation requires every feeding day in the range to be LOCKED or NO_FEEDING. It creates an immutable snapshot, and the days become submitted-locked. NEED_REVISION unlocks those days; APPROVED is final |
 | BR-17 | PDFs follow the official layouts. Signature lines are blank except printed names set in Settings (A-10). PR No. comes from the import |
@@ -172,7 +172,7 @@ Each default is configurable or isolated so a client answer changes one place. T
 | A-03 | Per-child daily rate is PHP 25.00 (sample: PHP 450 for 18 children) | Settings, Admin screen | Confirm the rate |
 | A-04 | Ages outside 2 to 4 accepted with a warning; summary has an "Other" row | Enrollment summary function | Are other ages allowed? |
 | A-05 | Weekend items (Nutribun, Nutri Cookie) get a Purchase Request like other days; Teacher can mark NO_FEEDING | Teacher decision per day | Do weekends need a PR? |
-| A-06 | A Parent sees only their own assigned days | Calendar service filter | Can parents see others? |
+| A-06 | Replaced by D2 (DEC-037): a Parent sees the whole calendar of their center; purchase request details only on assigned days | Calendar and PR services | Decided |
 | A-07 | Parent sign-up fields: full name, username, mobile, center, child's name (optional), password | Shared Zod schema | Confirm fields |
 | A-08 | Report files: PDF, DOC, DOCX, XLS, XLSX, JPG, PNG, max 10 MB | Config | Confirm types and size |
 | A-09 | Transmittal Checklist layout is pending a clear copy | Built last in P6 | Send a clear flat copy |
@@ -180,10 +180,10 @@ Each default is configurable or isolated so a client answer changes one place. T
 | A-11 | Summary of Disbursement period defaults to the calendar month; custom range allowed | Liquidation UI | Confirm period |
 | A-12 | Current school year is a Setting; there is no promote or carry-over feature | Settings | How does rollover work? |
 | A-13 | No email: password reset by the approver (BR-05) | Auth module | Confirm |
-| A-14 | Parents cannot add or delete ingredient rows | PR service | Can parents add extra items? |
+| A-14 | Replaced by D3 (DEC-037): Parents may add rows and delete rows they created on assigned OPEN days | PR service | Decided |
 | A-15 | Enrollment Form is generated as a PDF; the signed copy is uploaded through Reports (ENROLLMENT) | Reports | Confirm |
 | A-16 | Admin has read-only access to Student lists and Child's Records, as the paper's Level 0 diagram shows ("Child's Record Information" goes to the Admin) | Students service | Confirm with the MAO |
-| A-17 | Optional Child's Record fields (birth order, number of siblings, religion, ethnicity) are included because the paper's ERD lists them; the Figma form is the final authority on fields | Student schema | Confirm against the Figma form |
+| A-17 | Optional Child's Record fields (birth order, number of siblings, religion, ethnicity) are included because the paper's ERD lists them; the Figma form is the final authority on fields; extra Figma fields live in `profile_extra` (D9, DEC-037) | Student schema | Confirm the field mapping in docs/ui-specs/student-form.md with the client |
 | A-18 | The Teacher home page shows a "Today's Feeding" card (the paper's "Check Today's Event" process). The Parent home page is the My Schedule calendar only (Figma PARENT CALENDAR 393:1133), with today highlighted; Parents get no "Today's Feeding" card (DEC-024) | Home pages | None |
 
 ## 4.8 API conventions

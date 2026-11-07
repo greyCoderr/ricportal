@@ -2,7 +2,6 @@ import type { Role } from "@ricportal/shared";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { ForbiddenPage } from "../../../app/pages/ForbiddenPage";
 import { AppShell } from "../../../app/layouts/AppShell";
-import { ParentLayout } from "../../../app/layouts/ParentLayout";
 import { QueryBoundary } from "../../../components/QueryBoundary";
 import { useLogout, useSession } from "../hooks";
 
@@ -22,15 +21,6 @@ export function RequireSession() {
         />
       ) : session.data.mustChangePassword ? (
         <Navigate to="/change-password" replace />
-      ) : session.data.role === "PARENT" ? (
-        <ParentLayout
-          user={session.data}
-          onLogout={() => {
-            logout.mutate();
-          }}
-        >
-          <Outlet />
-        </ParentLayout>
       ) : (
         <AppShell
           user={{

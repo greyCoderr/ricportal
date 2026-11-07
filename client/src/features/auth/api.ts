@@ -2,6 +2,8 @@ import type {
   ChangePasswordInput,
   LoginInput,
   ParentSignupInput,
+  ProfileDto,
+  ProfileUpdateInput,
   PublicCenter,
   SessionUser,
   SignupResult,
@@ -33,6 +35,17 @@ export async function changePassword(
   return (
     await apiRequest<SessionUser>("POST", "/api/auth/change-password", input)
   ).data;
+}
+
+export async function fetchProfile(): Promise<ProfileDto> {
+  return (await apiGet<ProfileDto>("/api/auth/profile")).data;
+}
+
+export async function updateProfile(
+  input: ProfileUpdateInput,
+): Promise<ProfileDto> {
+  return (await apiRequest<ProfileDto>("PATCH", "/api/auth/profile", input))
+    .data;
 }
 
 export async function parentSignup(

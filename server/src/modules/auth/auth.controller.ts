@@ -2,6 +2,7 @@ import {
   changePasswordSchema,
   loginSchema,
   parentSignupSchema,
+  profileUpdateSchema,
 } from "@ricportal/shared";
 import type { Request, Response } from "express";
 import { SESSION_COOKIE } from "../../core/auth-token.js";
@@ -46,6 +47,21 @@ export function createAuthController(
     me: async (req: Request, res: Response) => {
       res.set("Cache-Control", "no-store");
       ok(res, await service.me(currentUser(req).id));
+    },
+
+    profile: async (req: Request, res: Response) => {
+      res.set("Cache-Control", "no-store");
+      ok(res, await service.profile(currentUser(req).id));
+    },
+
+    updateProfile: async (req: Request, res: Response) => {
+      ok(
+        res,
+        await service.updateProfile(
+          currentUser(req),
+          parseWith(profileUpdateSchema, req.body),
+        ),
+      );
     },
 
     changePassword: async (req: Request, res: Response) => {

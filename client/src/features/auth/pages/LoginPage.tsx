@@ -1,5 +1,10 @@
 import { loginSchema } from "@ricportal/shared";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
+import loginIcon from "../../../assets/icon-login.png";
+import loginPhoto from "../../../assets/login-photo.jpg";
+import loginWaves from "../../../assets/login-waves.png";
+import emblem from "../../../assets/ric-emblem.png";
+import { COPYRIGHT } from "../../../app/layouts/AppFooter";
 import { PasswordField, TextField } from "../../../components/form/fields";
 import { Banner, Button } from "../../../components/ui";
 import { useZodForm } from "../../../lib/use-zod-form";
@@ -13,9 +18,9 @@ export function safeReturnPath(from: string | null): string {
   return from;
 }
 
-// Login (Figma 241:1732, S-P1-01). The frame's email field is a username, and
-// its forgot-password link, terms box, stock photo and emblem are left out
-// (DEC-034).
+// Login (Figma 241:1732 on desktop, 393:1102 on phones; S-P1-01). The photo and
+// emblem are back with the client's permission (DEC-037). The email field stays
+// a username, with no forgot-password link and no terms box (DEC-034).
 export function LoginPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -29,21 +34,37 @@ export function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-screen bg-surface text-text md:grid-cols-[1fr_42%]">
-      <div className="flex flex-col px-4 py-6 md:px-16">
-        <p className="text-24 font-bold tracking-[0.22em] text-primary md:text-42">
-          RICPORTAL
-        </p>
-        <p className="text-16 font-semibold md:text-24">
-          Rural Improvement Club Portal
-        </p>
-        <p className="text-16 font-semibold md:text-24">
-          Libmanan, Camarines Sur
-        </p>
+    <div className="grid min-h-dvh bg-surface text-text lg:grid-cols-[1fr_42%]">
+      <div className="relative flex min-w-0 flex-col overflow-hidden px-4 py-5 lg:px-8">
+        <img
+          src={loginWaves}
+          alt=""
+          className="pointer-events-none absolute top-0 left-0 h-full w-full object-cover object-left-top"
+        />
+        <div className="relative flex flex-col items-center gap-3 text-center lg:flex-row lg:justify-center lg:text-left">
+          <img
+            src={emblem}
+            alt="Rural Improvement Club emblem"
+            className="size-[97px] shrink-0 rounded-full object-cover lg:size-[113px]"
+          />
+          <div>
+            <p className="text-24 font-bold tracking-[0.22em] text-primary lg:text-42">
+              RICPORTAL
+            </p>
+            <p className="text-15 font-semibold lg:text-24">
+              Rural Improvement Club Portal
+            </p>
+            <p className="text-15 font-semibold lg:text-24">
+              Libmanan, Camarines Sur
+            </p>
+          </div>
+        </div>
 
-        <main className="mt-8 flex w-full max-w-[480px] flex-1 flex-col">
-          <h1 className="text-24 font-semibold md:text-48">Welcome Back</h1>
-          <p className="mb-6 text-15 font-semibold tracking-label text-text-secondary md:text-18">
+        <main className="relative mx-auto mt-8 flex w-full max-w-[480px] flex-1 flex-col">
+          <h1 className="text-24 font-semibold lg:-ml-[100px] lg:text-48">
+            Welcome Back
+          </h1>
+          <p className="mb-8 text-13 font-semibold tracking-label text-text-secondary lg:-ml-[100px] lg:text-18">
             Please log in to continue to your account
           </p>
 
@@ -72,8 +93,9 @@ export function LoginPage() {
             {form.formError !== null && (
               <Banner tone="danger">{form.formError}</Banner>
             )}
-            <Button type="submit" loading={login.isPending} icon="log-out">
+            <Button type="submit" loading={login.isPending}>
               Log in
+              <img src={loginIcon} alt="" className="size-5" />
             </Button>
           </form>
 
@@ -90,11 +112,18 @@ export function LoginPage() {
           </Link>
         </main>
 
-        <p className="mt-8 text-10 tracking-label">
-          © 2026 RICPortal, Rural Improvement Club.
+        <p className="relative mt-8 text-center text-10 tracking-label">
+          {COPYRIGHT}
         </p>
       </div>
-      <div aria-hidden="true" className="hidden bg-nav md:block" />
+      <div className="relative hidden min-h-0 lg:block">
+        <img
+          src={loginPhoto}
+          alt="A teacher showing a globe to two children in a classroom"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div aria-hidden="true" className="absolute inset-0 bg-overlay" />
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { PageHeader } from "../../components/PageHeader";
 import { Card } from "../../components/ui";
 import { LABELS } from "../../lib/labels";
 import { useCurrentUser } from "../auth/components/guards";
-import { NAV_BY_ROLE } from "../../app/layouts/nav";
+import { EXTRA_LINKS_BY_ROLE, NAV_BY_ROLE } from "../../app/layouts/nav";
 import { MySchedulePage } from "../purchase/pages/MySchedulePage";
 
 // Welcome panels. The Parent home is the My Schedule calendar (DEC-024).
@@ -14,7 +14,10 @@ export function HomePage() {
     return <MySchedulePage />;
   }
 
-  const links = NAV_BY_ROLE[user.role].filter((item) => item.to !== "/");
+  const links = [
+    ...NAV_BY_ROLE[user.role].filter((item) => item.to !== "/"),
+    ...EXTRA_LINKS_BY_ROLE[user.role],
+  ];
   return (
     <>
       <PageHeader

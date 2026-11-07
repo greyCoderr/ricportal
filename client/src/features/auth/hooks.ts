@@ -2,11 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SESSION_KEY } from "../../lib/query-client";
 import {
   changePassword,
+  fetchProfile,
   fetchPublicCenters,
   fetchSession,
   login,
   logout,
   parentSignup,
+  updateProfile,
 } from "./api";
 
 export function useSession() {
@@ -45,6 +47,24 @@ export function useChangePassword() {
     mutationFn: changePassword,
     onSuccess: (user) => {
       client.setQueryData(SESSION_KEY, user);
+    },
+  });
+}
+
+const PROFILE_KEY = ["profile"] as const;
+
+export function useProfile() {
+  return useQuery({ queryKey: PROFILE_KEY, queryFn: fetchProfile });
+}
+
+export function useUpdateProfile() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: updateProfile,
+    onSuccess: (profile) => {
+      client.setQueryData(PROFILE_KEY, profile);
+      // The top bar shows the name from the session.
+      void client.invalidateQueries({ queryKey: SESSION_KEY });
     },
   });
 }
