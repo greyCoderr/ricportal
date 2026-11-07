@@ -28,3 +28,6 @@ Deferred ideas: item, who asked, reason, and the phase it might belong to.
 - Watch for the intermittent 404 in `assignments-week.db.test.ts` (POLISH_LOG, F6). The setup now prints the real cause if it returns. Asked by: Claude. Phase: 8.
 - FullCalendar's icon font is a data: URL, which the font-src 'self' policy blocks, giving one console error on calendar pages. Harmless: the toolbar with those icons is replaced. Remove the error in hardening. Asked by: Claude. Phase: 8.
 - `.playwright-mcp/` is not in .gitignore. Add it if the Playwright tool stays in use. Asked by: Claude. Phase: 8.
+- Apply the global rate limit to /api only, not to the built client's files. Today every image and script counts toward the 5000 requests in 15 minutes, and the browser audit reached it (POLISH_LOG). Add a stricter limiter for login. Asked by: Developer. Phase: 8.
+- Make the upgrade-insecure-requests policy production-only. It comes from the Helmet defaults in `core/middleware/pipeline.ts`, and it can stop scripts and images loading over plain http on the local network, such as from a phone (not tested). localhost is not affected. Asked by: Developer. Phase: 8.
+- Reduce the 759 kB main script with code splitting. Asked by: Developer. Phase: 8.

@@ -228,3 +228,11 @@ Checks: typecheck and lint clean before the last layout change, which only chang
 
 Local database after this check: it holds practice data (teacher.bahay, rosa.demo, student Delos Reyes, an approved report, locked days). `npm run db:seed:demo` clears the data of the demo center and teacher.bahay; rosa.demo belongs to Sibujo and goes with it.
 
+## The intermittent 404 in assignments-week.db.test.ts (2026-11-07)
+
+Eight separate runs of the file in a row, on one worker, after v0.9.3-demo. Each run: 31 of 31 passed.
+
+Result: not reproduced in 8 runs; assertion kept.
+
+The cause of the one failure seen in F6 is still unknown. The assertion in the setup prints the real answer if it comes back.
+
