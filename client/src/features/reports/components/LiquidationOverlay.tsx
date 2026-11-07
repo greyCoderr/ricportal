@@ -14,11 +14,16 @@ import {
   Drawer,
   EmptyState,
   FormField,
-  Input,
+  DateInput,
   LedgerTable,
   Tabs,
 } from "../../../components/ui";
-import { formatLongDay, formatMenuName, formatPeso } from "../../../lib/format";
+import {
+  formatDate,
+  formatLongDay,
+  formatMenuName,
+  formatPeso,
+} from "../../../lib/format";
 import { PrStatusBadge } from "../../purchase/components/PrStatusBadge";
 import { liveFormUrl, livePurchaseRequestUrl } from "../api";
 import { useLiquidationPreview, useSubmitLiquidation } from "../hooks";
@@ -34,7 +39,7 @@ function PurchaseRequestsTab({ days }: { days: LiquidationDay[] }) {
       rows={days}
       rowKey={(day) => day.date}
       columns={[
-        { key: "date", header: "Date", render: (day) => day.date },
+        { key: "date", header: "Date", render: (day) => formatDate(day.date) },
         {
           key: "menu",
           header: "Menu",
@@ -61,7 +66,7 @@ function PurchaseRequestsTab({ days }: { days: LiquidationDay[] }) {
               <Button
                 variant="secondary"
                 size="sm"
-                aria-label={`Purchase Request PDF for ${day.date}`}
+                aria-label={`Purchase Request PDF for ${formatDate(day.date)}`}
                 onClick={() => {
                   openPdf(livePurchaseRequestUrl(day.date));
                 }}
@@ -97,7 +102,11 @@ function SummaryTab({
         rows={counted}
         rowKey={(day) => day.date}
         columns={[
-          { key: "date", header: "Date", render: (day) => day.date },
+          {
+            key: "date",
+            header: "Date",
+            render: (day) => formatDate(day.date),
+          },
           {
             key: "menu",
             header: "Particular",
@@ -174,27 +183,11 @@ export function LiquidationOverlay({
       <div className="mb-3 grid gap-3 sm:grid-cols-2 sm:max-w-lg">
         <FormField label="From">
           {(field) => (
-            <Input
-              {...field}
-              type="date"
-              value={from}
-              onChange={(event) => {
-                setFrom(event.target.value);
-              }}
-            />
+            <DateInput {...field} value={from} onValueChange={setFrom} />
           )}
         </FormField>
         <FormField label="To">
-          {(field) => (
-            <Input
-              {...field}
-              type="date"
-              value={to}
-              onChange={(event) => {
-                setTo(event.target.value);
-              }}
-            />
-          )}
+          {(field) => <DateInput {...field} value={to} onValueChange={setTo} />}
         </FormField>
       </div>
       <QueryBoundary query={preview} errorTitle="Could not load this period.">
@@ -302,8 +295,9 @@ export function LiquidationOverlay({
           </div>
         ) : (
           <p>
-            You are submitting {formatPeso(data?.total ?? "0.00")} for {from} to{" "}
-            {to}. The days stay locked until the Administrator decides.
+            You are submitting {formatPeso(data?.total ?? "0.00")} for{" "}
+            {formatDate(from)} to {formatDate(to)}. The days stay locked until
+            the Administrator decides.
           </p>
         )}
       </ConfirmDialog>

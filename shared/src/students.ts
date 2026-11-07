@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isCalendarDate } from "./dates.js";
+import { profileExtraSchema, type ProfileExtra } from "./profile-extra.js";
 
 export const GENDERS = ["M", "F"] as const;
 export type Gender = (typeof GENDERS)[number];
@@ -94,6 +95,7 @@ const studentFields = {
   numberOfSiblings: optionalInt(20, 0, "Number of siblings must be 0 to 20."),
   religion: optionalShortText("Religion"),
   ethnicity: optionalShortText("Ethnicity"),
+  profileExtra: profileExtraSchema.optional(),
 };
 
 export const studentCreateSchema = z.object(studentFields);
@@ -148,6 +150,8 @@ export type StudentDto = {
   numberOfSiblings: number | null;
   religion: string | null;
   ethnicity: string | null;
+  // The extra fields of the Figma form (D9); null when there are none.
+  profileExtra: ProfileExtra | null;
   // False for rows of an earlier school year.
   isEditable: boolean;
 };

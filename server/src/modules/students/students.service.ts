@@ -3,8 +3,10 @@ import {
   computeAge,
   isUsualAge,
   manilaToday,
+  profileExtraSchema,
   type enrollmentFormQuerySchema,
   type Gender,
+  type ProfileExtra,
   type studentCreateSchema,
   type StudentDto,
   type studentListQuerySchema,
@@ -52,6 +54,20 @@ function displayName(row: {
   return `${row.lastName}, ${row.firstName}${initial}`;
 }
 
+// JSON text in the column, validated at the edge (D9). Damaged text reads as
+// none, so one bad row cannot break the list.
+function readProfileExtra(stored: string | null): ProfileExtra | null {
+  if (stored === null) {
+    return null;
+  }
+  try {
+    const parsed = profileExtraSchema.safeParse(JSON.parse(stored));
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
 export function createStudentsService(deps: {
   repository: StudentsRepository;
   settings: SettingsRepository;
@@ -83,6 +99,7 @@ export function createStudentsService(deps: {
       numberOfSiblings: row.numberOfSiblings,
       religion: row.religion,
       ethnicity: row.ethnicity,
+      profileExtra: readProfileExtra(row.profileExtra),
       isEditable: row.schoolYear === currentYear,
     };
   }
@@ -228,6 +245,10 @@ export function createStudentsService(deps: {
         numberOfSiblings: input.numberOfSiblings ?? null,
         religion: input.religion ?? null,
         ethnicity: input.ethnicity ?? null,
+        profileExtra:
+          input.profileExtra === undefined
+            ? null
+            : JSON.stringify(input.profileExtra),
       });
       return toDto(row, schoolYear);
     },
@@ -252,6 +273,10 @@ export function createStudentsService(deps: {
         numberOfSiblings: input.numberOfSiblings ?? row.numberOfSiblings,
         religion: input.religion ?? row.religion,
         ethnicity: input.ethnicity ?? row.ethnicity,
+        profileExtra:
+          input.profileExtra === undefined
+            ? row.profileExtra
+            : JSON.stringify(input.profileExtra),
       };
       if (input.birthdate !== undefined) {
         checkBirthdate(input.birthdate);

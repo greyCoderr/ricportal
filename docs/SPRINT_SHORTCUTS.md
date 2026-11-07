@@ -17,7 +17,7 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 | Stage | Cut item | What stays | To restore |
 | --- | --- | --- | --- |
 | S2 | Progress tab UI | The progress API (create, list, edit, soft delete) | A tab like Home visits |
-| S2 | Previous school year view | The `schoolYear` filter on the API | A school year select and a read-only banner on the list |
+| S2 | Previous school year view | Built in F3 as year cards on the list | A read-only banner on the list |
 | S2 | Admin students-by-center screen | The API: `GET /api/students?centerId=`, summary and Child's Record reads for the Admin. The nav item is removed | A page with a center select and a read-only table |
 | S3 | Replacing overlapping menu dates | Confirm rejects overlapping dates with a clear message | A replace option in preview and confirm |
 | S3 | Calendar week view | Month on desktop, list on phones | A FullCalendar view button |
@@ -31,11 +31,11 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 
 | Figma element | Instead | To restore |
 | --- | --- | --- |
-| Add enroll form: facility location, nickname, Jr/Sr, birth registered, birth place, home address, family members, disabilities, past ECCD experience, participation fee and other sections | Only the blueprint's student fields (4.5, field rules in phase 2). The blueprint wins on business rules, and A-17 asks to confirm the fields with the client | Confirm with the client, then add columns by migration |
-| Student ID column (RIC 25-001) | Not shown; the blueprint has no such field | Decide a numbering rule with the client |
+| Add enroll form: facility location, nickname, Jr/Sr, birth registered, birth place, home address, family members, disabilities, past ECCD experience, participation fee and other sections | Built in F3, stored in `profile_extra` and optional (D9, DEC-039) | Confirm with the client (docs/ui-specs/student-form.md), then make the agreed fields required |
+| Student ID column (RIC 25-001) | A display code from the school year and row id (DEC-039), not stored | Decide a numbering rule with the client |
 | Export List button | Not built; not in the sprint scope. The Enrollment Form PDF lists the children | A CSV or PDF export |
-| Lists of earlier years (Student List for 2025, 2024...) | Previous school year view cut (above) | A school year select |
-| Site footer with contact and quick links | Not built | A footer in the layout |
+| Lists of earlier years (Student List for 2025, 2024...) | Built in F3 as Figma's cards with View All; earlier rows are read-only | Nothing |
+| Site footer with contact and quick links | Built in F1 | Nothing |
 
 ## Purchase Request screens compared with the phase 5 layout
 

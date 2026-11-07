@@ -8,6 +8,7 @@ export {
 } from "./Button";
 export { Card, type CardVariant } from "./Card";
 export { Checkbox } from "./Checkbox";
+export { DateInput } from "./DateInput";
 export { EmptyState, type HeadingLevel } from "./EmptyState";
 export { ErrorBoundary } from "./ErrorBoundary";
 export { ErrorState } from "./ErrorState";

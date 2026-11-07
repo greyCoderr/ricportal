@@ -53,3 +53,25 @@ Summary (F2, 2026-11-07):
 - Decisions: DEC-038. The DEC-037 note on the phone top bar was wrong and is corrected.
 - Not seen in a browser: FullCalendar needs a real browser, so the jsdom tests cover only its helpers. Developer, please check at 1440x900 and 390x844: the calendar against 166:1553, 393:1133 and 378:15722; tapping a day; the check mark on a Parent's days; the modal on a phone.
 - Full check at the end of F2: typecheck, lint and format clean, 1070 tests pass in 65 files, build succeeds. The build warns that the main script is over 500 kB (759 kB, 225 kB gzipped). Harmless on localhost for the demo.
+
+## F3 Students
+
+Plan:
+1. Tests first: MM/DD/YYYY parsing and formatting (02/30/2020, leap day, year ends, mask), `profile_extra` validation (valid, wrong types, unknown keys, too large), API round trip and scoping, numeric dates in the PDF.
+2. Additive migration: `students.profile_extra` TEXT, validated with Zod at the edge.
+3. One shared date module in `shared`; the PDF helper and all screens use it.
+4. DateInput: masked MM/DD/YYYY text field; replaces every `type="date"` input.
+5. Student form as a page like Figma 258:5447, with all sections and tables.
+6. Enrolled Students like 78:260: columns, search, status filter, actions, year cards, phone cards.
+7. Profile page shows the new fields.
+8. docs/ui-specs/student-form.md with the field mapping, flagged for the client (A-17).
+9. Targeted checks, docs, commit. Full check is at the end of F4 (DEC-035).
+
+Summary (F3, 2026-11-07):
+
+- Built: `profile_extra` with its Zod schema; one shared date module (format, parse, mask) used by screens and PDFs; DateInput replaces every date picker; the student form as a page with all Figma sections and tables; Enrolled Students like 78:260 (columns, search, status filter, edit and archive, year cards, phone cards); the profile shows the new fields.
+- Tests first: 55 date and `profile_extra` tests, 49 seen failing before the code, then all passing. The date tests also passed with TZ=UTC and TZ=Asia/Manila. 11 API tests for the round trip and scoping, client tests for DateInput and the form helpers. Targeted runs are green; full check is at the end of F4.
+- Test timeout raised for two tests only: "a server duplicate lands under the field" and "closes after a successful save" in `StudentForm.test.tsx`, to 120 s, with their waits at 15 s. Run alone they pass in 19 to 27 s because the page has about 100 fields and each `getByLabelText` scans them all. They failed at 15 s only on time. Nothing in them was weakened.
+- Tests changed for the new layout: `StudentForm.test.tsx` now clicks the Female radio and types MM/DD/YYYY into "5a. Date of Birth".
+- Decisions: DEC-039. Field mapping for the client: docs/ui-specs/student-form.md.
+- Not seen in a browser. Developer, please compare at 1440x900 and 390x844: the list against 78:260, the form against 258:5447. The family table is the tightest part at desktop widths.

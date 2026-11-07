@@ -13,6 +13,7 @@ import {
   Pagination,
   Table,
 } from "../../../components/ui";
+import { formatDate } from "../../../lib/format";
 import { useMenuBatches, useMenuConfirm, useMenuPreview } from "../hooks";
 
 function PreviewResult({
@@ -41,7 +42,11 @@ function PreviewResult({
           columns={[
             { key: "sheet", header: "Sheet", render: (row) => row.sheetName },
             { key: "pr", header: "PR No.", render: (row) => row.prNo },
-            { key: "date", header: "PR date", render: (row) => row.prDate },
+            {
+              key: "date",
+              header: "PR date",
+              render: (row) => formatDate(row.prDate),
+            },
             {
               key: "period",
               header: "Period",

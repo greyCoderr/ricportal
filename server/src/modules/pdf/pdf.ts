@@ -1,3 +1,4 @@
+import { formatNumericDate } from "@ricportal/shared";
 import pdfmake from "pdfmake";
 import type { TDocumentDefinitions } from "pdfmake/interfaces.js";
 
@@ -48,10 +49,7 @@ export async function renderPdf(doc: TDocumentDefinitions): Promise<Buffer> {
 }
 
 // "2026-03-14" as "03/14/2026", the form's mm/dd/year.
-export function formatFormDate(day: string): string {
-  const [year, month, date] = day.split("-");
-  return `${month ?? ""}/${date ?? ""}/${year ?? ""}`;
-}
+export const formatFormDate = formatNumericDate;
 
 // Ruled lines for official forms: thin and black.
 export const RULED_TABLE = {

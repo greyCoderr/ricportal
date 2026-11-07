@@ -87,3 +87,7 @@ Migration `20261106152044_reports_liquidation`. Additive. `report_versions` and 
 
 - `purchase_items.created_by` INT NULL: who added the row (D3). Null on older rows.
 - `week_team_members`: id, center_id (FK centers), week_start DATE (a Monday), parent_id (FK users), assigned_by, created_at. Unique (center_id, week_start, parent_id). The team of at most 4 parents for one week (D4); the limit is enforced in the service.
+
+## Demo polish (F3)
+
+- `students.profile_extra` TEXT NULL: the extra fields of the Figma form as JSON text, validated with `profileExtraSchema` on the way in and out (D9). Not the Json type (polish plan, section 3). Mapping: docs/ui-specs/student-form.md.

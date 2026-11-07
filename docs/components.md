@@ -143,7 +143,9 @@ Filled in steps T12a to T12c. Source is Figma, or Developer-designed with its sp
 | 2026-11-07 | F2 | `get_screenshot` | 166:1553, 393:1133, 378:15722 | Teacher, Parent and Admin phone calendars |
 | 2026-11-07 | F2 | `get_design_context` | 378:15461, 393:1759, 393:1816 | Calendar cells, arrow tag (#A40000), pink card |
 
-Polish calls so far: 22 of 120.
+| 2026-11-07 | F3 | `get_screenshot` | 78:260, 258:5447 | Enrolled Students, add enroll (labels read from the saved page metadata) |
+
+Polish calls so far: 24 of 120.
 
 ## Polish layout components
 
@@ -156,3 +158,5 @@ Polish calls so far: 22 of 120.
 | DayPanels | `features/calendar/components/DayPanels.tsx` | 393:1759, 393:1816, 166:1553 | Figma |
 | PurchaseItemsTable | `features/purchase/components/PurchaseItemsTable.tsx` | 393:1766 to 393:1814, 166:1553 | Figma; the row's edit fields are Developer-designed |
 | AssignParentsModal | `features/purchase/components/AssignParentsModal.tsx` | 166:1553 (Step 1) | Figma Step 1; Step 2 is Developer-designed from D4 |
+| DateInput | `ui/DateInput.tsx` | none | Masked MM/DD/YYYY text field (D7), built on Input |
+| StudentForm, StudentExtraSections | `features/students/components` | 258:5447 | Figma layout and labels |

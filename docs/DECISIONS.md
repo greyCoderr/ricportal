@@ -447,3 +447,20 @@ Decision:
 - Roboto Condensed (Figma's calendar font) is not on the approved package list, so the calendar uses Montserrat.
 - SAVE keeps the red button although Figma draws it green (DEC-028, no green variant).
 Consequences: new tokens `calendar-bar`, `tag`, `tag-tint` (docs/tokens.md). Additive migration `20261107085701_polish_week_team_created_by`.
+
+## DEC-039: Defaults chosen in F3 (students and numeric dates)
+
+Context: details D7 and D9 leave open. No question asked, per docs/POLISH_PLAN.md. All of it is listed for the client in docs/ui-specs/student-form.md.
+Decision:
+- Required fields stay the blueprint's. Figma marks about 40 more with `*`, but D9 flags the mapping for confirmation and the blueprint wins on business rules. Those fields are optional in `profile_extra` and show no `*`.
+- Weight, height, parent or guardian and date enrolled are not in the Figma form but stay, at the end of section I, because the Enrollment Form PDF prints them.
+- The form is a page (`/students/new`, `/students/:id/edit`) as Figma draws it, not a modal.
+- Figma's dropdowns with unknown option lists (barangay, municipality, religion, relationship, civil status and so on) are text fields. Inventing lists would be worse. A new student starts with Libmanan, Camarines Sur, Region V.
+- Sex is drawn as square boxes but only one can be chosen, so it uses radios.
+- Student ID is a display code, not stored: "RIC 26-007" from the school year and the row id. It is unique and does not count 1, 2, 3 (CLAUDE.md: IDs are not sequential). This replaces the SPRINT_SHORTCUTS row that left the column out.
+- D7 wins over Figma's long dates in tables ("March 21, 2026") and over its YYYY-MM-DD hints.
+- A `profile_extra` that cannot be read comes back as null, so one damaged row cannot break the list.
+- Whole-form limit of 6000 characters. The TEXT column holds far more; the limit guards against abuse, and a filled-in form stays well under it.
+- Export List stays out (not in the sprint scope); the Enrollment Form button keeps its place.
+- `formatFormDate` in the PDF module is now the shared `formatNumericDate`, so there is one formatter (D7).
+Consequences: additive migration `20261107093727_polish_student_profile_extra`.

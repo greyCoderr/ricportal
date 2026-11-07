@@ -165,3 +165,10 @@ Money travels as decimal strings, computed on the server with half-up rounding t
 | Every purchase item | | Now carries `canDelete`, computed for the reader |
 | GET /api/parents/approved | Teacher | Now also returns `username` |
 
+## Demo polish: students (F3)
+
+| Endpoint | Change |
+| --- | --- |
+| POST /api/students, PATCH /api/students/:id | Optional `profileExtra` (`profileExtraSchema`). 400 on wrong types, unknown keys, too many rows, or over 6000 characters. A PATCH without it keeps the stored value |
+| GET /api/students, GET /api/students/:id | Every student now carries `profileExtra` (null when there is none). Dates stay YYYY-MM-DD; screens and PDFs show MM/DD/YYYY (D7) |
+

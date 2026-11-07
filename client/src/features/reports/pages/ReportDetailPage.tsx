@@ -15,7 +15,7 @@ import {
   Stamp,
 } from "../../../components/ui";
 import { ApiError } from "../../../lib/api";
-import { formatMenuName, formatPeso } from "../../../lib/format";
+import { formatDate, formatMenuName, formatPeso } from "../../../lib/format";
 import { useZodForm } from "../../../lib/use-zod-form";
 import { useCurrentUser } from "../../auth/components/guards";
 import { PrStatusBadge } from "../../purchase/components/PrStatusBadge";
@@ -147,7 +147,11 @@ export function ReportDetailPage() {
                 rows={payload.days}
                 rowKey={(day) => day.date}
                 columns={[
-                  { key: "date", header: "Date", render: (day) => day.date },
+                  {
+                    key: "date",
+                    header: "Date",
+                    render: (day) => formatDate(day.date),
+                  },
                   {
                     key: "menu",
                     header: "Particular",
@@ -169,7 +173,7 @@ export function ReportDetailPage() {
                         <Button
                           variant="secondary"
                           size="sm"
-                          aria-label={`Purchase Request PDF for ${day.date}`}
+                          aria-label={`Purchase Request PDF for ${formatDate(day.date)}`}
                           onClick={() => {
                             openPdf(
                               reportPurchaseRequestUrl(data.id, day.date),

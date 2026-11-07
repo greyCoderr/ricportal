@@ -115,6 +115,8 @@ model Student {
   numberOfSiblings   Int?             @map("number_of_siblings")
   religion           String?          @db.VarChar(40)
   ethnicity          String?          @db.VarChar(40)
+  // Extra fields of the Figma form as JSON text, validated with Zod at the edge (D9).
+  profileExtra     String?         @map("profile_extra") @db.Text
   createdAt          DateTime         @default(now()) @map("created_at")
   updatedAt          DateTime         @updatedAt @map("updated_at")
   center             Center           @relation(fields: [centerId], references: [id])

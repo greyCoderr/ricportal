@@ -16,6 +16,7 @@ export type StudentWrite = {
   numberOfSiblings: number | null;
   religion: string | null;
   ethnicity: string | null;
+  profileExtra: string | null;
 };
 
 function dbFields(data: StudentWrite) {

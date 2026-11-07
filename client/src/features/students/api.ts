@@ -16,6 +16,7 @@ import { apiGet, apiRequest } from "../../lib/api";
 export type StudentListParams = {
   q?: string;
   status?: StudentStatus | undefined;
+  schoolYear?: string | undefined;
   page: number;
 };
 
@@ -23,6 +24,9 @@ export function fetchStudents(params: StudentListParams) {
   const search = new URLSearchParams({ page: String(params.page) });
   if (params.q !== undefined && params.q !== "") search.set("q", params.q);
   if (params.status !== undefined) search.set("status", params.status);
+  if (params.schoolYear !== undefined) {
+    search.set("schoolYear", params.schoolYear);
+  }
   return apiGet<StudentDto[], PageMeta>(`/api/students?${search.toString()}`);
 }
 

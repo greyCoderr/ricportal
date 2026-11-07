@@ -6,7 +6,11 @@ import {
   type HomeVisitDto,
 } from "@ricportal/shared";
 import { useState } from "react";
-import { TextareaField, TextField } from "../../../components/form/fields";
+import {
+  DateField,
+  TextareaField,
+  TextField,
+} from "../../../components/form/fields";
 import { QueryBoundary } from "../../../components/QueryBoundary";
 import { useToast } from "../../../components/toast/ToastProvider";
 import {
@@ -17,6 +21,7 @@ import {
   EmptyState,
   Modal,
 } from "../../../components/ui";
+import { formatDate } from "../../../lib/format";
 import { useZodForm } from "../../../lib/use-zod-form";
 import {
   useConferences,
@@ -105,13 +110,7 @@ function ConferenceForm({
           );
         })}
       >
-        <TextField
-          form={form}
-          name="noteDate"
-          label="Date"
-          type="date"
-          required
-        />
+        <DateField form={form} name="noteDate" label="Date" required />
         <TextField form={form} name="noteTime" label="Time" type="time" />
         <TextareaField form={form} name="notes" label="Notes" required />
         {form.formError !== null && (
@@ -162,11 +161,11 @@ export function ConferencesTab({
                 <Card>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <p className="text-15 font-semibold">
-                      {entry.noteDate}
+                      {formatDate(entry.noteDate)}
                       {entry.noteTime === null ? "" : `, ${entry.noteTime}`}
                     </p>
                     <EntryActions
-                      label={`conference note of ${entry.noteDate}`}
+                      label={`conference note of ${formatDate(entry.noteDate)}`}
                       onEdit={() => {
                         setEditing(entry);
                       }}
@@ -213,8 +212,8 @@ export function ConferencesTab({
           });
         }}
       >
-        The note of {deleting?.noteDate} will be removed from {childName}&apos;s
-        record.
+        The note of {formatDate(deleting?.noteDate ?? "")} will be removed from{" "}
+        {childName}&apos;s record.
       </ConfirmDialog>
     </>
   );
@@ -268,11 +267,10 @@ function HomeVisitForm({
           );
         })}
       >
-        <TextField
+        <DateField
           form={form}
           name="visitDate"
           label="Date of visit"
-          type="date"
           required
         />
         <TextareaField
@@ -332,9 +330,11 @@ export function HomeVisitsTab({
               <li key={entry.id}>
                 <Card>
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <p className="text-15 font-semibold">{entry.visitDate}</p>
+                    <p className="text-15 font-semibold">
+                      {formatDate(entry.visitDate)}
+                    </p>
                     <EntryActions
-                      label={`home visit of ${entry.visitDate}`}
+                      label={`home visit of ${formatDate(entry.visitDate)}`}
                       onEdit={() => {
                         setEditing(entry);
                       }}
@@ -391,7 +391,8 @@ export function HomeVisitsTab({
           });
         }}
       >
-        The visit of {deleting?.visitDate} will be removed from {childName}
+        The visit of {formatDate(deleting?.visitDate ?? "")} will be removed
+        from {childName}
         &apos;s record.
       </ConfirmDialog>
     </>

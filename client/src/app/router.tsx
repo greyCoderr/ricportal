@@ -16,6 +16,7 @@ import { CalendarPage } from "../features/calendar/pages/CalendarPage";
 import { MenuImportsPage } from "../features/menu/pages/MenuImportsPage";
 import { ReportDetailPage } from "../features/reports/pages/ReportDetailPage";
 import { ReportsPage } from "../features/reports/pages/ReportsPage";
+import { StudentFormPage } from "../features/students/pages/StudentFormPage";
 import { StudentProfilePage } from "../features/students/pages/StudentProfilePage";
 import { StudentsPage } from "../features/students/pages/StudentsPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
@@ -53,7 +54,9 @@ export const router = createBrowserRouter([
         children: [
           { path: "/parents", element: <ParentsPage /> },
           { path: "/students", element: <StudentsPage /> },
+          { path: "/students/new", element: <StudentFormPage /> },
           { path: "/students/:id", element: <StudentProfilePage /> },
+          { path: "/students/:id/edit", element: <StudentFormPage /> },
           {
             path: "/submit-report",
             element: <ComingSoonPage title="Submit Report" />,

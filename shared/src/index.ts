@@ -22,3 +22,4 @@ export * from "./menu.js";
 export * from "./purchase.js";
 export * from "./liquidation.js";
 export * from "./format.js";
+export * from "./profile-extra.js";

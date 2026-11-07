@@ -50,3 +50,11 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | S-P4-02 Feeding calendar with day panels | `/calendar` | Admin, Teacher | polished | [ui-specs/calendar.md](ui-specs/calendar.md) |
 | Parent calendar with S-P5-04 in the panel | `/` | Parent | polished | [ui-specs/calendar.md](ui-specs/calendar.md) |
 | Assign Parents modal (replaces S-P5-01) | from the calendar | Teacher | polished | [ui-specs/calendar.md](ui-specs/calendar.md) |
+
+## Demo polish screens (F3)
+
+| Screen ID | Route | Role | Status | Spec |
+| --- | --- | --- | --- | --- |
+| S-P2-01 Student list | `/students` | Teacher | polished | [ui-specs/student-form.md](ui-specs/student-form.md) |
+| Add and Edit Student | `/students/new`, `/students/:id/edit` | Teacher | polished | [ui-specs/student-form.md](ui-specs/student-form.md) |
+| S-P2-02 Student profile | `/students/:id` | Teacher | wired, shows the new fields | [ui-specs/student-form.md](ui-specs/student-form.md) |

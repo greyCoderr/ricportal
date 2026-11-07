@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import type { z } from "zod";
 import {
+  DateInput,
   FormField,
   IconButton,
   Input,
@@ -73,6 +74,31 @@ export function TextField({
           placeholder={placeholder}
           autoComplete={autoComplete}
           inputMode={inputMode}
+        />
+      )}
+    </FormField>
+  );
+}
+
+// A masked MM/DD/YYYY field; the form keeps YYYY-MM-DD (D7).
+export function DateField({ form, name, label, hint, required }: FieldProps) {
+  const { value, onChange, onBlur } = bind(form, name);
+  return (
+    <FormField
+      label={label}
+      hint={hint}
+      error={form.errors[name]}
+      required={required}
+    >
+      {(field) => (
+        <DateInput
+          {...field}
+          name={name}
+          value={value}
+          onBlur={onBlur}
+          onValueChange={(next) => {
+            onChange({ target: { value: next } });
+          }}
         />
       )}
     </FormField>

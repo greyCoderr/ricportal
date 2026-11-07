@@ -47,12 +47,16 @@ function fill(label: RegExp, value: string) {
 function fillValid() {
   fill(/^Last name/, "Dela Cruz");
   fill(/^First name/, "Maria");
-  fill(/^Sex/, "F");
-  fill(/^Date of birth/, "2023-01-15");
+  fireEvent.click(screen.getByLabelText("Female"));
+  fill(/^5a\. Date of Birth/, "01/15/2023");
   fill(/^Weight/, "14.50");
   fill(/^Height/, "96.5");
   fill(/^Parent or guardian/, "Rosa Dela Cruz");
 }
+
+// The page has about 100 fields, and each getByLabelText scans them all, so the two
+// tests that fill the form take 19 to 27 s alone on this machine (POLISH_LOG, F3).
+const FILLING_THE_FORM_MS = 120_000;
 
 describe("StudentForm", () => {
   it("shows every required message and sends nothing", () => {
@@ -73,60 +77,73 @@ describe("StudentForm", () => {
 
   it("previews the age while typing", () => {
     renderForm();
-    fill(/^Date of birth/, "2020-01-01");
+    fill(/^5a\. Date of Birth/, "01/01/2020");
     expect(screen.getByRole("alert").textContent).toContain("Other row");
   });
 
-  it("a server duplicate lands under the field and the form stays open", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(
-            JSON.stringify({
-              error: {
-                code: "CONFLICT",
-                message: "Already listed.",
-                details: [
-                  {
-                    field: "firstName",
-                    message:
-                      "A child with this name and birthdate is already listed.",
-                  },
-                ],
-              },
-            }),
-            { status: 409, headers: { "Content-Type": "application/json" } },
+  it(
+    "a server duplicate lands under the field and the form stays open",
+    async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(() =>
+          Promise.resolve(
+            new Response(
+              JSON.stringify({
+                error: {
+                  code: "CONFLICT",
+                  message: "Already listed.",
+                  details: [
+                    {
+                      field: "firstName",
+                      message:
+                        "A child with this name and birthdate is already listed.",
+                    },
+                  ],
+                },
+              }),
+              { status: 409, headers: { "Content-Type": "application/json" } },
+            ),
           ),
         ),
-      ),
-    );
-    const onClose = renderForm();
-    fillValid();
-    fireEvent.click(screen.getByRole("button", { name: "Save Student" }));
-    await screen.findByText(
-      "A child with this name and birthdate is already listed.",
-    );
-    expect(onClose).not.toHaveBeenCalled();
-  });
+      );
+      const onClose = renderForm();
+      fillValid();
+      fireEvent.click(screen.getByRole("button", { name: "Save Student" }));
+      await screen.findByText(
+        "A child with this name and birthdate is already listed.",
+        {},
+        { timeout: 15_000 },
+      );
+      expect(onClose).not.toHaveBeenCalled();
+    },
+    FILLING_THE_FORM_MS,
+  );
 
-  it("closes after a successful save", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(JSON.stringify({ data: { id: 1 }, meta: {} }), {
-            status: 201,
-            headers: { "Content-Type": "application/json" },
-          }),
+  it(
+    "closes after a successful save",
+    async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(() =>
+          Promise.resolve(
+            new Response(JSON.stringify({ data: { id: 1 }, meta: {} }), {
+              status: 201,
+              headers: { "Content-Type": "application/json" },
+            }),
+          ),
         ),
-      ),
-    );
-    const onClose = renderForm();
-    fillValid();
-    fireEvent.click(screen.getByRole("button", { name: "Save Student" }));
-    await waitFor(() => {
-      expect(onClose).toHaveBeenCalledTimes(1);
-    });
-  });
+      );
+      const onClose = renderForm();
+      fillValid();
+      fireEvent.click(screen.getByRole("button", { name: "Save Student" }));
+      await waitFor(
+        () => {
+          expect(onClose).toHaveBeenCalledTimes(1);
+        },
+        { timeout: 15_000 },
+      );
+    },
+    FILLING_THE_FORM_MS,
+  );
 });
