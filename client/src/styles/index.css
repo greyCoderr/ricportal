@@ -210,3 +210,25 @@
 .ric-tag-left {
   clip-path: polygon(24px 0, 100% 0, 100% 100%, 24px 100%, 0 50%);
 }
+
+/* From 1024 px the panels sit either side of the Purchase Request and point at
+   it (166:1553). The padding keeps the text off the point. */
+@media (min-width: 1024px) {
+  .ric-tag-right {
+    padding-right: 1rem;
+    padding-left: 2rem;
+    clip-path: polygon(24px 0, 100% 0, 100% 100%, 24px 100%, 0 50%);
+  }
+
+  .ric-tag-left {
+    padding-right: 2rem;
+    padding-left: 1rem;
+    clip-path: polygon(
+      0 0,
+      calc(100% - 24px) 0,
+      100% 50%,
+      calc(100% - 24px) 100%,
+      0 100%
+    );
+  }
+}

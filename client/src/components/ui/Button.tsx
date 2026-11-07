@@ -123,7 +123,7 @@ export function IconButton({
       <span
         data-icon-label
         aria-hidden="true"
-        className="pointer-events-none invisible absolute max-md:hidden top-full left-1/2 -translate-x-1/2 bg-surface px-1 text-15 tracking-label whitespace-nowrap text-text group-hover:visible group-focus-visible:visible"
+        className="pointer-events-none invisible absolute max-md:hidden top-full right-0 bg-surface px-1 text-15 tracking-label whitespace-nowrap text-text group-hover:visible group-focus-visible:visible"
       >
         {label}
       </span>
