@@ -114,47 +114,65 @@ describe("TeacherHomePage (D10, 175:1023)", () => {
     expect(await screen.findByText("Calendar filling its box")).toBeDefined();
   });
 
-  it("lists four students, or two beside a feedback box so it all fits", async () => {
-    mockApi({});
-    const first = renderWithQuery(
-      <MemoryRouter>
-        <TeacherHomePage />
-      </MemoryRouter>,
-    );
-    expect(
-      await within(first.container).findByRole("cell", { name: "Student 4" }),
-    ).toBeDefined();
-    first.unmount();
-
+  it("D8: lists four students, with or without a feedback box", async () => {
     mockApi({ feedback: [FEEDBACK] });
     renderPage();
     expect(await screen.findByText("Please fix the rice.")).toBeDefined();
     expect(
-      await screen.findByRole("cell", { name: "Student 2" }),
+      await screen.findByRole("cell", { name: "Student 4" }),
     ).toBeDefined();
-    expect(screen.queryByRole("cell", { name: "Student 3" })).toBe(null);
+    expect(screen.queryByRole("cell", { name: "Student 5" })).toBe(null);
   });
 
-  it("hides the student preview beside a feedback box on a short desktop screen", async () => {
-    const section = () =>
-      screen
-        .getByRole("heading", { name: "Enrolled Students" })
-        .closest("section");
+  it("D8: the student preview sits below the calendar row", async () => {
     mockApi({});
-    const first = renderWithQuery(
-      <MemoryRouter>
-        <TeacherHomePage />
-      </MemoryRouter>,
-    );
-    await screen.findByRole("cell", { name: "Student 1" });
-    expect(section()?.className).not.toContain("max-height");
-    first.unmount();
-
-    mockApi({ feedback: [FEEDBACK] });
     renderPage();
-    await screen.findByText("Please fix the rice.");
-    expect(section()?.className).toContain(
-      "compact:[@media(max-height:899px)]:hidden",
+    const calendar = await screen.findByText("Calendar filling its box");
+    const students = screen.getByRole("heading", {
+      name: "Enrolled Students",
+    });
+    const tracking = screen.getByRole("heading", { name: "Report Tracking" });
+    expect(
+      calendar.compareDocumentPosition(students) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(
+      tracking.compareDocumentPosition(students) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("D8: Report Tracking and Admin Feedback replace Recent Reports", async () => {
+    mockApi({ reports: [REPORT] });
+    renderPage();
+    await trackingBox().findByText("Liquidation, 11/01/2026");
+    expect(screen.queryByRole("heading", { name: "Recent Reports" })).toBe(
+      null,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Admin Feedback" }),
+    ).toBeDefined();
+    expect(await screen.findByText("No feedback yet.")).toBeDefined();
+  });
+
+  it("D8: Report Tracking lists only liquidation submissions", async () => {
+    mockApi({
+      reports: [
+        { ...REPORT, id: 4, type: "ENROLLMENT", periodStart: "2026-10-01" },
+        REPORT,
+      ],
+    });
+    renderPage();
+    await trackingBox().findByText("Liquidation, 11/01/2026");
+    expect(trackingBox().queryByText("Liquidation, 10/01/2026")).toBe(null);
+  });
+
+  it("D8: an entry already approved offers no Revise and Resubmit", async () => {
+    mockApi({ feedback: [{ ...FEEDBACK, reportStatus: "APPROVED" }] });
+    renderPage();
+    expect(await screen.findByText("Please fix the rice.")).toBeDefined();
+    expect(screen.queryByRole("link", { name: "Revise and Resubmit" })).toBe(
+      null,
     );
   });
 });
