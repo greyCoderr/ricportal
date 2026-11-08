@@ -36,7 +36,7 @@ A new account or a reset password uses the default **RICPortal2026!**, and a cha
 2. **DASHBOARD**: it fits one screen. The six cards: Registered RIC Teacher, Total Enrolled Students, Reports Submitted, Enrollment Reports Submitted, Accomplishment Reports Submitted, Reports for Revision. **Say this:** the Enrollment and Accomplishment cards stay 0 until Objective 3. Then Quick Actions (Centers and Menu Imports are here), Recent Reports and the calendar. **CALENDAR** shows the **Upload Menu/Food Rotation** panel at all times: choose a file, **Upload & Process**, check the preview, confirm. **View import history** opens Menu Imports.
 3. **RIC TEACHERS**: the cards, search and filters. **Add New Teacher**: Full name "Liza Ramos", username `teacher.bahay`, center Bahay, password left blank. (Sibujo already has its Teacher. The next seed removes this account, so the step can be repeated.)
 4. On that row, click the check button in the Action column. It goes dark and says Disabled, the Status badge turns red and the row is muted. Hover over it for the tooltip. Click it again, so the account is Active before the next section.
-5. **PROFILE**: **Edit Profile** and **Change Password**.
+5. **PROFILE**: Account Summary, System Activity with the real counts, **Edit Profile** (six fields) and **Change Password**. **View History** shows the last 10 logins. Two-Factor Authentication and Active Sessions say they are not available in this version.
 
 ### Default password reset
 
@@ -47,10 +47,10 @@ A new account or a reset password uses the default **RICPortal2026!**, and a cha
 ### Objective 1: Student Registration and Management
 
 9. Open **Sign up**. Create a Parent for Sibujo: username `rosa.demo`, mobile 09171234567, password Parent2026pw. Show **Request sent**. Try to log in as `rosa.demo`: the waiting-for-approval message shows.
-10. Log in as **teacher.sibujo**. **HOME**: the real counts. **PARENT REQUESTS**: approve Rosa.
+10. Log in as **teacher.sibujo**. **HOME**: the real counts, the whole month, Report Tracking and Admin Feedback, and Enrolled Students below the calendar (scroll down). **PARENT REQUESTS**: approve Rosa.
 11. **ENROLLED STUDENTS**: 18 children. Search for "Dela". **Add Student**: the full form. Type a birthdate as MM/DD/YYYY and show the age preview; try 02/30/2020 and show the message; try a birthdate 6 years ago and show the warning. Fill a family row and save.
-12. Open a child: tabs **Profile** (with the new fields), **One-on-One Conferences**, **Home Visits**. Add a conference note and a home visit.
-13. Back on the list, **Enrollment Form**, **Open PDF**: 30 rows, numeric birthdates, the age summary, signature lines.
+12. Open a child: **Profile** with the new fields. Then **CHILD'S RECORD**: each child with the record counts. **View record**: tabs **Conferences**, **Home Visits** and **Progress**. Add a conference note, a home visit and a progress note, then go back and show the counts.
+13. On **ENROLLED STUDENTS**, **Export List** (the school year and Date Started are inside), **Open PDF**: 30 rows, numeric birthdates, the age summary, signature lines.
 
 ### Objective 2: the menu and the calendar
 

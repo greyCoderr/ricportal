@@ -426,3 +426,33 @@ NOT verified in H3:
 - Home with real reports and feedback in the browser: the local database has none, so the two cards showed their empty states.
 
 Figma calls used so far: 13 of 60.
+
+## H4 Verify and tag
+
+Finding fixed, in its own commit: on a phone the top bar's avatar was squeezed into an oval, because its block could shrink and the image follows the block's width. New test in `layouts.test.tsx`.
+
+Audit (scratchpad Playwright script, the built server on port 3100 with RATE_LIMIT_MAX set for that process only, one browser per role, each closed afterwards): 21 pages for the three roles at 1280x720, 1366x768, 1440x900, 1536x864, 1920x1080, 768x1024 and 390x844, 147 views, 0 findings. It measures document scroll, sideways scroll in the content area, elements past the right edge, text clipped without an ellipsis, and the Admin dashboard fitting from 1366 px apart from its footer. The Profile edit dialog, for each role at 1440, 1280 and 390 px: 0 px off the content-area center, with equal space above and below. No page errors and no 500 answers.
+
+The first audit run reported 47 "clipped" findings: 1 px screen-reader labels, counted by mistake, which also made the dialog measure read the backdrop. The script was corrected and the whole audit run again.
+
+Full check, one command at a time, after the last code change: `npx tsc -b`, lint and format clean; unit 297 of 297, client 482 of 482, db 594 of 594, each on one worker; the build succeeds.
+
+Smoke test on port 3000, the built app from that build, port free before and after, 19 of 19: the app and SPA fallback, health, 401 with no login, the three logins, activity, the dashboard, View Profile, login history, Child Records with counts, the Export List PDF, and 403 for the Admin and the Parent on Child Records and for the Teacher on the dashboard.
+
+## Round 3 summary
+
+H1 to H4 done on branch demo-polish-3, tag v0.9.5-demo, not pushed. v0.9.4-demo stays as the fallback. Decisions DEC-048 to DEC-050. 13 of 60 Figma calls. Nothing was cut. Objective 3 was not touched. No leftover process: Node was listed before each browser check, and none was running after.
+
+**NOT verified:**
+- Saving in a real browser for the new forms: Edit Profile, Change Password from the new page, and adding, editing or deleting a Progress note. They are covered by client tests with a mocked API and by db tests. Every browser check opened forms and closed them without saving.
+- Report Tracking and Admin Feedback on Teacher Home with real rows: the local database has no reports, so the browser showed their empty states. The filled states are covered by client tests.
+- Touch screens: this audit used a mouse. Round 2's touch pass was not repeated for the new pages.
+- Screenshots read in Round 3 after H1: Admin Profile at 1440, Teacher Profile at 390, Teacher Home at 1366, Child's Record at 1440 and 390. Other views were measured only, so overlaps were not checked on them.
+- Figma was compared by eye. Teacher Profile follows D7, so it does not match 88:695 (DEC-049). The record detail has no frame (DEC-050).
+- 1024x768 was not in this audit (it is not one of the plan's seven sizes). Round 2 measured it.
+- `npm run db:seed:demo` was not run on the local database. Its test passes on the test database.
+- Real phones and browsers other than Chromium.
+
+**For the Developer:**
+- The local database has the new migration. Production (TiDB) does not, and it needs `migrate deploy` from your side when deployment resumes.
+- Before the demo, run `npm run db:seed:demo` and start the app with `npm start` from this build.
