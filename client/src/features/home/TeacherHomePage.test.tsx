@@ -134,4 +134,27 @@ describe("TeacherHomePage (D10, 175:1023)", () => {
     ).toBeDefined();
     expect(screen.queryByRole("cell", { name: "Student 3" })).toBe(null);
   });
+
+  it("hides the student preview beside a feedback box on a short desktop screen", async () => {
+    const section = () =>
+      screen
+        .getByRole("heading", { name: "Enrolled Students" })
+        .closest("section");
+    mockApi({});
+    const first = renderWithQuery(
+      <MemoryRouter>
+        <TeacherHomePage />
+      </MemoryRouter>,
+    );
+    await screen.findByRole("cell", { name: "Student 1" });
+    expect(section()?.className).not.toContain("max-height");
+    first.unmount();
+
+    mockApi({ feedback: [FEEDBACK] });
+    renderPage();
+    await screen.findByText("Please fix the rice.");
+    expect(section()?.className).toContain(
+      "compact:[@media(max-height:899px)]:hidden",
+    );
+  });
 });

@@ -115,7 +115,7 @@ describe("Pagination", () => {
     expect(container.firstChild).toBe(null);
   });
 
-  it("cardsUntilDesktop keeps the cards until 1024 px", () => {
+  it("cardsUntilDesktop keeps the cards until 1280 px, and on touch screens", () => {
     const { container } = render(
       <Table
         cardsOnPhone
@@ -127,8 +127,10 @@ describe("Pagination", () => {
       />,
     );
     expect(container.querySelector('[role="region"]')?.classList).toContain(
-      "lg:block",
+      "compact:xl:block",
     );
-    expect(container.querySelector("ul")?.classList).toContain("lg:hidden");
+    expect(container.querySelector("ul")?.classList).toContain(
+      "compact:xl:hidden",
+    );
   });
 });

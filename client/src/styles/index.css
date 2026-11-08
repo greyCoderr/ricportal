@@ -131,6 +131,8 @@
 .ric-calendar .fc-event-title {
   font-weight: 500;
   white-space: normal;
+  /* A dish name longer than a narrow cell breaks instead of being cut off. */
+  overflow-wrap: anywhere;
 }
 
 .ric-calendar .ric-quiet .fc-event-title {

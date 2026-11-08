@@ -179,7 +179,7 @@ export function AdminDashboardPage() {
             </div>
           </section>
 
-          <section className="rounded-control border border-border-subtle p-2 compact:min-h-0 compact:flex-1 compact:overflow-hidden">
+          <section className="rounded-control border border-border-subtle p-2 compact:min-h-0 compact:flex-1 compact:overflow-y-auto">
             <h2 className="mb-1 text-16">Recent Reports</h2>
             <QueryBoundary
               query={reports}
@@ -191,6 +191,7 @@ export function AdminDashboardPage() {
                 <>
                   <Table
                     cardsOnPhone
+                    cardsUntilDesktop
                     caption="Recent Reports"
                     rows={recent}
                     rowKey={(row) => row.id}

@@ -269,6 +269,7 @@ export function TeacherHomePage() {
               ) : (
                 <Table
                   cardsOnPhone
+                  cardsUntilDesktop
                   caption="Recent Reports"
                   rows={reports.data?.data.slice(0, 3) ?? []}
                   rowKey={(row) => row.id}
@@ -294,7 +295,15 @@ export function TeacherHomePage() {
               )}
             </QueryBoundary>
           </section>
-          <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+          {/* With a feedback box, a desktop screen under 900 px tall has no room
+              for this preview; the summary card above links to the students. */}
+          <section
+            className={`min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2 ${
+              latestFeedback === undefined
+                ? ""
+                : "compact:[@media(max-height:899px)]:hidden"
+            }`}
+          >
             <div className="mb-2 flex compact:mb-0 items-center justify-between gap-2">
               <h2 className="text-15 font-medium">Enrolled Students</h2>
               <Link
@@ -313,6 +322,7 @@ export function TeacherHomePage() {
               ) : (
                 <Table
                   cardsOnPhone
+                  cardsUntilDesktop
                   caption="Enrolled Students"
                   rows={
                     students.data?.data.slice(

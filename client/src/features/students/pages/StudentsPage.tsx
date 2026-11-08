@@ -115,8 +115,9 @@ function StudentName({ student }: { student: StudentDto }) {
   );
 }
 
-const TH = "px-3 py-2 text-left font-medium";
-const TD = "border-b border-border-subtle px-3 py-1 compact:py-0";
+// Narrower cells outside compact mode, so a touch screen of 1024 px fits the table.
+const TH = "px-2 py-2 text-left font-medium compact:px-3";
+const TD = "border-b border-border-subtle px-2 py-1 compact:px-3 compact:py-0";
 
 // Student list (Figma 78:260). Rows with their numbers in order on the page; cards
 // on phones (361:3405). Dates are numeric (D7).
