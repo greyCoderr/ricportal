@@ -302,6 +302,34 @@ describe("ProfilePage (D11)", () => {
     });
   });
 
+  it("D7: a Gender already set can be blanked again", async () => {
+    const calls = mockApi({
+      ...READ,
+      "GET /api/auth/profile": ok({ ...PROFILE, sex: "Female" }),
+      "PATCH /api/auth/profile": ok({ ...PROFILE, sex: null }),
+    });
+    renderPage();
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Edit Profile" }),
+    );
+    const gender = screen.getByLabelText(/Gender/);
+    expect((gender as HTMLSelectElement).value).toBe("Female");
+    const blank = within(gender).getByRole("option", {
+      name: "Not set",
+      hidden: true,
+    });
+    expect((blank as HTMLOptionElement).disabled).toBe(false);
+    fireEvent.change(gender, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() => {
+      expect(calls.find((call) => call.method === "PATCH")?.body).toEqual({
+        fullName: "Ana Cruz",
+        mobile: "09171234567",
+        sex: "",
+      });
+    });
+  });
+
   it("shows an error with Retry when loading fails", async () => {
     mockApi({});
     renderPage();

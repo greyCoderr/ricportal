@@ -13,6 +13,7 @@ import {
   SelectField,
   TextField,
 } from "../../../components/form/fields";
+import { NOT_SET } from "../../../components/ProfileCard";
 import { QueryBoundary } from "../../../components/QueryBoundary";
 import { Banner, Button, EmptyState, Modal } from "../../../components/ui";
 import { formatInstantDate, formatInstantTime } from "../../../lib/format";
@@ -106,12 +107,8 @@ function EditProfileDialog({
           label="Email Address"
           autoComplete="email"
         />
-        <SelectField
-          form={form}
-          name="sex"
-          label="Gender"
-          placeholder="Select..."
-        >
+        <SelectField form={form} name="sex" label="Gender">
+          <option value="">{NOT_SET}</option>
           {SEX_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
