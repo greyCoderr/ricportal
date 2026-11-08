@@ -27,13 +27,21 @@ import {
 } from "../hooks";
 import { earlierSchoolYears, studentCode, yearOf } from "../student-list";
 
-function EnrollmentFormDialog({ onClose }: { onClose: () => void }) {
+// Export List (Plan 3 D9): the official Enrollment Form PDF.
+function ExportListDialog({
+  currentYear,
+  onClose,
+}: {
+  currentYear: string | undefined;
+  onClose: () => void;
+}) {
   const [dateStarted, setDateStarted] = useState(manilaToday());
+  const [year, setYear] = useState(currentYear);
   return (
     <Modal
       open
       onClose={onClose}
-      title="Enrollment Form"
+      title="Export List"
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
@@ -42,7 +50,11 @@ function EnrollmentFormDialog({ onClose }: { onClose: () => void }) {
           <Button
             icon="download"
             onClick={() => {
-              window.open(enrollmentFormUrl(dateStarted), "_blank", "noopener");
+              window.open(
+                enrollmentFormUrl(dateStarted, year),
+                "_blank",
+                "noopener",
+              );
               onClose();
             }}
           >
@@ -51,9 +63,32 @@ function EnrollmentFormDialog({ onClose }: { onClose: () => void }) {
         </>
       }
     >
+      {currentYear !== undefined && (
+        <div className="mb-4">
+          <FormField label="School Year">
+            {(field) => (
+              <Select
+                {...field}
+                value={year}
+                onChange={(event) => {
+                  setYear(event.target.value);
+                }}
+              >
+                {[currentYear, ...earlierSchoolYears(currentYear)].map(
+                  (option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ),
+                )}
+              </Select>
+            )}
+          </FormField>
+        </div>
+      )}
       <FormField
         label="Date Started"
-        hint="The form lists the active children of the current school year."
+        hint="The form lists the active children of the school year."
       >
         {(field) => (
           <DateInput
@@ -282,12 +317,12 @@ export function StudentsPage() {
           </Button>
           <Button
             variant="secondary"
-            icon="file-text"
+            icon="download"
             onClick={() => {
               setFormOpen(true);
             }}
           >
-            Enrollment Form
+            Export List
           </Button>
         </div>
       </header>
@@ -381,7 +416,8 @@ export function StudentsPage() {
       )}
 
       {formOpen && (
-        <EnrollmentFormDialog
+        <ExportListDialog
+          currentYear={currentYear}
           onClose={() => {
             setFormOpen(false);
           }}
