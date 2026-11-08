@@ -38,6 +38,8 @@ export const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: "/", label: "HOME", icon: homeIcon },
     { to: "/students", label: "ENROLLED STUDENTS", icon: studentsIcon },
     CALENDAR,
+    // Figma has no separate export for this icon, so it shares the form icon.
+    { to: "/child-records", label: "CHILD'S RECORD", icon: parentRequestsIcon },
     { to: "/submit-report", label: "SUBMIT REPORT", icon: submitReportIcon },
     { to: "/reports", label: "REPORT STATUS", icon: reportStatusIcon },
     { to: "/admin-feedback", label: "ADMIN FEEDBACK", icon: feedbackIcon },

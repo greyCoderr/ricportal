@@ -1,4 +1,6 @@
 import type {
+  ChildRecordRowDto,
+  childRecordListQuerySchema,
   conferencePatchSchema,
   conferenceSchema,
   ConferenceDto,
@@ -87,6 +89,38 @@ export function createChildRecordsService(deps: {
   }
 
   return {
+    // Teacher only (the route): students.list keeps it to the own center.
+    async listChildren(
+      user: AuthUser,
+      query: z.output<typeof childRecordListQuerySchema>,
+      page: { skip: number; take: number },
+    ): Promise<{ rows: ChildRecordRowDto[]; total: number }> {
+      const { rows, total } = await students.list(
+        user,
+        { q: query.q, status: "ACTIVE" },
+        page,
+      );
+      if (rows.length === 0) {
+        return { rows: [], total };
+      }
+      const counts = await repository.countRecords(rows.map((row) => row.id));
+      const byStudent = new Map(counts.map((row) => [row.id, row._count]));
+      return {
+        rows: rows.map((row) => {
+          const count = byStudent.get(row.id);
+          return {
+            ...row,
+            records: {
+              conferences: count?.conferenceNotes ?? 0,
+              homeVisits: count?.homeVisits ?? 0,
+              progress: count?.progressEntries ?? 0,
+            },
+          };
+        }),
+        total,
+      };
+    },
+
     async listConferences(user: AuthUser, studentId: number) {
       await students.loadForRead(user, studentId);
       return (await repository.listConferences(studentId)).map(conferenceDto);

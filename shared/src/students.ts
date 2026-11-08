@@ -225,6 +225,15 @@ export type HomeVisitDto = {
   parentInfo: string | null;
   remarks: string | null;
 };
+// A row of the Child's Record list (Plan 3 D10): live entries only.
+export type ChildRecordRowDto = StudentDto & {
+  records: { conferences: number; homeVisits: number; progress: number };
+};
+
+export const childRecordListQuerySchema = z.object({
+  q: z.string().trim().max(100).optional(),
+});
+
 export type ProgressDto = {
   id: number;
   studentId: number;

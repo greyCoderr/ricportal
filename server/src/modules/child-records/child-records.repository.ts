@@ -7,6 +7,22 @@ const STUDENT_CENTER = { student: { select: { centerId: true } } } as const;
 
 export function createChildRecordsRepository(prisma: PrismaClient) {
   return {
+    countRecords(studentIds: number[]) {
+      return prisma.student.findMany({
+        where: { id: { in: studentIds } },
+        select: {
+          id: true,
+          _count: {
+            select: {
+              conferenceNotes: { where: LIVE },
+              homeVisits: { where: LIVE },
+              progressEntries: { where: LIVE },
+            },
+          },
+        },
+      });
+    },
+
     listConferences(studentId: number) {
       return prisma.conferenceNote.findMany({
         where: { studentId, ...LIVE },

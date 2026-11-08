@@ -2,8 +2,10 @@ import {
   conferenceSchema,
   homeVisitSchema,
   manilaToday,
+  progressSchema,
   type ConferenceDto,
   type HomeVisitDto,
+  type ProgressDto,
 } from "@ricportal/shared";
 import { useState } from "react";
 import {
@@ -27,9 +29,12 @@ import {
   useConferences,
   useDeleteConference,
   useDeleteHomeVisit,
+  useDeleteProgress,
   useHomeVisits,
+  useProgress,
   useSaveConference,
   useSaveHomeVisit,
+  useSaveProgress,
 } from "../hooks";
 
 function EntryActions({
@@ -189,6 +194,162 @@ export function ConferencesTab({
       <ConfirmDialog
         open={deleting !== null}
         title="Delete this conference note?"
+        confirmLabel="Delete"
+        loading={remove.isPending}
+        onCancel={() => {
+          setDeleting(null);
+        }}
+        onConfirm={() => {
+          if (deleting === null) return;
+          remove.mutate(deleting.id, {
+            onSettled: () => {
+              setDeleting(null);
+            },
+            onError: (error) => {
+              toast.show({ kind: "error", message: error.message });
+            },
+          });
+        }}
+      >
+        The note of {formatDate(deleting?.noteDate ?? "")} will be removed from{" "}
+        {childName}&apos;s record.
+      </ConfirmDialog>
+    </>
+  );
+}
+
+function ProgressForm({
+  studentId,
+  entry,
+  onClose,
+}: {
+  studentId: number;
+  entry: ProgressDto | null;
+  onClose: () => void;
+}) {
+  const save = useSaveProgress(studentId);
+  const form = useZodForm(progressSchema, {
+    noteDate: entry?.noteDate ?? manilaToday(),
+    progressNotes: entry?.progressNotes ?? "",
+  });
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={entry === null ? "Add a progress note" : "Edit progress note"}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" form="progress-form" loading={save.isPending}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <form
+        id="progress-form"
+        noValidate
+        className="flex flex-col gap-4"
+        onSubmit={form.handleSubmit((data) => {
+          save.mutate(
+            { studentId, id: entry?.id ?? null, data },
+            {
+              onSuccess: onClose,
+              onError: (error) => {
+                form.applyError(error);
+              },
+            },
+          );
+        })}
+      >
+        <DateField form={form} name="noteDate" label="Date" required />
+        <TextareaField
+          form={form}
+          name="progressNotes"
+          label="Progress notes"
+          required
+        />
+        {form.formError !== null && (
+          <Banner tone="danger">{form.formError}</Banner>
+        )}
+      </form>
+    </Modal>
+  );
+}
+
+export function ProgressTab({
+  studentId,
+  childName,
+}: {
+  studentId: number;
+  childName: string;
+}) {
+  const entries = useProgress(studentId);
+  const remove = useDeleteProgress(studentId);
+  const toast = useToast();
+  const [editing, setEditing] = useState<ProgressDto | "new" | null>(null);
+  const [deleting, setDeleting] = useState<ProgressDto | null>(null);
+
+  return (
+    <>
+      <div className="mb-3">
+        <Button
+          icon="plus"
+          onClick={() => {
+            setEditing("new");
+          }}
+        >
+          Add progress note
+        </Button>
+      </div>
+      <QueryBoundary
+        query={entries}
+        errorTitle="Could not load the progress notes."
+      >
+        {entries.data?.length === 0 ? (
+          <EmptyState title={`No progress notes for ${childName} yet.`} />
+        ) : (
+          <ul className="flex flex-col gap-3">
+            {entries.data?.map((entry) => (
+              <li key={entry.id}>
+                <Card>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <p className="text-15 font-semibold">
+                      {formatDate(entry.noteDate)}
+                    </p>
+                    <EntryActions
+                      label={`progress note of ${formatDate(entry.noteDate)}`}
+                      onEdit={() => {
+                        setEditing(entry);
+                      }}
+                      onDelete={() => {
+                        setDeleting(entry);
+                      }}
+                    />
+                  </div>
+                  <p className="mt-2 text-15 whitespace-pre-wrap">
+                    {entry.progressNotes}
+                  </p>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        )}
+      </QueryBoundary>
+      {editing !== null && (
+        <ProgressForm
+          studentId={studentId}
+          entry={editing === "new" ? null : editing}
+          onClose={() => {
+            setEditing(null);
+          }}
+        />
+      )}
+      <ConfirmDialog
+        open={deleting !== null}
+        title="Delete this progress note?"
         confirmLabel="Delete"
         loading={remove.isPending}
         onCancel={() => {

@@ -36,6 +36,7 @@ describe("role-aware navigation (D10)", () => {
       "HOME",
       "ENROLLED STUDENTS",
       "CALENDAR",
+      "CHILD'S RECORD",
       "SUBMIT REPORT",
       "REPORT STATUS",
       "ADMIN FEEDBACK",
@@ -53,6 +54,8 @@ describe("role-aware navigation (D10)", () => {
     expect(paths("TEACHER")).not.toContain("/teachers");
     expect(paths("TEACHER")).toContain("/parents");
     expect(paths("ADMIN")).not.toContain("/parents");
+    expect(paths("TEACHER")).toContain("/child-records");
+    expect(paths("ADMIN")).not.toContain("/child-records");
     expect(paths("PARENT")).toEqual(["/", "/profile"]);
   });
 

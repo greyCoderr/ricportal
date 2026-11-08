@@ -1,4 +1,5 @@
 import {
+  childRecordListQuerySchema,
   conferencePatchSchema,
   conferenceSchema,
   homeVisitPatchSchema,
@@ -8,7 +9,8 @@ import {
 } from "@ricportal/shared";
 import type { Request, Response } from "express";
 import { currentUser } from "../../core/middleware/authenticate.js";
-import { created, ok } from "../../core/response.js";
+import { parsePagination } from "../../core/pagination.js";
+import { created, ok, paginated } from "../../core/response.js";
 import { parseId, parseWith } from "../../core/validate.js";
 import type { ChildRecordsService } from "./child-records.service.js";
 
@@ -16,6 +18,17 @@ const DELETED = { deleted: true };
 
 export function createChildRecordsController(service: ChildRecordsService) {
   return {
+    listChildren: async (req: Request, res: Response) => {
+      const query = req.query as Record<string, unknown>;
+      const page = parsePagination(query);
+      const { rows, total } = await service.listChildren(
+        currentUser(req),
+        parseWith(childRecordListQuerySchema, query),
+        { skip: page.skip, take: page.take },
+      );
+      paginated(res, rows, { ...page, total });
+    },
+
     listConferences: async (req: Request, res: Response) => {
       ok(
         res,

@@ -4,6 +4,8 @@ import type {
   homeVisitSchema,
   HomeVisitDto,
   PageMeta,
+  progressSchema,
+  ProgressDto,
   studentCreateSchema,
   StudentDto,
   studentPatchSchema,
@@ -63,9 +65,13 @@ export async function setStudentArchived(id: number, archived: boolean) {
   ).data;
 }
 
-export function enrollmentFormUrl(dateStarted: string): string {
+export function enrollmentFormUrl(
+  dateStarted: string,
+  schoolYear?: string,
+): string {
   const search = new URLSearchParams();
   if (dateStarted !== "") search.set("dateStarted", dateStarted);
+  if (schoolYear !== undefined) search.set("schoolYear", schoolYear);
   const query = search.toString();
   return `/api/enrollment-form.pdf${query === "" ? "" : `?${query}`}`;
 }
@@ -98,6 +104,34 @@ export async function saveConference(input: {
 
 export async function deleteConference(id: number) {
   await apiRequest("DELETE", `/api/conferences/${String(id)}`);
+}
+
+export async function fetchProgress(studentId: number) {
+  return (
+    await apiGet<ProgressDto[]>(`/api/students/${String(studentId)}/progress`)
+  ).data;
+}
+
+export async function saveProgress(input: {
+  studentId: number;
+  id: number | null;
+  data: z.output<typeof progressSchema>;
+}) {
+  const path =
+    input.id === null
+      ? `/api/students/${String(input.studentId)}/progress`
+      : `/api/progress/${String(input.id)}`;
+  return (
+    await apiRequest<ProgressDto>(
+      input.id === null ? "POST" : "PATCH",
+      path,
+      input.data,
+    )
+  ).data;
+}
+
+export async function deleteProgress(id: number) {
+  await apiRequest("DELETE", `/api/progress/${String(id)}`);
 }
 
 export async function fetchHomeVisits(studentId: number) {

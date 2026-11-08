@@ -15,6 +15,22 @@ function entryRouter(
   return router;
 }
 
+// The Child's Record list: the Teacher of the center only (Plan 3 D10). The
+// center comes from the session in the service.
+export function createChildRecordsRouter(
+  controller: ChildRecordsController,
+  authenticate: RequestHandler,
+): Router {
+  const router = Router();
+  router.get(
+    "/",
+    authenticate,
+    requireRole("TEACHER"),
+    controller.listChildren,
+  );
+  return router;
+}
+
 export function createConferencesRouter(
   controller: ChildRecordsController,
   authenticate: RequestHandler,

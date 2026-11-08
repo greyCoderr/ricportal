@@ -21,6 +21,8 @@ import { ReportsPage } from "../features/reports/pages/ReportsPage";
 import { StudentFormPage } from "../features/students/pages/StudentFormPage";
 import { StudentProfilePage } from "../features/students/pages/StudentProfilePage";
 import { StudentsPage } from "../features/students/pages/StudentsPage";
+import { ChildRecordDetailPage } from "../features/child-records/pages/ChildRecordDetailPage";
+import { ChildRecordsPage } from "../features/child-records/pages/ChildRecordsPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
@@ -60,6 +62,8 @@ export const router = createBrowserRouter([
           { path: "/students/new", element: <StudentFormPage /> },
           { path: "/students/:id", element: <StudentProfilePage /> },
           { path: "/students/:id/edit", element: <StudentFormPage /> },
+          { path: "/child-records", element: <ChildRecordsPage /> },
+          { path: "/child-records/:id", element: <ChildRecordDetailPage /> },
           {
             path: "/submit-report",
             element: <ComingSoonPage title="Submit Report" />,

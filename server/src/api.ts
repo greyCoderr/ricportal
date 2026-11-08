@@ -39,6 +39,7 @@ import { createHealthService } from "./modules/health/health.service.js";
 import { createChildRecordsController } from "./modules/child-records/child-records.controller.js";
 import { createChildRecordsRepository } from "./modules/child-records/child-records.repository.js";
 import {
+  createChildRecordsRouter,
   createConferencesRouter,
   createHomeVisitsRouter,
   createProgressRouter,
@@ -219,6 +220,10 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
     {
       path: "/api/enrollment-form.pdf",
       router: createEnrollmentFormRouter(studentsController, authenticate),
+    },
+    {
+      path: "/api/child-records",
+      router: createChildRecordsRouter(childRecordsController, authenticate),
     },
     {
       path: "/api/conferences",
