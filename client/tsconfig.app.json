@@ -15,6 +15,7 @@
     "test/contrast.test.ts",
     "test/fonts.test.ts",
     "test/no-hardcoded-colors.test.ts",
+    "test/polish3-shell.test.ts",
     "test/responsive-scan.test.ts",
     "test/skeleton-usage.test.ts",
     "test/source-files.ts",

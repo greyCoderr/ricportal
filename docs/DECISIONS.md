@@ -559,3 +559,16 @@ Decision:
 - Student list cells are 8 px from the side outside compact mode (12 px in compact), so the table fits a 1024 px touch screen. It was 9 px too wide.
 - A calendar dish name longer than its cell breaks (`overflow-wrap: anywhere`) instead of being cut off. This shows only where a word is wider than the cell: comfortable mode from 1024 px. The fit calendars in compact mode keep one line with an ellipsis.
 - For the audit only, the port 3100 test server ran with RATE_LIMIT_MAX=100000 set in the shell, because one audit pass is more than 300 requests. Nothing in the code or config changed.
+
+## DEC-048: Defaults chosen in Round 3, H1 (shell, Admin pages)
+
+Context: docs/POLISH_PLAN_3.md D1 to D6. No question asked, as the plan says.
+Decision:
+- D1: AppShell's page column is header plus one scrolling content area; `main` (flex-1) and the footer are its children, the footer last with `mt-auto`, never fixed or sticky. This replaces DEC-044's pinned compact footer, so the footer's compact band is gone and the full Figma footer shows after scrolling.
+- The content area is a size container (`container-type: size`). Pages that must fit the screen use `FIT_SCREEN` (`client/src/lib/layout.ts`: 100cqh less the page padding). Dashboards keep their full height and the footer follows below the fold.
+- D2: Login fields use `--login-field-h` and `--login-field-text` (docs/tokens.md). The form column is 479/1280 of the width as in Figma (`clamp(22.5rem, 37.4vw, 36rem)`). Input gets a `fieldSize` prop; other inputs are unchanged.
+- D3: the top bar has `max(12px, 0.75rem)` above and below and `max(12px, 1.5rem)` on the right; the user block is centered. Measured 12 px top, 18 to 22 px right.
+- D4: card labels are title case as Figma sets them (Round 2's CSS capitals are dropped); text and order stay as DEC-045. Quick Action tiles lose their own border; panels use the card radius; the dashboard's upload link becomes Figma's labelled dashed box, still saying .xlsx (DEC-045).
+- D5: the calendar month fits the content area on a desktop. The Admin's center choice moves into the page header. FullCalendar always shows six weeks, so each week row gets a sixth of the height, and the dish names are taken out of the row's flow in fit mode. Names: two lines, ellipsis, 11 to 13 px by cell width (container query), full name on hover (title), on keyboard focus (clamp lifted) and in the day panel. This replaces DEC-045's one line on the dashboard calendar and DEC-047's mid-word breaking.
+- D6: the three card icons are cropped from the Figma render of 267:9862, because that frame's content is one flat image with no separate icon layers. Each is 96 x 96 px, under 14 KB. Assigned Barangays keeps the map-pin icon. `TeacherDto` gains `createdAt` for Date Approved; Last Login stays on View Profile. The toggle is a 44 px (comfortable) round icon button.
+- Test changes required by the plan: the D13 footer test and the compact scroll test in layouts.test.tsx now check D1's structure; the TeachersPage toggle test now expects no visible words (D6) and the Last Login column test became the Date Approved test; the dashboard order test finds labels by `data-card-label` instead of the uppercase class.

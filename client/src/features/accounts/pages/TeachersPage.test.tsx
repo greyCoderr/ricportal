@@ -14,6 +14,7 @@ const ACTIVE = {
   centerId: 1,
   centerName: "Sibujo",
   lastLoginAt: "2026-11-05T16:30:00.000Z",
+  createdAt: "2026-05-15T17:00:00.000Z",
 };
 const DISABLED = {
   ...ACTIVE,
@@ -22,6 +23,7 @@ const DISABLED = {
   fullName: "Ben Reyes",
   status: "DISABLED",
   lastLoginAt: null,
+  createdAt: "2026-06-02T01:00:00.000Z",
 };
 
 type Call = { method: string; path: string; body: unknown };
@@ -138,13 +140,41 @@ describe("TeachersPage", () => {
     ).toBeDefined();
   });
 
-  it("shows the last login as a numeric Manila date, and Never", async () => {
+  it("D6 of Plan 3: Date Approved is the account's created date, and Last Login is not a column", async () => {
     mockApi();
     renderPage();
     await screen.findAllByText("Ben Reyes");
-    // 16:30 UTC on the 5th is 00:30 on the 6th in Manila.
-    expect(within(tableRow("Ana Cruz")).getByText("11/06/2026")).toBeDefined();
-    expect(within(tableRow("Ben Reyes")).getByText("Never")).toBeDefined();
+    const headers = within(screen.getByRole("table"))
+      .getAllByRole("columnheader")
+      .map((cell) => cell.textContent);
+    expect(headers).toEqual([
+      "Teacher ID",
+      "Name",
+      "Barangay",
+      "Username",
+      "Contact Number",
+      "Status",
+      "Date Approved",
+      "Action",
+    ]);
+    // 17:00 UTC on 05/15 is 01:00 on 05/16 in Manila.
+    expect(within(tableRow("Ana Cruz")).getByText("05/16/2026")).toBeDefined();
+    expect(within(tableRow("Ben Reyes")).getByText("06/02/2026")).toBeDefined();
+    expect(within(tableRow("Ana Cruz")).queryByText("11/06/2026")).toBe(null);
+  });
+
+  it("D6 of Plan 3: each card has its own Figma icon with no alt text", async () => {
+    mockApi();
+    renderPage();
+    await screen.findByText("15");
+    const icons = screen
+      .getAllByRole("presentation", { hidden: true })
+      .filter((element) => element.tagName === "IMG");
+    const sources = icons.map((icon) => icon.getAttribute("src"));
+    expect(new Set(sources).size).toBe(3);
+    for (const icon of icons) {
+      expect(icon.getAttribute("alt")).toBe("");
+    }
   });
 
   it("D8: the row has View Profile and the toggle, and no Edit or reset", async () => {
@@ -161,7 +191,7 @@ describe("TeachersPage", () => {
     expect(within(row).queryByRole("button", { name: /^Reset/ })).toBe(null);
   });
 
-  it("D8: the toggle shows its state in words, in aria-pressed and in a tooltip", async () => {
+  it("D6 of Plan 3: the toggle is icon only, with its state in aria-pressed, the name and a tooltip", async () => {
     mockApi();
     renderPage();
     await screen.findAllByText("Ana Cruz");
@@ -170,15 +200,19 @@ describe("TeachersPage", () => {
     });
     expect(on.getAttribute("aria-pressed")).toBe("true");
     expect(on.getAttribute("title")).toBe("Active, click to disable");
-    expect(on.textContent).toBe("Active");
+    expect(on.textContent).toBe("");
     expect(on.className).toContain("bg-accent-soft");
     const off = within(tableRow("Ben Reyes")).getByRole("button", {
       name: "Enable Ben Reyes",
     });
     expect(off.getAttribute("aria-pressed")).toBe("false");
     expect(off.getAttribute("title")).toBe("Disabled, click to enable");
-    expect(off.textContent).toBe("Disabled");
+    expect(off.textContent).toBe("");
     expect(off.className).toContain("bg-nav");
+    // The row still says Disabled once, in the Status badge, not on the toggle.
+    expect(within(tableRow("Ben Reyes")).getAllByText("Disabled")).toHaveLength(
+      1,
+    );
   });
 
   it("D8: the toggle sends the opposite status, in both directions", async () => {

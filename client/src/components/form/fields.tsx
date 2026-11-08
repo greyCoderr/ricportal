@@ -8,6 +8,7 @@ import {
   Select,
   Textarea,
 } from "../../components/ui";
+import type { InputSize } from "../../components/ui/Input";
 
 // Field helpers that connect a useZodForm form to the UI kit, so a screen only
 // names the field and its label. `form` is typed loosely on purpose: a field
@@ -53,11 +54,13 @@ export function TextField({
   placeholder,
   autoComplete,
   inputMode,
+  fieldSize,
 }: FieldProps & {
   type?: string;
   placeholder?: string;
   autoComplete?: string;
   inputMode?: "text" | "numeric" | "decimal" | "tel";
+  fieldSize?: InputSize;
 }) {
   return (
     <FormField
@@ -74,6 +77,7 @@ export function TextField({
           placeholder={placeholder}
           autoComplete={autoComplete}
           inputMode={inputMode}
+          fieldSize={fieldSize}
         />
       )}
     </FormField>
@@ -112,7 +116,8 @@ export function PasswordField({
   hint,
   required,
   autoComplete = "current-password",
-}: FieldProps & { autoComplete?: string }) {
+  fieldSize,
+}: FieldProps & { autoComplete?: string; fieldSize?: InputSize }) {
   const [shown, setShown] = useState(false);
   return (
     <FormField
@@ -128,9 +133,10 @@ export function PasswordField({
             {...bind(form, name)}
             type={shown ? "text" : "password"}
             autoComplete={autoComplete}
+            fieldSize={fieldSize}
             className="pr-12"
           />
-          <div className="absolute top-0 right-0">
+          <div className="absolute top-1/2 right-0 -translate-y-1/2">
             <IconButton
               icon="eye"
               label={shown ? `Hide ${label}` : `Show ${label}`}

@@ -1,6 +1,9 @@
 import { teacherCreateSchema, type TeacherListQuery } from "@ricportal/shared";
 import { useState } from "react";
 import { Link } from "react-router";
+import activeIcon from "../../../assets/teachers-active.png";
+import disabledIcon from "../../../assets/teachers-disabled.png";
+import totalIcon from "../../../assets/teachers-total.png";
 import {
   PasswordField,
   SelectField,
@@ -123,20 +126,30 @@ function CreateTeacherForm({ onClose }: { onClose: () => void }) {
   );
 }
 
+// Each card has its own icon from Figma 267:9862 (Plan 3 D6). The icons sit
+// beside their label, so they carry an empty alt.
 function StatCard({
   icon,
   value,
   label,
 }: {
-  icon: IconName;
+  icon: { image: string } | { name: IconName };
   value: number | undefined;
   label: string;
 }) {
   return (
     <Card variant="stat" className="flex items-center gap-4 p-4">
-      <span className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
-        <Icon name={icon} size={24} />
-      </span>
+      {"image" in icon ? (
+        <img
+          src={icon.image}
+          alt=""
+          className="size-14 shrink-0 rounded-full"
+        />
+      ) : (
+        <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-accent-soft text-accent">
+          <Icon name={icon.name} size={28} />
+        </span>
+      )}
       <div>
         <p className="text-24 font-semibold tabular-nums">{value ?? "-"}</p>
         <p className="text-13">{label}</p>
@@ -189,7 +202,7 @@ export function TeachersPage() {
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          icon="users"
+          icon={{ image: totalIcon }}
           value={
             counts === undefined
               ? undefined
@@ -198,17 +211,17 @@ export function TeachersPage() {
           label="Total RIC Teachers"
         />
         <StatCard
-          icon="users"
+          icon={{ image: activeIcon }}
           value={counts?.activeTeachers}
           label="Active Teachers"
         />
         <StatCard
-          icon="users"
+          icon={{ image: disabledIcon }}
           value={counts?.disabledTeachers}
           label="Disabled Teachers"
         />
         <StatCard
-          icon="map-pin"
+          icon={{ name: "map-pin" }}
           value={counts?.centersWithTeacher}
           label="Assigned Barangays"
         />
@@ -367,18 +380,17 @@ export function TeachersPage() {
                     render: (row) => <AccountStatusBadge status={row.status} />,
                   },
                   {
-                    key: "login",
-                    header: "Last Login",
-                    render: (row) =>
-                      row.lastLoginAt === null
-                        ? "Never"
-                        : formatInstantDate(row.lastLoginAt),
+                    // The account's created date (Plan 3 D6); Last Login is on
+                    // View Profile.
+                    key: "approved",
+                    header: "Date Approved",
+                    render: (row) => formatInstantDate(row.createdAt),
                   },
                   {
                     key: "actions",
                     header: "Action",
                     render: (row) => (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Link
                           to={`/teachers/${String(row.id)}`}
                           aria-label={`View profile of ${row.fullName}`}

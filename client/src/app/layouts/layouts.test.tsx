@@ -137,13 +137,42 @@ describe("sidebar layout (D12)", () => {
     expect(sidebar.getByText("Libmanan, Camarines Sur")).toBeDefined();
   });
 
-  it("the page is a full-height column with the footer last (D13)", () => {
+  it("the footer is the last child inside the scrolling content area (D1 of Plan 3)", () => {
     shell("TEACHER");
-    const column = screen.getByTestId("page-column");
-    expect(column.classList).toContain("min-h-dvh");
-    expect(column.classList).toContain("flex-col");
-    expect(column.lastElementChild?.tagName).toBe("FOOTER");
-    expect(column.lastElementChild?.classList).toContain("mt-auto");
+    const scroller = screen.getByTestId("content-scroll");
+    for (const name of [
+      "flex",
+      "flex-col",
+      "min-h-0",
+      "flex-1",
+      "overflow-y-auto",
+    ]) {
+      expect(scroller.classList).toContain(name);
+    }
+    const footer = scroller.lastElementChild;
+    expect(footer?.tagName).toBe("FOOTER");
+    expect(footer?.classList).toContain("mt-auto");
+    const footerClasses = [...(footer?.classList ?? [])];
+    expect(
+      footerClasses.filter((name) => /(^|:)(fixed|sticky)$/.test(name)),
+    ).toEqual([]);
+    expect(screen.getByRole("main").parentElement).toBe(scroller);
+    expect(screen.getByRole("main").classList).toContain("flex-1");
+  });
+
+  it("the header has at least 12 px around the user block and centers it (D3)", () => {
+    shell("ADMIN");
+    const header = screen.getByTestId("top-bar");
+    for (const name of [
+      "items-center",
+      "py-[max(12px,0.75rem)]",
+      "pr-[max(12px,1.5rem)]",
+    ]) {
+      expect(header.classList).toContain(name);
+    }
+    expect(
+      [...header.classList].filter((name) => /(^|:)(fixed|sticky)$/.test(name)),
+    ).toEqual([]);
   });
 });
 
@@ -156,16 +185,13 @@ describe("viewport fit (D3, D5 of docs/POLISH_PLAN_2.md)", () => {
     expect(column.parentElement?.classList).toContain("overflow-hidden");
   });
 
-  it("on a desktop the content area scrolls and can shrink", () => {
+  it("only the content area scrolls; it is a size container for fit pages", () => {
     shell("ADMIN");
-    const main = screen.getByRole("main");
-    for (const name of [
-      "flex-1",
-      "compact:min-h-0",
-      "compact:overflow-y-auto",
-    ]) {
-      expect(main.classList).toContain(name);
-    }
+    const column = screen.getByTestId("page-column");
+    expect(column.classList).toContain("overflow-hidden");
+    const scroller = screen.getByTestId("content-scroll");
+    expect(scroller.classList).toContain("overflow-y-auto");
+    expect(scroller.classList).toContain("[container-type:size]");
   });
 
   it("the sidebar width comes from --sidebar-w", () => {

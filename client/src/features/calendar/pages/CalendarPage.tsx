@@ -12,6 +12,7 @@ import {
   SkeletonGroup,
 } from "../../../components/ui";
 import { formatPeso } from "../../../lib/format";
+import { FIT_SCREEN } from "../../../lib/layout";
 import { useCenters } from "../../accounts/hooks";
 import { useCurrentUser } from "../../auth/components/guards";
 import { MenuUploadPanel } from "../../menu/components/MenuUploadPanel";
@@ -36,11 +37,8 @@ function AdminCenterSelect({
 }) {
   const centers = useCenters({ page: 1, pageSize: 100 });
   return (
-    <div className="mb-3 max-w-sm">
-      <FormField
-        label="RIC Children Center"
-        hint="Choose a center to read its Purchase Requests."
-      >
+    <div className="w-full sm:w-72">
+      <FormField label="RIC Children Center">
         {(field) => (
           <Select
             {...field}
@@ -177,103 +175,111 @@ export function CalendarPage() {
 
   return (
     <>
-      <PageHeader
-        title="Calendar"
-        actions={
-          user.role === "TEACHER" ? (
-            <>
-              <Button icon="users" onClick={openAssign}>
-                Assign Parents
-              </Button>
-              <Button
-                variant="secondary"
-                icon="file-text"
-                onClick={() => {
-                  setOverlay("requests");
-                }}
-              >
-                Liquidation Forms
-              </Button>
-            </>
-          ) : undefined
-        }
-      />
-      {overlay !== null && (
-        <LiquidationOverlay
-          initialTab={overlay}
-          onClose={() => {
-            setOverlay(null);
-          }}
+      {/* The month fits the content area on a desktop (Plan 3 D5); the panels of
+          the chosen day follow below it. */}
+      <div className={`flex flex-col ${FIT_SCREEN}`}>
+        <PageHeader
+          title="Calendar"
+          actions={
+            user.role === "ADMIN" ? (
+              <AdminCenterSelect centerId={centerId} onChange={setCenterId} />
+            ) : (
+              <>
+                <Button icon="users" onClick={openAssign}>
+                  Assign Parents
+                </Button>
+                <Button
+                  variant="secondary"
+                  icon="file-text"
+                  onClick={() => {
+                    setOverlay("requests");
+                  }}
+                >
+                  Liquidation Forms
+                </Button>
+              </>
+            )
+          }
         />
-      )}
-      {assigning && (
-        <AssignParentsModal
-          initialMonday={mondayOf(selected)}
-          onClose={() => {
-            setAssigning(false);
-          }}
-        />
-      )}
-      {user.role === "ADMIN" && (
-        <AdminCenterSelect centerId={centerId} onChange={setCenterId} />
-      )}
-      {calendar.isError && (
-        <div className="mb-3">
-          <ErrorState
-            title="Could not load the menus for this month."
-            message={calendar.error.message}
-            onRetry={() => {
-              void calendar.refetch();
+        {overlay !== null && (
+          <LiquidationOverlay
+            initialTab={overlay}
+            onClose={() => {
+              setOverlay(null);
             }}
-            retrying={calendar.isFetching}
           />
-        </div>
-      )}
-      {calendar.isPending && range !== null && (
-        <SkeletonGroup label="Loading the menus..." className="mb-3">
-          <Skeleton className="h-6 w-1/2" />
-        </SkeletonGroup>
-      )}
-      {calendar.isSuccess &&
-        days.length === 0 &&
-        (user.role === "ADMIN" ? (
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-control border border-dashed border-danger-text bg-danger-soft p-4">
-            <div>
-              <p className="text-15 font-semibold text-danger-text">
-                No Menu/Food Rotation Upload for this month
-              </p>
-              <p className="text-13">
-                Please upload a document containing the menu/food rotation for
-                this month.
-              </p>
-            </div>
-            <Link
-              to="/menu-imports"
-              className="inline-flex h-11 items-center gap-2 rounded-control bg-primary px-4 text-13 font-medium text-primary-contrast hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
-            >
-              <Icon name="upload" size={16} />
-              Upload Document
-            </Link>
+        )}
+        {assigning && (
+          <AssignParentsModal
+            initialMonday={mondayOf(selected)}
+            onClose={() => {
+              setAssigning(false);
+            }}
+          />
+        )}
+        {calendar.isError && (
+          <div className="mb-3">
+            <ErrorState
+              title="Could not load the menus for this month."
+              message={calendar.error.message}
+              onRetry={() => {
+                void calendar.refetch();
+              }}
+              retrying={calendar.isFetching}
+            />
           </div>
-        ) : (
-          <p className="mb-3 text-15 text-text-secondary">
-            No menu uploaded for this month.
-          </p>
-        ))}
-      <div
-        className={
-          user.role === "ADMIN"
-            ? "grid items-start gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]"
-            : ""
-        }
-      >
-        <FeedingCalendar
-          days={days}
-          selectedDate={selected}
-          onRangeChange={handleRange}
-          onDayClick={setSelected}
-        />
-        {user.role === "ADMIN" && <MenuUploadPanel />}
+        )}
+        {calendar.isPending && range !== null && (
+          <SkeletonGroup label="Loading the menus..." className="mb-3">
+            <Skeleton className="h-6 w-1/2" />
+          </SkeletonGroup>
+        )}
+        {calendar.isSuccess &&
+          days.length === 0 &&
+          (user.role === "ADMIN" ? (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-control border border-dashed border-danger-text bg-danger-soft p-4">
+              <div>
+                <p className="text-15 font-semibold text-danger-text">
+                  No Menu/Food Rotation Upload for this month
+                </p>
+                <p className="text-13">
+                  Please upload a document containing the menu/food rotation for
+                  this month.
+                </p>
+              </div>
+              <Link
+                to="/menu-imports"
+                className="inline-flex h-11 items-center gap-2 rounded-control bg-primary px-4 text-13 font-medium text-primary-contrast hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+              >
+                <Icon name="upload" size={16} />
+                Upload Document
+              </Link>
+            </div>
+          ) : (
+            <p className="mb-3 text-15 text-text-secondary">
+              No menu uploaded for this month.
+            </p>
+          ))}
+        <div
+          className={
+            user.role === "ADMIN"
+              ? "grid items-start gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] compact:min-h-0 compact:flex-1 compact:items-stretch"
+              : "compact:min-h-0 compact:flex-1"
+          }
+        >
+          <FeedingCalendar
+            fit
+            days={days}
+            selectedDate={selected}
+            onRangeChange={handleRange}
+            onDayClick={setSelected}
+          />
+          {user.role === "ADMIN" && (
+            <div className="self-start">
+              <MenuUploadPanel />
+            </div>
+          )}
+        </div>
       </div>
       {user.role === "TEACHER" ? (
         <>

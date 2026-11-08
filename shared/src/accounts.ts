@@ -214,6 +214,8 @@ export type TeacherDto = {
   centerId: number | null;
   centerName: string | null;
   lastLoginAt: string | null;
+  // The account's created date: "Date Approved" on RIC Teachers (Plan 3 D6).
+  createdAt: string;
 };
 
 // The View Profile screen (D8): the list row plus what the Teacher fills in.
@@ -224,7 +226,6 @@ export type TeacherDetailDto = TeacherDto & {
   sex: string | null;
   birthDate: string | null;
   qualification: string | null;
-  createdAt: string;
 };
 
 export type ParentDto = {

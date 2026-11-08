@@ -336,3 +336,42 @@ NOT verified:
 - The footer's 10 px lines on tablets and phones are reported by the audit as small text; they were not changed in this round.
 
 Tag: v0.9.4-demo on the G4 commit. v0.9.3-demo stays as the fallback. Nothing pushed.
+
+# Round 3 (docs/POLISH_PLAN_3.md)
+
+Branch demo-polish-3, confirmed with git status and git branch before starting (2026-11-08). The
+Developer's `.claude/settings.json`, `docs/POLISH_PLAN_3.md`, `docs/feedback/` and the untracked
+fixture `server/test/fixtures/SF MENU for 30 days.xlsx` were already there; only the plan and the
+reference image are committed by this round (the plan is the round's source).
+
+Setup notes:
+- Decisions start at DEC-048, as the plan says (DEC-047 is the last one).
+- The reference image is saved as `docs/feedback/admin-profile-figma.png.png` (double extension). Read first.
+- The Playwright MCP server timed out on connect (CONNECT_TIMEOUT, 30 s). Browser checks use the same
+  Playwright package from the local npx cache, driven by scripts in the session scratchpad, as in Round 2.
+- Figma: at most 60 calls this round, counted in docs/components.md under "Polish Round 3".
+- The users table already has email, address, sex and birth_date (Round 2, DEC-045). D7's email, gender,
+  date_of_birth and address map onto them; only password_changed_at and login_events are new (DEC-048).
+
+## H1 Shell fixes, Admin pages
+
+Plan:
+1. Figma: Login 241:1732 metadata (fields 479 x 50 in a 1280 frame), RIC Teachers 267:9862 screenshot
+   (its content is one flat image), Admin dashboard 267:9689 and calendar frames by metadata.
+2. Tests first: footer inside the scroll container, login field tokens, header spacing, calendar clamp
+   class, Date Approved column, icon-only toggle.
+3. D1 footer, D2 login fields, D3 header, D4 dashboard, D5 calendar, D6 RIC Teachers.
+4. Browser at 1366x768, 1440x900, 1920x1080, 390x844. Commit.
+
+Summary of H1, done:
+- Tests written first and seen failing: 11 client tests and 1 db test. Then client tests for the shell, accounts, auth, dashboard, calendar, UI kit and the token, color and responsive scans: 300 of 300 on one worker; db polish3, accounts and polish2-admin: 43 of 43. Typecheck and lint of the changed files clean.
+- Browser (Playwright from the npx cache, dev server on 5174 with the API on 3100):
+  - Login fields: 50 px at 1280 x 720 (Figma 50), 53 at 1366, 56 at 1920, 44 at 390; text 16 px.
+  - Top bar: user block 12 px from the top and 18 to 22 px from the right at 1366, 1440, 1920 and 390.
+  - Footer: last in the content area; the dashboards fit and the footer comes after a scroll equal to its height (42 to 48 px Admin, about 290 px Teacher).
+  - Calendar, Admin and Teacher: the whole month visible at 1366 x 768, 1440 x 900 and 1920 x 1080, 18 to 22 px to spare; six equal weeks (84, 130 px); August 2026 (six weeks, 07/26 to 09/05) also fits with equal rows; no sideways scroll; dish names 11 to 13 px, two lines with an ellipsis.
+  - RIC Teachers: columns as Figma with Date Approved, three separate icons, toggle icon only with aria-pressed, name and tooltip, 33 to 40 px with a mouse and 44 px on a phone. No sideways scroll at 390 x 844.
+  - Compared by eye with the Figma screenshots of 267:9689 and 267:9862 at 1920.
+- Port 3000 is still held by an API process started earlier in this session that survived its stop, with code older than H1. The process lookup was refused by the permission system, so it was left alone. Restart the laptop or close it before `npm start`.
+
+Stopped after H1 (2026-11-08): the system stopped the dev API (3100) and Vite (5174) because memory was critically low. Per DEC-035 and the system notice, they were not restarted and work stops here, reported to the Developer. H2 to H4 are not started.

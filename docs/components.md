@@ -172,3 +172,18 @@ Polish calls so far: 31 of 120.
 - 88:695 profile, 1920 x 1367: design-context read (2026-11-08).
 - 267:9689, 268:11404 (Admin Calendar with the upload panel), 267:9862 (RIC Teachers): screenshots (2026-11-08).
 - 166:1553 (Teacher Calendar), 78:260 (Enrolled Students), 175:1023 (Teacher Home), 78:284 (Report Status), 78:276 (Admin Feedback), 258:5447 (Add Student): screenshots (2026-11-08).
+
+## Polish Round 3 Figma calls (limit 60)
+
+| Date | Stage | Call | Node | Result |
+| --- | --- | --- | --- | --- |
+| 2026-11-08 | H1 | `create_session` | file | Session for Round 3 |
+| 2026-11-08 | H1 | `get_metadata` | 241:1732 | Login: fields 479 x 50 in a 1280 x 1020 frame |
+| 2026-11-08 | H1 | `get_metadata` | 267:9862 | RIC Teachers: the content is one flat image (267:9873) |
+| 2026-11-08 | H1 | `get_screenshot` | 267:9862 | Card icons cropped from it (Total, Active, Inactive), table columns with Date Approved |
+| 2026-11-08 | H1 | `get_metadata` | 267:9689 | Admin dashboard: avatar 41 at 16 from the top, cards 225 x 225, left column 753, calendar 708, upload box 494 x 98 |
+| 2026-11-08 | H1 | `get_screenshot` | 267:9689 | Admin dashboard at 1920 |
+| 2026-11-08 | H1 | `get_metadata` | 268:11404 | Admin Calendar: calendar 955 x 699 beside the upload panel 575 wide |
+| 2026-11-08 | H1 | `get_metadata` | 166:1553 | Teacher Calendar: grid 1270 x 874, header avatar 70 at 12 from the top; footer Quick links put "Child’s Record" after Calendar |
+
+Round 3 calls so far: 8 of 60.

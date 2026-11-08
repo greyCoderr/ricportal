@@ -111,11 +111,12 @@ export function FeedingCalendar({
     <div
       className={`ric-calendar ${tone === "red" ? "ric-calendar-parent" : ""} ${filling ? "ric-calendar-fit" : ""}`}
     >
-      <div className={`mb-2 flex items-center gap-1 ${titleColor}`}>
+      {/* The arrow sits on the page's left edge, under the page title (D5). */}
+      <div className={`mb-2 flex shrink-0 items-center gap-1 ${titleColor}`}>
         <button
           type="button"
           aria-label="Previous month"
-          className="inline-flex size-11 items-center justify-center rounded-control text-24 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+          className="inline-flex size-11 items-center justify-start rounded-control text-24 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
           onClick={() => calendar.current?.getApi().prev()}
         >
           ‹
@@ -142,7 +143,9 @@ export function FeedingCalendar({
           initialView="dayGridMonth"
           headerToolbar={false}
           height={filling ? "100%" : "auto"}
-          // One line per day when filling: the whole name stays in the tooltip.
+          // Weeks share the height equally, six-week months too (D5).
+          expandRows={filling}
+          // Names show two lines at most; the whole name is in the tooltip.
           eventDidMount={(info) => {
             info.el.title = info.event.title;
           }}

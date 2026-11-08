@@ -120,6 +120,8 @@
   position: relative;
   margin-top: 1.375rem;
   pointer-events: none;
+  /* The dish name sizes itself by the cell width (Plan 3 D5). */
+  container-type: inline-size;
 }
 
 .ric-calendar .fc-daygrid-event {
@@ -131,8 +133,25 @@
 .ric-calendar .fc-event-title {
   font-weight: 500;
   white-space: normal;
-  /* A dish name longer than a narrow cell breaks instead of being cut off. */
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+}
+
+/* Plan 3 D5: up to two lines with an ellipsis, 11 to 13 px by the cell width and
+   never below 11 px. The full name is in the title tooltip, the day panel, and
+   here on keyboard focus. Phones show a dot instead (below). */
+@media (min-width: 768px) {
+  .ric-calendar .fc-daygrid-event .fc-event-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: clamp(11px, 10cqi, 13px);
+    line-height: 1.25;
+  }
+
+  .ric-calendar .fc-daygrid-event:focus-visible .fc-event-title {
+    -webkit-line-clamp: unset;
+  }
 }
 
 .ric-calendar .ric-quiet .fc-event-title {
@@ -188,14 +207,14 @@
   min-height: 0;
 }
 
-.ric-calendar-fit .fc-daygrid-day-events {
-  margin-top: 1rem;
-}
-
-.ric-calendar-fit .fc-event-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* The dish names sit inside the cell without adding to the row's height, so the
+   weeks share the height equally, six-week months too (Plan 3 D5). */
+.ric-calendar.ric-calendar-fit .fc .fc-daygrid-day-events {
+  position: absolute;
+  top: 1.25rem;
+  right: 0;
+  left: 0;
+  margin-top: 0;
 }
 
 /* The arrow tags of the day panels (393:1759, 393:1815). */
@@ -233,4 +252,9 @@
       0 100%
     );
   }
+}
+
+/* FullCalendar shows six weeks in every month; each gets a sixth (Plan 3 D5). */
+.ric-calendar.ric-calendar-fit .fc .fc-daygrid-body tr {
+  height: calc(100% / 6);
 }

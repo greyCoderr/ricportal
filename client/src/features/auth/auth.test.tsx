@@ -147,6 +147,20 @@ describe("LoginPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Log in" }));
   }
 
+  it("D2 of Plan 3: the username and password fields use the larger login size", async () => {
+    mockApi({ "/api/auth/me": UNAUTHENTICATED });
+    renderApp("/login");
+    await screen.findByRole("heading", { name: "Welcome Back" });
+    for (const field of [
+      screen.getByLabelText("Username"),
+      screen.getByLabelText("Password"),
+    ]) {
+      expect(field.classList).toContain("h-(--login-field-h)");
+      expect(field.classList).toContain("text-(length:--login-field-text)");
+      expect(field.classList).not.toContain("h-11");
+    }
+  });
+
   it("shows required messages without calling the server", async () => {
     mockApi({ "/api/auth/me": UNAUTHENTICATED });
     renderApp("/login");

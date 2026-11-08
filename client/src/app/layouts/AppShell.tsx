@@ -112,9 +112,11 @@ function SidebarContent({
 // Sidebar and top bar for every role (D10, D12). From 1024 px the sidebar is
 // fixed to the viewport, its menu scrolls and logout stays at the bottom. Below
 // 1024 px the menu is a drawer opened from the top bar (no Figma frame; DEC-037).
-// The shell is one screen high and the document never scrolls (D3). In compact
-// the content area scrolls and the footer stays put; otherwise the column scrolls
-// with the footer at its end, because the full footer is taller than a phone.
+// The shell is one screen high and the document never scrolls (D3 of Plan 2).
+// Only the content area under the top bar scrolls, and the footer is its last
+// child: at the bottom of a short page, after the end of a long one (Plan 3 D1).
+// The content area is a size container, so a page that must fit the screen
+// (dashboards, the calendar) sizes itself with cqh units (FIT_SCREEN).
 export function AppShell({ user, onLogout, children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = useCallback(() => {
@@ -122,13 +124,11 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
   }, []);
   const drawerRef = useNativeDialog(menuOpen, closeMenu);
   const { pathname } = useLocation();
-  const columnRef = useRef<HTMLDivElement>(null);
-  const mainRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // The window no longer scrolls, so a new page must reset the scrollers.
+  // The window never scrolls, so a new page must reset the content area.
   useEffect(() => {
-    columnRef.current?.scrollTo?.(0, 0);
-    mainRef.current?.scrollTo?.(0, 0);
+    scrollRef.current?.scrollTo?.(0, 0);
   }, [pathname]);
 
   return (
@@ -166,12 +166,12 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
       </dialog>
 
       <div
-        ref={columnRef}
         data-testid="page-column"
-        className="flex h-dvh min-h-dvh min-w-0 flex-1 flex-col overflow-y-auto compact:overflow-hidden"
+        className="flex h-dvh min-w-0 flex-1 flex-col overflow-hidden"
       >
         <header
-          className={`sticky top-0 z-10 flex min-h-16 shrink-0 items-center gap-3 bg-nav px-4 text-nav-text shadow-header lg:text-text ${
+          data-testid="top-bar"
+          className={`relative z-10 flex min-h-16 shrink-0 items-center gap-3 bg-nav py-[max(12px,0.75rem)] pr-[max(12px,1.5rem)] pl-4 text-nav-text shadow-header lg:pl-6 lg:text-text ${
             user.role === "ADMIN"
               ? "lg:min-h-[3.5rem] lg:bg-surface lg:shadow-none"
               : "lg:min-h-[5.875rem] lg:bg-header"
@@ -219,13 +219,14 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
             </div>
           </div>
         </header>
-        <main
-          ref={mainRef}
-          className="min-w-0 flex-1 p-4 lg:p-6 compact:min-h-0 compact:overflow-y-auto"
+        <div
+          ref={scrollRef}
+          data-testid="content-scroll"
+          className="flex min-h-0 flex-1 flex-col overflow-y-auto [container-type:size]"
         >
-          {children}
-        </main>
-        <AppFooter role={user.role} />
+          <main className="min-w-0 flex-1 shrink-0 p-4 lg:p-6">{children}</main>
+          <AppFooter role={user.role} />
+        </div>
       </div>
     </div>
   );

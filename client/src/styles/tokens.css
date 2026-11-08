@@ -92,6 +92,10 @@
   --control-h: 44px;
   --sidebar-w: 0px;
   --text-body: 16px;
+  /* Login fields (Plan 3 D2): Figma 241:1732 draws them 50 px high in a 1280 px
+     frame, so the height follows the width, with 44 px as the floor. */
+  --login-field-h: clamp(44px, 3.9vw, 56px);
+  --login-field-text: 16px;
 }
 
 @media (min-width: 1024px) {

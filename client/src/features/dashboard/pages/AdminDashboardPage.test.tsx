@@ -102,7 +102,7 @@ describe("AdminDashboardPage (D10)", () => {
     await screen.findByText("Registered RIC Teacher");
     const labels = screen
       .getAllByText(/Teacher$|Students$|Submitted$|Revision$/)
-      .filter((element) => element.className.includes("uppercase"))
+      .filter((element) => element.hasAttribute("data-card-label"))
       .map((element) => element.textContent);
     expect(labels).toEqual([
       "Registered RIC Teacher",

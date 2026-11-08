@@ -37,6 +37,7 @@ function toTeacherDto(row: TeacherRow): TeacherDto {
     centerId: row.centerId,
     centerName: row.center?.name ?? null,
     lastLoginAt: row.lastLoginAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
   };
 }
 
@@ -128,7 +129,6 @@ export function createUsersService(deps: {
         sex: row.sex,
         birthDate: row.birthDate === null ? null : fromDbDate(row.birthDate),
         qualification: row.qualification,
-        createdAt: row.createdAt.toISOString(),
       };
     },
 

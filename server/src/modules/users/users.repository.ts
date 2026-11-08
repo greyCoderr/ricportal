@@ -9,6 +9,7 @@ const TEACHER_SELECT = {
   status: true,
   centerId: true,
   lastLoginAt: true,
+  createdAt: true,
   center: { select: { name: true } },
 } as const;
 
@@ -20,7 +21,6 @@ const TEACHER_DETAIL_SELECT = {
   sex: true,
   birthDate: true,
   qualification: true,
-  createdAt: true,
 } as const;
 
 const PARENT_SELECT = {

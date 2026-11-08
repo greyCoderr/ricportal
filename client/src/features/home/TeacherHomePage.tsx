@@ -15,6 +15,7 @@ import { FeedingCalendar } from "../calendar/components/FeedingCalendar";
 import { useCalendar, type DayRange } from "../calendar/hooks";
 import { useFeedback, useReports } from "../reports/hooks";
 import { useStudents, useStudentSummary } from "../students/hooks";
+import { FIT_SCREEN } from "../../lib/layout";
 
 const LINK_FOCUS =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text";
@@ -145,7 +146,7 @@ export function TeacherHomePage() {
   }, []);
 
   return (
-    <div className="flex flex-col compact:h-full compact:min-h-0">
+    <div className={`flex flex-col ${FIT_SCREEN}`}>
       <h1 className="text-24 font-semibold tracking-label text-accent lg:text-40">
         Welcome, Teacher {firstName}!
       </h1>

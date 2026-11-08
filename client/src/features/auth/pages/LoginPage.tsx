@@ -66,7 +66,8 @@ export function LoginPage() {
             Please log in to continue to your account
           </p>
 
-          <div className="mx-auto flex w-full max-w-[30rem] flex-col">
+          {/* Figma 241:1732: the fields are 479 of 1280 px wide (Plan 3 D2). */}
+          <div className="mx-auto flex w-full max-w-[clamp(22.5rem,37.4vw,36rem)] flex-col">
             <form
               noValidate
               className="flex flex-col gap-4"
@@ -87,8 +88,14 @@ export function LoginPage() {
                 label="Username"
                 autoComplete="username"
                 placeholder="Enter your username"
+                fieldSize="login"
               />
-              <PasswordField form={form} name="password" label="Password" />
+              <PasswordField
+                form={form}
+                name="password"
+                label="Password"
+                fieldSize="login"
+              />
               {form.formError !== null && (
                 <Banner tone="danger">{form.formError}</Banner>
               )}

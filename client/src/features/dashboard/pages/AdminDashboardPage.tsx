@@ -16,6 +16,7 @@ import { FeedingCalendar } from "../../calendar/components/FeedingCalendar";
 import { useCalendar, type DayRange } from "../../calendar/hooks";
 import { useReports } from "../../reports/hooks";
 import { useDashboardSummary } from "../hooks";
+import { FIT_SCREEN } from "../../../lib/layout";
 
 function CountCard({
   icon,
@@ -31,19 +32,24 @@ function CountCard({
   return (
     <Card
       variant="stat"
-      className={`flex min-w-0 flex-col items-center p-2 text-center ${alert ? "border-danger" : ""}`}
+      className={`flex min-w-0 flex-col items-center justify-center px-2 py-3 text-center ${alert ? "border-danger" : ""}`}
     >
       <span
-        className={`inline-flex size-[3.25rem] items-center justify-center rounded-full ${
+        className={`inline-flex size-[clamp(2.75rem,8cqh,4.5rem)] shrink-0 items-center justify-center rounded-full ${
           alert
             ? "bg-danger-soft text-danger-text"
             : "bg-accent-soft text-accent"
         }`}
       >
-        <Icon name={icon} size={26} />
+        <Icon name={icon} size={28} />
       </span>
-      <p className="mt-1 text-40 font-semibold tabular-nums">{value ?? "-"}</p>
-      <p className="text-11 font-medium uppercase">{label}</p>
+      <p className="mt-1 text-40 leading-tight font-semibold tabular-nums">
+        {value ?? "-"}
+      </p>
+      {/* Title case, as Figma 267:9689 sets it (Plan 3 D4). */}
+      <p data-card-label className="text-13 leading-snug">
+        {label}
+      </p>
     </Card>
   );
 }
@@ -62,9 +68,9 @@ function QuickAction({
   return (
     <Link
       to={to}
-      className="flex min-w-0 items-center gap-3 border border-border-subtle bg-accent-soft p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+      className="flex min-w-0 items-center gap-3 rounded-control bg-accent-soft p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
     >
-      <span className="inline-flex size-[3.25rem] shrink-0 items-center justify-center rounded-icon bg-accent text-primary-contrast">
+      <span className="inline-flex size-[3.5rem] shrink-0 items-center justify-center rounded-icon bg-accent text-primary-contrast">
         <Icon name={icon} size={26} />
       </span>
       <span className="min-w-0">
@@ -106,13 +112,13 @@ export function AdminDashboardPage() {
   }, []);
 
   return (
-    <div className="flex flex-col compact:h-full compact:min-h-0">
-      <h1 className="mb-2 text-24 font-semibold lg:text-40">Admin Dashboard</h1>
+    <div className={`flex flex-col ${FIT_SCREEN}`}>
+      <h1 className="mb-3 text-24 font-bold lg:text-40">Admin Dashboard</h1>
       <QueryBoundary
         query={summary}
         errorTitle="Could not load the dashboard counts."
       >
-        <div className="grid shrink-0 gap-3 sm:grid-cols-2 lg:grid-cols-3 compact:grid-cols-6">
+        <div className="grid shrink-0 gap-4 sm:grid-cols-2 lg:grid-cols-3 compact:grid-cols-6 compact:gap-5">
           <CountCard
             icon="users"
             value={counts?.activeTeachers}
@@ -147,11 +153,11 @@ export function AdminDashboardPage() {
         </div>
       </QueryBoundary>
 
-      <div className="mt-3 grid gap-4 xl:grid-cols-2 compact:min-h-0 compact:flex-1 compact:grid-cols-2">
-        <div className="flex min-w-0 flex-col gap-3 compact:min-h-0">
+      <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1.06fr)_minmax(0,1fr)] compact:min-h-0 compact:flex-1 compact:grid-cols-[minmax(0,1.06fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-4 compact:min-h-0">
           <section className="shrink-0">
             <h2 className="mb-1 text-16 tracking-label">Quick Actions</h2>
-            <div className="grid gap-2 rounded-control border border-border-subtle p-2 sm:grid-cols-2">
+            <div className="grid gap-3 rounded-card border border-border-subtle p-3 sm:grid-cols-2">
               <QuickAction
                 to="/reports"
                 icon="file-text"
@@ -179,8 +185,11 @@ export function AdminDashboardPage() {
             </div>
           </section>
 
-          <section className="rounded-control border border-border-subtle p-2 compact:min-h-0 compact:flex-1 compact:overflow-y-auto">
-            <h2 className="mb-1 text-16">Recent Reports</h2>
+          <section className="rounded-card border border-border-subtle p-3 compact:min-h-0 compact:flex-1 compact:overflow-y-auto">
+            <h2 className="mb-2 flex items-center gap-2 text-16">
+              <Icon name="file-text" size={20} className="text-accent" />
+              Recent Reports
+            </h2>
             <QueryBoundary
               query={reports}
               errorTitle="Could not load the recent reports."
@@ -245,15 +254,26 @@ export function AdminDashboardPage() {
               }}
             />
           </div>
-          <p className="mt-2 shrink-0 text-center">
+          {/* Figma 268:11203: a label, then a dashed box with the action. The
+              importer reads .xlsx only (DEC-045), so the text says so. */}
+          <div className="mx-auto mt-3 w-full max-w-[30rem] shrink-0">
+            <p className="text-13 font-medium tracking-label">
+              Upload Menu Document
+            </p>
             <Link
               to="/calendar"
-              className="inline-flex min-h-11 items-center gap-2 rounded-control border border-dashed border-danger-text bg-danger-soft px-4 text-13 font-medium text-danger-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+              className="mt-1 flex min-h-11 flex-col gap-1 rounded-control border border-dashed border-danger-text bg-danger-soft px-4 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
             >
-              <Icon name="upload" size={16} />
-              Upload Menu/Food Rotation
+              <span className="flex items-center gap-2 text-15 font-semibold tracking-label text-danger-text">
+                <Icon name="upload" size={18} />
+                Upload Menu/Food Rotation
+              </span>
+              <span className="text-12 tracking-label">
+                Upload the DSWD Excel file (.xlsx) with the menu/food rotation
+                for this month.
+              </span>
             </Link>
-          </p>
+          </div>
         </section>
       </div>
     </div>

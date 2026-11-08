@@ -142,3 +142,12 @@ Measured with getBoundingClientRect and getComputedStyle, 2026-11-08:
 | 768 x 1024, 390 x 844 | 16 | 16 | drawer |
 
 The sidebar holds 240 px below 1590 px wide, wider than the Figma proportion, because the brand text must stay at 11 px or more (D2: hold the text and shrink the rest). The comfortable mode keeps the 10 px text it already had in the phone top bar and the footer.
+
+## Polish Round 3 additions (DEC-048)
+
+| Token | Value | Source |
+| --- | --- | --- |
+| `--login-field-h` | `clamp(44px, 3.9vw, 56px)` | Login 241:1732: fields 479 x 50 in a 1280 px frame. Measured 50 px at 1280, 53 at 1366, 56 at 1920, 44 at 390 |
+| `--login-field-text` | `16px` | D2 asks 15 to 16 px at desktop |
+
+Calendar dish names: `clamp(11px, 10cqi, 13px)` against the day's event box. Measured 11 px at 1366 x 768 and 1440 x 900, 13 px on the 1920 x 1080 calendar page.
