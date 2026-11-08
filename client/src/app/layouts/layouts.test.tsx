@@ -65,6 +65,12 @@ describe("role-aware navigation (D10)", () => {
     expect(paths).toContain("/menu-imports");
   });
 
+  it("the top bar's avatar block cannot be squeezed on a phone", () => {
+    shell("TEACHER", "/students");
+    const avatar = document.querySelector('header img[src*="avatar"]');
+    expect(avatar?.parentElement?.className).toContain("max-lg:shrink-0");
+  });
+
   it("AppShell shows only the menu of the role and marks the current page", () => {
     shell("TEACHER", "/students");
     const nav = screen.getByRole("navigation", { name: "Main" });

@@ -201,7 +201,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
               Rural Improvement Club, Libmanan, Camarines Sur
             </p>
           </div>
-          <div className="ml-auto flex min-w-0 items-center gap-3">
+          <div className="ml-auto flex min-w-0 items-center gap-3 max-lg:shrink-0">
             <img
               src={avatar}
               alt=""
