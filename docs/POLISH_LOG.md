@@ -456,3 +456,15 @@ H1 to H4 done on branch demo-polish-3, tag v0.9.5-demo, not pushed. v0.9.4-demo 
 **For the Developer:**
 - The local database has the new migration. Production (TiDB) does not, and it needs `migrate deploy` from your side when deployment resumes.
 - Before the demo, run `npm run db:seed:demo` and start the app with `npm start` from this build.
+
+## Demo seed and save flows after the tag (2026-11-08)
+
+Asked for by the Developer. Seed on the local database, then Playwright against the built app on port 3100, then the seed again and the smoke test on port 3000.
+
+- `npm run db:seed:demo` ran twice on the local database: 18 children, 14 assigned days. This closes the "seed not run" item above.
+- Save flows, 24 of 24 in a real browser: Edit Profile (a bad email keeps the dialog with its message; values save, survive a reload and clear again); Change Password (wrong current password, confirmation, "Last changed today" with no reload, the session stays valid, the old password refused, the new one accepted); login history; Progress add, edit and delete with the list count going 0, 1, 0; a Parent cannot clear the mobile and can save; the Admin's View Profile shows Date Approved and Last Login. This closes the "saving in a real browser" item above.
+- The first run was 12 of 16. Causes: my script tried to pick the blank Gender option, which left a dialog open and blocked Change Password; and a locator matched every card. Nothing in the app was changed.
+- Finding, not fixed: once Gender is set, the form cannot blank it again, because the shared Select's placeholder option is disabled. The API accepts a blank.
+- State afterwards: the smoke test on port 3000 passes 19 of 19 on the seeded data. The seed does not reset `password_changed_at`, so `teacher.sibujo` shows "Last changed today" (then N days ago) instead of "Not changed yet". The seed also keeps login events of Admin and Teacher, so their Logins This Month include these checks.
+
+Still not verified: Report Tracking and Admin Feedback with real rows in the browser, touch screens, real phones.
