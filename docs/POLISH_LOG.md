@@ -404,3 +404,25 @@ NOT verified in H2:
 - For H4: on the 390 px screenshot the top bar's avatar looks narrower than it is tall. It was not caused by H2 and was not changed.
 
 Figma calls used so far: 10 of 60.
+
+## H3 Teacher pages
+
+Plan:
+1. Figma: one screenshot each of 175:1023, 169:3189 and 254:4572.
+2. Tests first: Child Records scoping and counts, Progress tab, Export List, Home order and real data, menu order.
+3. `GET /api/child-records`, then the two pages, Progress tab, Export List and Home.
+4. Browser check, commit per page group.
+
+Summary of H3, done:
+- Built: the CHILD'S RECORD menu item, the list with record counts, the detail with Conferences, Home Visits and Progress; Export List replaces Enrollment Form; Teacher Home follows D8. Decisions: DEC-050.
+- Tests first: db 4 of 6 seen failing before the code (the other 2 lock Progress scoping and the PDF, which already worked), then all passing with the permission matrix, 316 of 316. Client: child records, Students page, Home and layouts, 35 of 35. Typecheck and lint of the changed files clean. The full check is at the end of H4.
+- Two test files needed the toast provider the real app has. That was the tests' setup, not a weakened check.
+- Browser (the built server on port 3100, no other Node process before or after; one browser, closed afterwards), Teacher at 1440x900, 1366x768 and 390x844: document scroll 0 and sideways scroll 0 on Home and Child's Record. Home: November (six weeks, 42 cells) with no scrolling inside the calendar, the last row 19 to 20 px inside the content area at both desktop sizes, Enrolled Students just below it. Detail tabs in order, Add progress note dialog centered, Export List dialog with School Year and Date Started, the old button gone, the PDF answers 200 and starts with %PDF. No page errors. Read: Home at 1366, Child's Record at 1440 and 390.
+- The browser check opened the forms without saving, so no record was added. Teacher login added one login event for teacher.sibujo.
+
+NOT verified in H3:
+- 1920x1080 (the plan's size; left for H4 by the memory rules for this run).
+- Saving a Progress note, editing and deleting it in a real browser. Covered by client tests with a mocked API and db tests.
+- Home with real reports and feedback in the browser: the local database has none, so the two cards showed their empty states.
+
+Figma calls used so far: 13 of 60.

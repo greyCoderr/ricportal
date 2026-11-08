@@ -16,7 +16,7 @@ Everything left out or simplified to reach the demo on Tue 2026-11-10. Each row 
 
 | Stage | Cut item | What stays | To restore |
 | --- | --- | --- | --- |
-| S2 | Progress tab UI | The progress API (create, list, edit, soft delete) | A tab like Home visits |
+| S2 | Progress tab UI (built in Polish Round 3, D10, on Child's Record) | The progress API (create, list, edit, soft delete) | A tab like Home visits |
 | S2 | Previous school year view | Built in F3 as year cards on the list | A read-only banner on the list |
 | S2 | Admin students-by-center screen | The API: `GET /api/students?centerId=`, summary and Child's Record reads for the Admin. The nav item is removed | A page with a center select and a read-only table |
 | S3 | Replacing overlapping menu dates | Confirm rejects overlapping dates with a clear message | A replace option in preview and confirm |

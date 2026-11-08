@@ -187,5 +187,8 @@ Polish calls so far: 31 of 120.
 | 2026-11-08 | H1 | `get_metadata` | 166:1553 | Teacher Calendar: grid 1270 x 874, header avatar 70 at 12 from the top; footer Quick links put "Child’s Record" after Calendar |
 | 2026-11-08 | H2 | `create_session` | file | Session for H2 |
 | 2026-11-08 | H2 | `get_screenshot` | 88:695 | Teacher Profile: detail columns and report cards, different from the Admin frame (DEC-049) |
+| 2026-11-08 | H3 | `get_screenshot` | 175:1023 | Teacher Home at 1920: rows and order |
+| 2026-11-08 | H3 | `get_screenshot` | 169:3189 | Child's Record: two columns of cards with View record |
+| 2026-11-08 | H3 | `get_screenshot` | 254:4572 | Add Student with narrative and home visit sections, not a record detail (DEC-050) |
 
-Round 3 calls so far: 10 of 60.
+Round 3 calls so far: 13 of 60.

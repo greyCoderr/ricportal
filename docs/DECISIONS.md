@@ -587,3 +587,16 @@ Decision:
 - The Admin footer line follows the Admin frame with the year 2026: "© 2026 RICPortal: Rural Improvement Club, Libmanan, Camarines Sur. All rights reserved." The Teacher and Parent footers and Login keep the shorter line of their frames.
 - Seven icons added from lucide-static 1.70.0, fetched from the published package and pinned in icons.test.tsx: chart-column, clock, mail, phone, shield-check, smartphone, user.
 - Test changes required by D7: `ProfilePage.test.tsx` now finds the new labels and the header card, and no longer expects Username or "Never"; the Admin footer test in `layouts.test.tsx` expects the new full line.
+
+## DEC-050: Defaults chosen in Round 3, H3 (Teacher pages)
+
+Context: docs/POLISH_PLAN_3.md D8, D9 and D10. No question asked, as the plan says.
+Decision:
+- D8 replaces two Round 2 rules (DEC-046, DEC-047): the page fits its top rows to one desktop screen (header, cards, then Quick Actions, calendar and the two cards), and Enrolled Students follows below that row, reached by scrolling the content area. So the preview is no longer hidden on a short screen, and it always lists four students.
+- D8 removes Figma's Recent Reports box, as the plan says, although frame 175:1023 shows it. Report Tracking lists the latest three liquidation submissions with their status, not the timeline of one report in the frame, because the report list holds no per-status dates. Admin Feedback is always shown, with "No feedback yet." when empty, and offers Revise and Resubmit only for a report that needs revision.
+- The student preview has Figma's #, Add Student and edit icon. The frame's trash icon is left out here: archiving stays on Enrolled Students, with its confirmation.
+- D9: Export List opens a dialog with School Year (the current year selected, earlier years offered) and Date Started, then the same Enrollment Form PDF.
+- D10: new `GET /api/child-records` (Teacher only, own center, ACTIVE children of the current school year, q and page) with `records` counts of live entries. It reuses the student list scope. Entries use the existing child-records API. The menu label is "CHILD'S RECORD", after CALENDAR, in capitals like the other items (DEC-037). It shares the form icon with PARENT REQUESTS.
+- Grade in frame 169:3189 is left out, because there is no data for it. Frame 254:4572 is the Add Student form, so the record detail with tabs has no frame of its own and uses the existing tab layout (DESIGN_LANGUAGE).
+- Not changed: the client's student pages stay Teacher-only, as since S2. The Admin's read access is the API (`/api/students`), with no page.
+- Test changes required by D8: in `TeacherHomePage.test.tsx`, "two students beside a feedback box" and "hides the preview on a short screen" are replaced by the D8 tests. `layouts.test.tsx` adds CHILD'S RECORD to the menu order.

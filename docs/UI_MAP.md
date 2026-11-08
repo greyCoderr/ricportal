@@ -20,8 +20,10 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | Centers | `/centers` | Admin | wired | List, search, add, edit, active |
 | RIC Teachers | `/teachers` | Admin | wired | Add with a temporary password shown once, edit, disable, reset |
 | Parent Requests | `/parents` | Teacher | wired | Filter by status, approve, decline, disable, enable, reset |
-| Enrolled Students | `/students` | Teacher | wired | Figma 78:260. Search, status filter, pagination, add, Enrollment Form dialog |
-| Student profile | `/students/:id` | Teacher | wired | Tabs Profile, One-on-One Conferences, Home Visits. Progress tab cut |
+| Enrolled Students | `/students` | Teacher | wired | Figma 78:260. Search, status filter, pagination, add, Export List dialog (D9) |
+| Student profile | `/students/:id` | Teacher | wired | Tabs Profile, One-on-One Conferences, Home Visits. Progress is on Child's Record |
+| Child's Record list | `/child-records` | Teacher | polished | Figma 169:3189, with record counts (D10) |
+| Child's Record detail | `/child-records/:id` | Teacher | wired | Tabs Conferences, Home Visits, Progress (DEC-050) |
 | Server status | `/status` | Public | wired | The former home placeholder (P0-T10) |
 | Menu Imports | `/menu-imports` | Admin | wired | Upload, preview, warnings, overlap, confirm, history |
 | Calendar | `/calendar` | Admin, Teacher | wired | FullCalendar: month on desktop, list on phones; day panel in a Drawer |
