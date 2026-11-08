@@ -542,9 +542,20 @@ Context: details that docs/POLISH_PLAN_2.md D3 and D10 leave open. No question a
 Decision:
 - Teacher Home counts as a dashboard page, because Figma names the frame "RIC dashboard". Figma stacks Recent Reports and Enrolled Students under the calendar, which cannot fit above the footer at 1366 x 768. On a desktop the same content sits in three columns, and it stacks below that.
 - Figma's Report Tracking box returns (it was left out by DEC-041), showing what the report list holds: the latest report, its submitted date and its status. Figma's per-step dates have no data source.
-- When a feedback box shows on Home, the student list shortens from four rows to two so the page still fits. The third column scrolls by itself only if a long text still does not fit.
+- When a feedback box shows on Home, the student list shortens from four rows to two so the page still fits. The third column scrolls by itself only if a long text still does not fit. (Changed by DEC-047.)
 - The day-panel tags point at the Purchase Request from 1024 px, as 166:1553 shows. Below that they keep the Parent frame's direction.
 - Student names in the list are black and underlined, as 78:260 shows.
 - On Report Status the details column sits beside the list on a desktop, as 78:284 shows. The Admin's Reports page keeps the full-width list, because its table has more columns and overflowed in the narrower one.
 - Tables on Centers and Menu Imports become cards on phones, so nothing scrolls sideways.
 - An icon button's hover label now runs left from the button's right edge, so the hidden label cannot widen a table.
+
+## DEC-047: Fixes from the G4 audit (Polish Round 2)
+
+Context: the G4 audit added two cases the earlier audits did not cover: Teacher Home with the Admin Feedback box, and touch screens of 1024 px and up (comfortable mode, 16 px root). It also measured 1024 x 768 with a mouse for the first time. No question asked, as the plan says.
+Decision:
+- With a feedback box, Teacher Home hides its Enrolled Students preview on a desktop screen under 900 px tall (`compact:[@media(max-height:899px)]:hidden`). The column overflowed by 98 px at 1366 x 768 and 28 px at 1536 x 864. The "View all students" link stays on the summary card above. Taller screens, tablets and phones keep the preview. This replaces the DEC-046 note that the column would scroll.
+- `cardsUntilDesktop` now keeps the cards until 1280 px, and always on touch screens: the table shows only in compact mode from 1280 px (`compact:xl:`). At 1024 px the Reports table was 381 px too wide, and on touch screens it still overflowed at 1366 px. It is used on Reports, RIC Teachers, the Admin dashboard's Recent Reports and Teacher Home's two tables.
+- The Admin dashboard's Recent Reports section scrolls (`overflow-y-auto`) instead of clipping (`overflow-hidden`). At 1024 x 768 its cards were cut off without a scrollbar. From 1280 px the audit found nothing hidden.
+- Student list cells are 8 px from the side outside compact mode (12 px in compact), so the table fits a 1024 px touch screen. It was 9 px too wide.
+- A calendar dish name longer than its cell breaks (`overflow-wrap: anywhere`) instead of being cut off. This shows only where a word is wider than the cell: comfortable mode from 1024 px. The fit calendars in compact mode keep one line with an ellipsis.
+- For the audit only, the port 3100 test server ran with RATE_LIMIT_MAX=100000 set in the shell, because one audit pass is more than 300 requests. Nothing in the code or config changed.

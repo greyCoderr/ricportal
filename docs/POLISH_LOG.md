@@ -308,28 +308,31 @@ Done, in the plan's order:
 
 Figma calls used so far: 12 of 89.
 
-## G4 Verify and tag: STOPPED, NOT TAGGED
+## G4 Verify and tag
 
-The system stopped the last browser audit because memory was critically low, and said not to restart it without being asked. DEC-035 says the same: report it and stop. So G4 is not finished and v0.9.4-demo does not exist. v0.9.3-demo is still the fallback.
+The first G4 attempt stopped when the system ran low on memory (DEC-035). It resumed on 2026-11-08 at the Developer's request, after memory was freed.
 
-Done in G4:
-- docs/DEMO_SCRIPT.md is updated: the cards, the upload panel, the status toggle, View Profile.
-- Audit of every page for all three roles (18 pages), document scroll, sideways scroll and fit:
-  - Before the last fixes, all seven sizes: 122 of 126 passed. The 4 failures were tables overflowing at 768x1024 and on Teacher Reports at 1280x720.
-  - After those fixes, 1280x720, 1366x768, 1920x1080 and 768x1024: 72 of 72 passed.
+Full check, one command at a time, after the last code change: `npx tsc -b`, `npm run lint`, `npm run format:check`, vitest unit 297/297, client 434/434 and db 549/549 (each with `--maxWorkers=1`), `npm run build`. All passed.
+
+Audit (scratchpad Playwright script, every page for the three roles, mocked report rows): document scroll, sideways scroll, clipped text, and fit with no scroll on dashboards from 1366 x 768.
+- First run of the missing items: Teacher Home with the Admin Feedback box overflowed by 98 px at 1366 x 768 and 28 px at 1536 x 864. The touch pass (comfortable mode, 16 px root, coarse pointer confirmed) found the Reports and RIC Teachers tables too wide at 1024 px and on Reports at 1280 and 1366 px, the Admin dashboard's Recent Reports 43 px too wide at 1280 px, the Student list 9 px too wide at 1024 px, and dish names cut off in the calendar. A mouse at 1024 x 768, never audited before, found Teacher Home's two tables too wide. A screenshot showed Recent Reports cards clipped without a scrollbar at 1024 x 768.
+- Fixed as DEC-047. Then, with the fixes:
+  - Mouse, eight sizes (1024x768, 1280x720, 1366x768, 1440x900, 1536x864, 1920x1080, 768x1024, 390x844): Admin 56/56, Teacher 72/72, Parent 16/16.
+  - Teacher pages with the feedback box, the same eight sizes: 72/72.
+  - Touch, 1024x768, 1280x800, 1366x768, 1920x1080, all roles: 72/72.
+  - The Admin dashboard at six desktop sizes: nothing scrolls from 1280 px; at 1024 x 768 the Recent Reports cards scroll inside their section.
+- The login rate limit (300 requests in 15 minutes) refused requests partway through the audits. All the numbers above come from a fresh run on a test server started with RATE_LIMIT_MAX=100000 in the shell (DEC-047).
+- Screenshots read: Teacher Home with feedback at 1366 x 768, Admin dashboard at 1024 x 768 and 1280 x 800 (touch), Students at 1024 x 768 (touch), Admin Calendar at 1024 x 768 (touch), Admin Reports at 1366 x 768 (touch).
+
+API smoke test on port 3100, built app: the three roles log in; the Admin gets the dashboard summary, the teacher list, GET /api/teachers/2 and the profile; a Teacher gets 403 on GET /api/teachers/2 and their own profile; the Parent gets /api/auth/me.
 
 NOT verified:
-- After the last fixes, 1440x900, 1536x864 and 390x844 were not audited again.
-- Teacher Home with the Admin Feedback box showing, its tallest state. The audit was stopped before it reached the Teacher pages. Home could overflow here, and the third column would then scroll by itself.
-- Touch devices of 1024 px and up (the comfortable mode there). The touch pass did not run.
-- Every dialog: only Assign Parents (G1), the reset confirmation and the menu preview (G2) were measured. Focus return was checked on Assign Parents and the reset confirmation.
-- Overlapping elements: the audit does not measure them. Screenshots were read only for the pages named in this log.
-- Report pages with data: the rows were mocked in the browser, because the local database has no reports.
-- The G3 and G4 pages with the client's mobile frames at 390x844: measured for scroll, not compared by eye.
+- The smoke test on port 3000. That port still runs a server I did not start, with older API code: GET /api/teachers/2 without login returns 404 there, where this round's code returns 401. **Restart it before the demo, or View Profile and the new dashboard counts will fail.**
+- Every dialog: only Assign Parents (G1), the reset confirmation and the menu preview (G2) were measured.
+- Overlapping elements: the audit does not measure them; only the screenshots named in this log were read.
+- Report pages with real data: the rows were mocked, because the local database has no reports.
 - The Upload panel's Confirm step in a browser (see G2).
+- On a touch screen of 1024 to about 1366 px, long dish names in the calendar break in the middle of a word ("Picadill / o"). Every name can be read; before, they were cut off. Cosmetic, and only in comfortable mode.
+- The footer's 10 px lines on tablets and phones are reported by the audit as small text; they were not changed in this round.
 
-Not run after the G3 changes: the full lint, the unit and db projects, and the whole client project. Run so far: typecheck, and client tests for the changed folders. ESLint ran on Home, Students and Reports before their last edits, and not on Table, Button, Centers or Menu Imports. No server code changed after G2's full check.
-
-The smoke test on port 3000 did not run. Another server I did not start holds that port, and its API code is older than this round: **restart it before the demo, or GET /api/teachers/:id and the new counts will fail.** My own checks ran on port 3100, and that server is stopped.
-
-To finish, when memory allows: close other programs, then run npx tsc -b, npm run lint, npm run format:check, the three vitest projects one after another with --maxWorkers=1, and npm run build. Repeat the audit for the items above, then tag v0.9.4-demo.
+Tag: v0.9.4-demo on the G4 commit. v0.9.3-demo stays as the fallback. Nothing pushed.
