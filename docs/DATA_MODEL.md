@@ -39,7 +39,8 @@ Migration `20261106120950_auth_centers_users`.
 | Table | Columns | Notes |
 | --- | --- | --- |
 | centers | id, name (unique), barangay, address, is_active, created_at, updated_at | 28 seeded from docs/seed-centers.md |
-| users | id, role (ADMIN, TEACHER, PARENT), username (unique, stored lowercase), password_hash, full_name, mobile, center_id, status (ACTIVE, PENDING, DECLINED, DISABLED), must_change_password, failed_login_count, locked_until, token_version, last_login_at, created_at, updated_at | Index (center_id, role, status). center_id is null for the Admin |
+| users | id, role (ADMIN, TEACHER, PARENT), username (unique, stored lowercase), password_hash, full_name, mobile, center_id, status (ACTIVE, PENDING, DECLINED, DISABLED), must_change_password, failed_login_count, locked_until, token_version, last_login_at, password_changed_at (nullable), created_at, updated_at | Index (center_id, role, status). center_id is null for the Admin |
+| login_events | id, user_id, created_at | One row per successful login (Plan 3 D7). Index (user_id, created_at). Deleted with the user |
 | parent_profiles | user_id (PK), child_name, created_at, updated_at | Deleted with the user |
 
 ## Sprint S2: students and Child's Record

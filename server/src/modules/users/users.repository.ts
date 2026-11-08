@@ -146,12 +146,13 @@ export function createUsersRepository(prisma: PrismaClient) {
     },
 
     // Forces a new password at next login and ends every open session.
-    resetPassword(id: number, passwordHash: string) {
+    resetPassword(id: number, passwordHash: string, at: Date) {
       return prisma.user.update({
         where: { id },
         data: {
           passwordHash,
           mustChangePassword: true,
+          passwordChangedAt: at,
           failedLoginCount: 0,
           lockedUntil: null,
           tokenVersion: { increment: 1 },

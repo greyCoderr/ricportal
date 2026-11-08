@@ -11,6 +11,8 @@ import { NAV_BY_ROLE } from "./nav";
 // Texts as in Figma 268:10479. The year is the real one (DEC-037; Figma has
 // 2025). The tagline uses Montserrat: Figma's Mozilla Headline is not installed.
 export const COPYRIGHT = "© 2026 RICPortal — Rural Improvement Club.";
+const ADMIN_COPYRIGHT =
+  "© 2026 RICPortal: Rural Improvement Club, Libmanan, Camarines Sur. All rights reserved.";
 const EMAIL = "maolibmanan4407@gmail.com";
 const PHONES = ["(054) 511-8332", "(054) 511-8198"];
 
@@ -29,7 +31,7 @@ export function AppFooter({ role }: { role: Role }) {
   if (role === "ADMIN") {
     return (
       <footer className="mt-auto shrink-0 px-4 py-4 text-center text-13 tracking-label text-text-secondary">
-        {COPYRIGHT}
+        {ADMIN_COPYRIGHT}
       </footer>
     );
   }

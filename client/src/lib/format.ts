@@ -67,3 +67,12 @@ export { formatNumericDate as formatDate, formatPeso } from "@ricportal/shared";
 export function formatInstantDate(instant: string): string {
   return formatNumericDate(manilaToday(new Date(instant)));
 }
+
+// The Manila clock time of an instant, for example "10:00 AM".
+export function formatInstantTime(instant: string): string {
+  return new Date(instant).toLocaleTimeString("en-US", {
+    timeZone: "Asia/Manila",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}

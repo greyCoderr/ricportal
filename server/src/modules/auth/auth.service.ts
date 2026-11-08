@@ -2,6 +2,8 @@ import {
   INVALID_LOGIN_MESSAGE,
   LOCKED_MESSAGE,
   manilaToday,
+  type LoginEventDto,
+  type ProfileActivityDto,
   STATUS_LOGIN_MESSAGES,
   type changePasswordSchema,
   type loginSchema,
@@ -48,7 +50,25 @@ type ProfileRow = NonNullable<
   Awaited<ReturnType<AuthRepository["findProfile"]>>
 >;
 
-function toProfile(row: ProfileRow): ProfileDto {
+const DAY_MS = 86_400_000;
+
+function calendarDayNumber(date: string): number {
+  return Date.parse(`${date}T00:00:00Z`) / DAY_MS;
+}
+
+// The first instants of this Manila month and the next.
+function manilaMonthRange(at: Date): { from: Date; to: Date } {
+  const [year = 0, month = 1] = manilaToday(at).split("-").map(Number);
+  const next = new Date(Date.UTC(year, month, 1));
+  const iso = (y: number, m: number) =>
+    `${String(y)}-${String(m).padStart(2, "0")}-01T00:00:00+08:00`;
+  return {
+    from: new Date(iso(year, month)),
+    to: new Date(iso(next.getUTCFullYear(), next.getUTCMonth() + 1)),
+  };
+}
+
+function toProfile(row: ProfileRow, at: Date): ProfileDto {
   return {
     id: row.id,
     role: row.role,
@@ -66,6 +86,12 @@ function toProfile(row: ProfileRow): ProfileDto {
     qualification: row.qualification,
     createdAt: row.createdAt.toISOString(),
     lastLoginAt: row.lastLoginAt?.toISOString() ?? null,
+    passwordChangedAt: row.passwordChangedAt?.toISOString() ?? null,
+    passwordChangedDaysAgo:
+      row.passwordChangedAt === null
+        ? null
+        : calendarDayNumber(manilaToday(at)) -
+          calendarDayNumber(manilaToday(row.passwordChangedAt)),
   };
 }
 
@@ -118,9 +144,10 @@ class UnknownUserThrottle {
 export function createAuthService(deps: {
   repository: AuthRepository;
   config: TokenConfig & { BCRYPT_COST: number };
+  settings: { currentSchoolYear: () => Promise<string> };
   now: () => Date;
 }) {
-  const { repository, config, now } = deps;
+  const { repository, config, settings, now } = deps;
   const unknownUsers = new UnknownUserThrottle();
   // Compared against when the username is unknown, so both paths do the work.
   const dummyHash = hashPassword("not-a-real-password-1", config.BCRYPT_COST);
@@ -192,7 +219,56 @@ export function createAuthService(deps: {
       if (row === null) {
         throw new UnauthenticatedError();
       }
-      return toProfile(row);
+      return toProfile(row, now());
+    },
+
+    async activity(user: {
+      id: number;
+      role: Role;
+      centerId: number | null;
+    }): Promise<ProfileActivityDto> {
+      const { from, to } = manilaMonthRange(now());
+      const loginsThisMonth = await repository.countLogins(user.id, from, to);
+      if (user.role === "PARENT") {
+        return { role: "PARENT", loginsThisMonth };
+      }
+      const schoolYear = await settings.currentSchoolYear();
+      if (user.role === "ADMIN") {
+        const [teachersManaged, enrolledStudents, reportsGenerated] =
+          await Promise.all([
+            repository.countTeachers(),
+            repository.countEnrolledStudents(schoolYear),
+            repository.countLiquidationReports(),
+          ]);
+        return {
+          role: "ADMIN",
+          teachersManaged,
+          enrolledStudents,
+          reportsGenerated,
+          loginsThisMonth,
+        };
+      }
+      if (user.centerId === null) {
+        throw new ForbiddenError("This account has no RIC Children Center.");
+      }
+      const [childrenEnrolled, parentsApproved, reportsSubmitted] =
+        await Promise.all([
+          repository.countEnrolledStudents(schoolYear, user.centerId),
+          repository.countApprovedParents(user.centerId),
+          repository.countCenterReports(user.centerId),
+        ]);
+      return {
+        role: "TEACHER",
+        childrenEnrolled,
+        parentsApproved,
+        reportsSubmitted,
+        loginsThisMonth,
+      };
+    },
+
+    async recentLogins(userId: number): Promise<LoginEventDto[]> {
+      const rows = await repository.listRecentLogins(userId);
+      return rows.map((row) => ({ at: row.createdAt.toISOString() }));
     },
 
     async updateProfile(
@@ -242,6 +318,7 @@ export function createAuthService(deps: {
           mobile: input.mobile ?? null,
           ...extras,
         }),
+        now(),
       );
     },
 
@@ -268,6 +345,7 @@ export function createAuthService(deps: {
       const row = await repository.changePassword(
         userId,
         await hashPassword(input.newPassword, config.BCRYPT_COST),
+        now(),
       );
       return { user: toSessionUser(row), token: await issueToken(row) };
     },

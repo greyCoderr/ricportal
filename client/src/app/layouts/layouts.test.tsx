@@ -252,7 +252,9 @@ describe("AppFooter (Figma 268:10479, 267:9689)", () => {
   it("Admin: the single copyright line that the Admin frames show", () => {
     footer("ADMIN");
     expect(
-      screen.getByText(/RICPortal — Rural Improvement Club\./),
+      screen.getByText(
+        "© 2026 RICPortal: Rural Improvement Club, Libmanan, Camarines Sur. All rights reserved.",
+      ),
     ).toBeDefined();
     expect(screen.queryByText("Quick links")).toBe(null);
   });

@@ -3,13 +3,17 @@ import { SESSION_KEY } from "../../lib/query-client";
 import {
   changePassword,
   fetchProfile,
+  fetchProfileActivity,
   fetchPublicCenters,
+  fetchRecentLogins,
   fetchSession,
   login,
   logout,
   parentSignup,
   updateProfile,
 } from "./api";
+
+const PROFILE_KEY = ["profile"] as const;
 
 export function useSession() {
   return useQuery({
@@ -47,14 +51,28 @@ export function useChangePassword() {
     mutationFn: changePassword,
     onSuccess: (user) => {
       client.setQueryData(SESSION_KEY, user);
+      // "Last changed" on the Profile page.
+      void client.invalidateQueries({ queryKey: PROFILE_KEY });
     },
   });
 }
 
-const PROFILE_KEY = ["profile"] as const;
-
 export function useProfile() {
   return useQuery({ queryKey: PROFILE_KEY, queryFn: fetchProfile });
+}
+
+export function useProfileActivity() {
+  return useQuery({
+    queryKey: [...PROFILE_KEY, "activity"],
+    queryFn: fetchProfileActivity,
+  });
+}
+
+export function useRecentLogins() {
+  return useQuery({
+    queryKey: [...PROFILE_KEY, "logins"],
+    queryFn: fetchRecentLogins,
+  });
 }
 
 export function useUpdateProfile() {

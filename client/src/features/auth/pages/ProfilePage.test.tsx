@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from "@testing-library/react";
+import { fireEvent, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithQuery } from "../../../../test/render";
@@ -23,7 +23,19 @@ const PROFILE = {
   qualification: null,
   createdAt: "2026-03-01T02:00:00.000Z",
   lastLoginAt: null,
+  passwordChangedAt: null,
+  passwordChangedDaysAgo: null,
 };
+
+const TEACHER_ACTIVITY = {
+  role: "TEACHER",
+  childrenEnrolled: 31,
+  parentsApproved: 12,
+  reportsSubmitted: 6,
+  loginsThisMonth: 9,
+};
+
+const ok = (data: unknown) => ({ status: 200, body: { data, meta: {} } });
 
 function mockApi(answers: Record<string, { status: number; body: unknown }>) {
   const calls: Call[] = [];
@@ -63,7 +75,8 @@ function renderPage() {
 }
 
 const READ = {
-  "GET /api/auth/profile": { status: 200, body: { data: PROFILE, meta: {} } },
+  "GET /api/auth/profile": ok(PROFILE),
+  "GET /api/auth/profile/activity": ok(TEACHER_ACTIVITY),
 };
 
 afterEach(() => {
@@ -71,46 +84,196 @@ afterEach(() => {
 });
 
 describe("ProfilePage (D11)", () => {
-  it("shows name, username, role, center and mobile", async () => {
+  it("D7: shows the header card, the role and the center", async () => {
     mockApi(READ);
     renderPage();
     await screen.findByRole("heading", { name: "RIC Teacher Profile" });
-    expect(screen.getByText("Ana Cruz")).toBeDefined();
-    expect(screen.getByText("teacher.sibujo")).toBeDefined();
-    expect(screen.getByText("RIC Teacher")).toBeDefined();
+    expect(screen.getAllByText("Ana Cruz").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("RIC Teacher").length).toBeGreaterThan(0);
     expect(screen.getByText("Sibujo")).toBeDefined();
-    expect(screen.getByText("09171234567")).toBeDefined();
+    expect(screen.getAllByText("09171234567").length).toBeGreaterThan(0);
+    expect(screen.getByText("Joined 03/01/2026")).toBeDefined();
+    expect(screen.getByText("Active")).toBeDefined();
+  });
+
+  it("D7: Admin sees the frame's summary and four activity counts", async () => {
+    mockApi({
+      "GET /api/auth/profile": ok({
+        ...PROFILE,
+        role: "ADMIN",
+        centerId: null,
+        centerName: null,
+      }),
+      "GET /api/auth/profile/activity": ok({
+        role: "ADMIN",
+        teachersManaged: 28,
+        enrolledStudents: 412,
+        reportsGenerated: 18,
+        loginsThisMonth: 24,
+      }),
+    });
+    renderPage();
+    expect(await screen.findByText("Teachers Managed")).toBeDefined();
+    expect(screen.getByRole("heading", { name: "Profile" })).toBeDefined();
+    for (const text of [
+      "28",
+      "412",
+      "Enrolled Students Monitored",
+      "18",
+      "Reports Generated",
+      "24",
+      "Logins This Month",
+      "Full Access",
+    ]) {
+      expect(screen.getByText(text)).toBeDefined();
+    }
+    expect(screen.getAllByText("System Administrator").length).toBe(2);
+  });
+
+  it("D7: Teacher sees their counts and center details", async () => {
+    mockApi(READ);
+    renderPage();
+    expect(await screen.findByText("Children Enrolled")).toBeDefined();
+    for (const text of [
+      "31",
+      "Parents Approved",
+      "Reports Submitted",
+      "RIC-TCHR-002",
+      "Position",
+      "Qualification",
+    ]) {
+      expect(screen.getByText(text)).toBeDefined();
+    }
+  });
+
+  it("D7: Parent sees the smaller version", async () => {
+    mockApi({
+      "GET /api/auth/profile": ok({ ...PROFILE, role: "PARENT" }),
+      "GET /api/auth/profile/activity": ok({
+        role: "PARENT",
+        loginsThisMonth: 3,
+      }),
+    });
+    renderPage();
+    expect(await screen.findByText("Logins This Month")).toBeDefined();
+    expect(screen.queryByText("Reports Submitted")).toBe(null);
+    expect(screen.queryByText("Qualification")).toBe(null);
+    expect(screen.queryByText("Permissions")).toBe(null);
+  });
+
+  it.each([
+    [null, "Not changed yet"],
+    [0, "Last changed today"],
+    [1, "Last changed 1 day ago"],
+    [30, "Last changed 30 days ago"],
+  ])("D7: password changed %s shows %s", async (days, text) => {
+    mockApi({
+      ...READ,
+      "GET /api/auth/profile": ok({
+        ...PROFILE,
+        passwordChangedDaysAgo: days,
+      }),
+    });
+    renderPage();
+    expect(await screen.findByText(text)).toBeDefined();
+  });
+
+  it("D7: 2FA and Active Sessions are disabled and say why", async () => {
+    mockApi(READ);
+    renderPage();
+    const enable = await screen.findByRole("button", { name: "Enable" });
+    expect((enable as HTMLButtonElement).disabled).toBe(true);
+    const sessions = screen.getByRole("button", { name: "View Sessions" });
+    expect((sessions as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getAllByText("Not available in this version").length).toBe(2);
+  });
+
+  it.each(["View History", "View All Activity"])(
+    "D7: %s opens the last logins with numeric dates",
+    async (label) => {
+      mockApi({
+        ...READ,
+        "GET /api/auth/logins": ok([
+          { at: "2026-11-05T02:00:00.000Z" },
+          { at: "2026-11-01T02:00:00.000Z" },
+        ]),
+      });
+      renderPage();
+      fireEvent.click(await screen.findByRole("button", { name: label }));
+      const list = await screen.findByRole("list", { name: "Last logins" });
+      expect(list.querySelectorAll("li").length).toBe(2);
+      expect(list.textContent).toContain("11/05/2026");
+      expect(list.textContent).toContain("11/01/2026");
+    },
+  );
+
+  it("D7: an empty login history says so", async () => {
+    mockApi({ ...READ, "GET /api/auth/logins": ok([]) });
+    renderPage();
+    fireEvent.click(
+      await screen.findByRole("button", { name: "View History" }),
+    );
+    expect(await screen.findByText("No logins recorded yet.")).toBeDefined();
+  });
+
+  it("D7: the Admin's edit form has the frame's six fields", async () => {
+    mockApi({
+      "GET /api/auth/profile": ok({
+        ...PROFILE,
+        role: "ADMIN",
+        centerId: null,
+        centerName: null,
+      }),
+      "GET /api/auth/profile/activity": ok({
+        role: "ADMIN",
+        teachersManaged: 0,
+        enrolledStudents: 0,
+        reportsGenerated: 0,
+        loginsThisMonth: 0,
+      }),
+    });
+    renderPage();
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Edit Profile" }),
+    );
+    const dialog = await screen.findByRole("dialog");
+    for (const label of [
+      /Full Name/,
+      /Date of Birth/,
+      /Email Address/,
+      /Gender/,
+      /Contact Number/,
+      /^Address/,
+    ]) {
+      expect(within(dialog).getByLabelText(label)).toBeDefined();
+    }
+    expect(within(dialog).queryByLabelText(/Qualification/)).toBe(null);
+    expect(within(dialog).queryByLabelText(/Position/)).toBe(null);
   });
 
   it("D9: shows the frame's fields, and Not set for an empty one", async () => {
     mockApi({
-      "GET /api/auth/profile": {
-        status: 200,
-        body: {
-          data: {
-            ...PROFILE,
-            email: "ana@example.com",
-            address: "Purok 2",
-            sex: "Female",
-            birthDate: "1990-03-14",
-          },
-          meta: {},
-        },
-      },
+      ...READ,
+      "GET /api/auth/profile": ok({
+        ...PROFILE,
+        email: "ana@example.com",
+        address: "Purok 2",
+        sex: "Female",
+        birthDate: "1990-03-14",
+      }),
     });
     renderPage();
     await screen.findByRole("heading", { name: "RIC Teacher Profile" });
     for (const text of [
       "RIC-TCHR-002",
-      "03/01/2026",
-      "ana@example.com",
+      "Joined 03/01/2026",
       "Purok 2",
       "Female",
       "03/14/1990",
-      "Never",
     ]) {
       expect(screen.getByText(text)).toBeDefined();
     }
+    expect(screen.getAllByText("ana@example.com").length).toBe(2);
     expect(screen.getAllByText("Not set").length).toBeGreaterThan(0);
   });
 
@@ -160,7 +323,7 @@ describe("ProfilePage (D11)", () => {
     fireEvent.click(
       await screen.findByRole("button", { name: "Edit Profile" }),
     );
-    const name = screen.getByLabelText(/Full name/);
+    const name = screen.getByLabelText(/Full Name/);
     expect((name as HTMLInputElement).value).toBe("Ana Cruz");
     fireEvent.change(name, { target: { value: "Ana B. Cruz" } });
     fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
@@ -171,7 +334,9 @@ describe("ProfilePage (D11)", () => {
       fullName: "Ana B. Cruz",
       mobile: "09171234567",
     });
-    expect(await screen.findByText("Ana B. Cruz")).toBeDefined();
+    await waitFor(() => {
+      expect(screen.getAllByText("Ana B. Cruz").length).toBe(2);
+    });
   });
 
   it("shows the server's field message on a failed edit", async () => {

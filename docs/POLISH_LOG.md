@@ -375,3 +375,32 @@ Summary of H1, done:
 - Port 3000 is still held by an API process started earlier in this session that survived its stop, with code older than H1. The process lookup was refused by the permission system, so it was left alone. Restart the laptop or close it before `npm start`.
 
 Stopped after H1 (2026-11-08): the system stopped the dev API (3100) and Vite (5174) because memory was critically low. Per DEC-035 and the system notice, they were not restarted and work stops here, reported to the Developer. H2 to H4 are not started.
+
+Resumed on 2026-11-08 at the Developer's request from H2, with stricter memory rules for this run: one foreground command at a time; before a browser check, list Node processes and report leftovers rather than kill them; the built server only on port 3100 with RATE_LIMIT_MAX set for that process; one browser at a time, closed after each check; screenshots at 1440x900, 1366x768 and 390x844 only until H4. Git state and `tsc -b` were clean at the start.
+
+## H2 Profiles and data
+
+Plan:
+1. Tests first: migration additive, profile fields, owner only, email not a login, password_changed_at, login events, activity counts and scope, last 10 logins, View Profile, matrix rows.
+2. Additive migration, then the service, repository and two routes.
+3. Client tests, then the Profile page for all roles in the layout of the Admin frame.
+4. Browser check, full check in foreground steps, commit.
+
+Summary of H2, done:
+- Migration `20261108073559_polish3_login_events` created with `--create-only`, read, then applied to the local database. It is additive, and no drift appeared.
+- Built: `GET /api/auth/profile/activity`, `GET /api/auth/logins`, login events, password_changed_at, the Profile page with Account Summary, System Activity, Personal Information and Account Security, the Login History dialog, Date Approved on View Profile. Decisions: DEC-049.
+- Tests first: the new db file was seen with 18 of 26 failing before the code (the other 8 lock rules that already worked: validation, owner only, email not a login), then all passing. Client: 15 of 20 Profile tests failed before the page, then all passing.
+- Tests changed because D7 replaces the old content, not to make them pass: listed in DEC-049.
+- Browser (Playwright from the npx cache, the built server on port 3100, no other Node process running; one browser per role, each closed afterwards; the server stopped by its process id and confirmed gone after the first run): Admin, Teacher and Parent at 1440x900, 1366x768 and 390x844: document scroll 0, sideways scroll 0, no wide element, no page error. Login History opens with the real login. The edit dialog is centered in the content area with the right fields per role. Read: Admin at 1440 against the reference image, Teacher at 390.
+- The first browser run stopped at login because my script used the wrong Admin password. That was one failed login on the local admin account, cleared by the next successful login. The rerun passed.
+- The check server was started with the same `node` line that `npm start` runs, so that it could be stopped by its own process id.
+- Local database: logging in for the check added one login event for each of admin, teacher.sibujo and parent1. Nothing else was saved: the dialogs were opened and closed without saving.
+- Full check, foreground steps: `npx tsc -b`, lint and format clean; unit 297 of 297, client 468 of 468 (467 in the full run, then the changed footer test with its file, 17 of 17), db 584 of 584, each on one worker; the build succeeds.
+
+NOT verified in H2:
+- Saving the edit form and changing a password in a real browser. Both are covered by client tests with a mocked API and by db tests.
+- 1920x1080 and the other sizes (left for the H4 audit, per the memory rules for this run).
+- Figma was compared by eye for Admin only. Teacher follows D7, so it does not match 88:695. Parent has no frame.
+- For H4: on the 390 px screenshot the top bar's avatar looks narrower than it is tall. It was not caused by H2 and was not changed.
+
+Figma calls used so far: 10 of 60.

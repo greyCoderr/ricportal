@@ -13,37 +13,27 @@ import {
   SelectField,
   TextField,
 } from "../../../components/form/fields";
-import { NOT_SET, ProfileCard } from "../../../components/ProfileCard";
 import { QueryBoundary } from "../../../components/QueryBoundary";
-import { Badge, Banner, Button, Modal } from "../../../components/ui";
-import { formatDate, formatInstantDate } from "../../../lib/format";
-import { LABELS } from "../../../lib/labels";
-import { userCode } from "../../../lib/user-code";
+import { Banner, Button, EmptyState, Modal } from "../../../components/ui";
+import { formatInstantDate, formatInstantTime } from "../../../lib/format";
 import { useZodForm } from "../../../lib/use-zod-form";
-import { useChangePassword, useProfile, useUpdateProfile } from "../hooks";
-
-const ROLE_LABEL: Record<Role, string> = {
-  ADMIN: LABELS.admin,
-  TEACHER: LABELS.teacher,
-  PARENT: LABELS.parent,
-};
+import {
+  AccountSecurityCard,
+  PersonalInformationCard,
+  ProfileActivityCard,
+  ProfileSummaryCard,
+} from "../components/ProfileSections";
+import {
+  useChangePassword,
+  useProfile,
+  useRecentLogins,
+  useUpdateProfile,
+} from "../hooks";
 
 const TITLE: Record<Role, string> = {
   ADMIN: "Profile",
   TEACHER: "RIC Teacher Profile",
   PARENT: "Parent Profile",
-};
-
-const ID_LABEL: Record<Role, string> = {
-  ADMIN: "User ID",
-  TEACHER: "Teacher ID",
-  PARENT: "Parent ID",
-};
-
-const ACTIVE_BADGE: Record<Role, string> = {
-  ADMIN: "Active Administrator",
-  TEACHER: "Active Teacher",
-  PARENT: "Active Parent",
 };
 
 const EXTRA_FIELDS = [
@@ -108,32 +98,41 @@ function EditProfileDialog({
           });
         })}
       >
-        <TextField form={form} name="fullName" label="Full name" required />
-        <TextField
-          form={form}
-          name="mobile"
-          label="Mobile number"
-          inputMode="tel"
-          autoComplete="tel"
-          required={profile.role === "PARENT"}
-        />
+        <TextField form={form} name="fullName" label="Full Name" required />
+        <DateField form={form} name="birthDate" label="Date of Birth" />
         <TextField
           form={form}
           name="email"
-          label="Email"
+          label="Email Address"
           autoComplete="email"
         />
-        <TextField form={form} name="address" label="Address" />
-        <TextField form={form} name="position" label="Position" />
-        <SelectField form={form} name="sex" label="Sex" placeholder="Select...">
+        <SelectField
+          form={form}
+          name="sex"
+          label="Gender"
+          placeholder="Select..."
+        >
           {SEX_OPTIONS.map((option) => (
             <option key={option} value={option}>
               {option}
             </option>
           ))}
         </SelectField>
-        <DateField form={form} name="birthDate" label="Birth date" />
-        <TextField form={form} name="qualification" label="Qualification" />
+        <TextField
+          form={form}
+          name="mobile"
+          label="Contact Number"
+          inputMode="tel"
+          autoComplete="tel"
+          required={profile.role === "PARENT"}
+        />
+        <TextField form={form} name="address" label="Address" />
+        {profile.role === "TEACHER" && (
+          <>
+            <TextField form={form} name="position" label="Position" />
+            <TextField form={form} name="qualification" label="Qualification" />
+          </>
+        )}
         {form.formError !== null && (
           <Banner tone="danger">{form.formError}</Banner>
         )}
@@ -204,8 +203,38 @@ function ChangePasswordDialog({
   );
 }
 
+function LoginHistoryDialog({ onClose }: { onClose: () => void }) {
+  const logins = useRecentLogins();
+  return (
+    <Modal open onClose={onClose} title="Login History">
+      <QueryBoundary query={logins} errorTitle="Could not load your logins.">
+        {logins.data?.length === 0 && (
+          <EmptyState title="No logins recorded yet." />
+        )}
+        {logins.data !== undefined && logins.data.length > 0 && (
+          <ol
+            aria-label="Last logins"
+            className="flex flex-col divide-y divide-border-subtle text-13 tracking-label"
+          >
+            {logins.data.map((login) => (
+              <li key={login.at} className="flex justify-between gap-4 py-2">
+                <span>{formatInstantDate(login.at)}</span>
+                <span className="text-text-secondary">
+                  {formatInstantTime(login.at)}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </QueryBoundary>
+    </Modal>
+  );
+}
+
 function ProfileDetails({ profile }: { profile: ProfileDto }) {
-  const [dialog, setDialog] = useState<"edit" | "password" | null>(null);
+  const [dialog, setDialog] = useState<"edit" | "password" | "logins" | null>(
+    null,
+  );
   const [changed, setChanged] = useState(false);
   const close = () => {
     setDialog(null);
@@ -213,84 +242,47 @@ function ProfileDetails({ profile }: { profile: ProfileDto }) {
 
   return (
     <>
-      <h1 className="mb-6 text-24 font-bold tracking-label lg:text-40">
+      <h1 className="text-24 font-bold tracking-label lg:text-40">
         {TITLE[profile.role]}
       </h1>
+      <p className="mt-1 mb-6 text-13 tracking-label text-text-secondary">
+        View and manage your account information and security settings.
+      </p>
       {changed && (
         <div className="mb-4">
           <Banner tone="success">Your password was changed.</Banner>
         </div>
       )}
-      <ProfileCard
-        name={profile.fullName}
-        badge={<Badge tone="success">{ACTIVE_BADGE[profile.role]}</Badge>}
-        contacts={[
-          profile.email ?? "No email yet",
-          profile.mobile ?? "No mobile number yet",
-          profile.address ?? "No address yet",
-        ]}
-        columns={[
-          [
-            {
-              label: ID_LABEL[profile.role],
-              value: userCode(profile.role, profile.id),
-            },
-            {
-              label: "Date Registered",
-              value: formatInstantDate(profile.createdAt),
-            },
-            ...(profile.centerName === null
-              ? []
-              : [{ label: LABELS.center, value: profile.centerName }]),
-          ],
-          [
-            { label: "Sex", value: profile.sex ?? NOT_SET },
-            {
-              label: "BirthDate",
-              value:
-                profile.birthDate === null
-                  ? NOT_SET
-                  : formatDate(profile.birthDate),
-            },
-            { label: "Qualification", value: profile.qualification ?? NOT_SET },
-          ],
-          [
-            { label: "Username", value: profile.username },
-            { label: "Role", value: ROLE_LABEL[profile.role] },
-            { label: "Position", value: profile.position ?? NOT_SET },
-            {
-              label: "Last Login",
-              value:
-                profile.lastLoginAt === null
-                  ? "Never"
-                  : formatInstantDate(profile.lastLoginAt),
-            },
-          ],
-        ]}
-      />
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button
-          variant="secondary"
-          icon="pencil"
-          onClick={() => {
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,2.6fr)_minmax(0,1fr)]">
+        <ProfileSummaryCard profile={profile} />
+        <ProfileActivityCard
+          onViewAll={() => {
+            setDialog("logins");
+          }}
+        />
+      </div>
+      <div className="mt-4 grid gap-4 xl:grid-cols-2">
+        <PersonalInformationCard
+          profile={profile}
+          onEdit={() => {
             setDialog("edit");
           }}
-        >
-          Edit Profile
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => {
+        />
+        <AccountSecurityCard
+          profile={profile}
+          onChangePassword={() => {
             setChanged(false);
             setDialog("password");
           }}
-        >
-          Change Password
-        </Button>
+          onViewHistory={() => {
+            setDialog("logins");
+          }}
+        />
       </div>
       {dialog === "edit" && (
         <EditProfileDialog profile={profile} onClose={close} />
       )}
+      {dialog === "logins" && <LoginHistoryDialog onClose={close} />}
       {dialog === "password" && (
         <ChangePasswordDialog
           onClose={close}
@@ -304,8 +296,7 @@ function ProfileDetails({ profile }: { profile: ProfileDto }) {
   );
 }
 
-// Profile (Figma 88:695 and 378:16539; D9). Every field of the frame with a data
-// source. The report cards and activity lists are left out (SPRINT_SHORTCUTS).
+// Profile for every role in the layout of the Admin frame (Plan 3 D7, DEC-049).
 export function ProfilePage() {
   const profile = useProfile();
   return (

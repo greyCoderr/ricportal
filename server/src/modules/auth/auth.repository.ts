@@ -28,8 +28,11 @@ const PROFILE_SELECT = {
   qualification: true,
   createdAt: true,
   lastLoginAt: true,
+  passwordChangedAt: true,
   center: { select: { name: true } },
 } as const;
+
+const LOGIN_HISTORY_SIZE = 10;
 
 export function createAuthRepository(prisma: PrismaClient) {
   return {
@@ -102,20 +105,71 @@ export function createAuthRepository(prisma: PrismaClient) {
       });
     },
 
+    // One transaction, so last login and the history cannot disagree.
     recordLogin(id: number, at: Date) {
-      return prisma.user.update({
-        where: { id },
-        data: { failedLoginCount: 0, lockedUntil: null, lastLoginAt: at },
-        select: { id: true },
+      return prisma.$transaction([
+        prisma.user.update({
+          where: { id },
+          data: { failedLoginCount: 0, lockedUntil: null, lastLoginAt: at },
+          select: { id: true },
+        }),
+        prisma.loginEvent.create({
+          data: { userId: id, createdAt: at },
+          select: { id: true },
+        }),
+      ]);
+    },
+
+    countLogins(userId: number, from: Date, to: Date) {
+      return prisma.loginEvent.count({
+        where: { userId, createdAt: { gte: from, lt: to } },
       });
     },
 
-    changePassword(id: number, passwordHash: string) {
+    listRecentLogins(userId: number) {
+      return prisma.loginEvent.findMany({
+        where: { userId },
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        take: LOGIN_HISTORY_SIZE,
+        select: { createdAt: true },
+      });
+    },
+
+    countTeachers() {
+      return prisma.user.count({ where: { role: "TEACHER" } });
+    },
+
+    countEnrolledStudents(schoolYear: string, centerId?: number) {
+      return prisma.student.count({
+        where: {
+          schoolYear,
+          status: "ACTIVE",
+          ...(centerId === undefined ? {} : { centerId }),
+        },
+      });
+    },
+
+    countLiquidationReports() {
+      return prisma.report.count({ where: { type: "LIQUIDATION" } });
+    },
+
+    countApprovedParents(centerId: number) {
+      return prisma.user.count({
+        where: { role: "PARENT", status: "ACTIVE", centerId },
+      });
+    },
+
+    countCenterReports(centerId: number) {
+      return prisma.report.count({ where: { centerId } });
+    },
+
+    changePassword(id: number, passwordHash: string, at: Date) {
       return prisma.user.update({
         where: { id },
         data: {
           passwordHash,
           mustChangePassword: false,
+          passwordChangedAt: at,
           tokenVersion: { increment: 1 },
         },
         select: SESSION_SELECT,

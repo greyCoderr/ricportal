@@ -79,6 +79,53 @@ const SHAPES = {
       <path {...STROKE} d="m6 9 6 6 6-6" />
     </>
   ),
+  "chart-column": (
+    <>
+      <path {...STROKE} d="M3 3v16a2 2 0 0 0 2 2h16" />
+      <path {...STROKE} d="M18 17V9" />
+      <path {...STROKE} d="M13 17V5" />
+      <path {...STROKE} d="M8 17v-3" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle {...STROKE} cx="12" cy="12" r="10" />
+      <path {...STROKE} d="M12 6v6l4 2" />
+    </>
+  ),
+  mail: (
+    <>
+      <path {...STROKE} d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
+      <rect {...STROKE} x="2" y="4" width="20" height="16" rx="2" />
+    </>
+  ),
+  phone: (
+    <path
+      {...STROKE}
+      d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"
+    />
+  ),
+  "shield-check": (
+    <>
+      <path
+        {...STROKE}
+        d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+      />
+      <path {...STROKE} d="m9 12 2 2 4-4" />
+    </>
+  ),
+  smartphone: (
+    <>
+      <rect {...STROKE} width="14" height="20" x="5" y="2" rx="2" ry="2" />
+      <path {...STROKE} d="M12 18h.01" />
+    </>
+  ),
+  user: (
+    <>
+      <path {...STROKE} d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle {...STROKE} cx="12" cy="7" r="4" />
+    </>
+  ),
   "circle-alert": (
     <>
       <circle {...STROKE} cx="12" cy="12" r="10" />

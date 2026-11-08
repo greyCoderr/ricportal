@@ -185,5 +185,7 @@ Polish calls so far: 31 of 120.
 | 2026-11-08 | H1 | `get_screenshot` | 267:9689 | Admin dashboard at 1920 |
 | 2026-11-08 | H1 | `get_metadata` | 268:11404 | Admin Calendar: calendar 955 x 699 beside the upload panel 575 wide |
 | 2026-11-08 | H1 | `get_metadata` | 166:1553 | Teacher Calendar: grid 1270 x 874, header avatar 70 at 12 from the top; footer Quick links put "Child’s Record" after Calendar |
+| 2026-11-08 | H2 | `create_session` | file | Session for H2 |
+| 2026-11-08 | H2 | `get_screenshot` | 88:695 | Teacher Profile: detail columns and report cards, different from the Admin frame (DEC-049) |
 
-Round 3 calls so far: 8 of 60.
+Round 3 calls so far: 10 of 60.

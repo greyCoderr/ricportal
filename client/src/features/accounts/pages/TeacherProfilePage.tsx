@@ -79,7 +79,7 @@ function TeacherDetails({ teacher }: { teacher: TeacherDetailDto }) {
           [
             { label: "Teacher ID", value: userCode("TEACHER", teacher.id) },
             {
-              label: "Date Registered",
+              label: "Date Approved",
               value: formatInstantDate(teacher.createdAt),
             },
             { label: "Barangay", value: teacher.centerName ?? NOT_SET },

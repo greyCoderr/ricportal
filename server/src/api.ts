@@ -112,8 +112,9 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
       return user;
     },
   });
+  const settings = createSettingsRepository(prisma);
   const authController = createAuthController(
-    createAuthService({ repository: authRepository, config, now }),
+    createAuthService({ repository: authRepository, config, settings, now }),
     config,
   );
   const usersController = createUsersController(
@@ -121,10 +122,10 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
       repository: createUsersRepository(prisma),
       bcryptCost: config.BCRYPT_COST,
       defaultPassword: config.DEFAULT_PASSWORD,
+      now,
     }),
   );
 
-  const settings = createSettingsRepository(prisma);
   const studentsService = createStudentsService({
     repository: createStudentsRepository(prisma),
     settings,

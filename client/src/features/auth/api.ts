@@ -1,7 +1,9 @@
 import type {
   ChangePasswordInput,
+  LoginEventDto,
   LoginInput,
   ParentSignupInput,
+  ProfileActivityDto,
   ProfileDto,
   ProfileUpdateInput,
   PublicCenter,
@@ -46,6 +48,14 @@ export async function updateProfile(
 ): Promise<ProfileDto> {
   return (await apiRequest<ProfileDto>("PATCH", "/api/auth/profile", input))
     .data;
+}
+
+export async function fetchProfileActivity(): Promise<ProfileActivityDto> {
+  return (await apiGet<ProfileActivityDto>("/api/auth/profile/activity")).data;
+}
+
+export async function fetchRecentLogins(): Promise<LoginEventDto[]> {
+  return (await apiGet<LoginEventDto[]>("/api/auth/logins")).data;
 }
 
 export async function parentSignup(

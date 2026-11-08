@@ -572,3 +572,18 @@ Decision:
 - D5: the calendar month fits the content area on a desktop. The Admin's center choice moves into the page header. FullCalendar always shows six weeks, so each week row gets a sixth of the height, and the dish names are taken out of the row's flow in fit mode. Names: two lines, ellipsis, 11 to 13 px by cell width (container query), full name on hover (title), on keyboard focus (clamp lifted) and in the day panel. This replaces DEC-045's one line on the dashboard calendar and DEC-047's mid-word breaking.
 - D6: the three card icons are cropped from the Figma render of 267:9862, because that frame's content is one flat image with no separate icon layers. Each is 96 x 96 px, under 14 KB. Assigned Barangays keeps the map-pin icon. `TeacherDto` gains `createdAt` for Date Approved; Last Login stays on View Profile. The toggle is a 44 px (comfortable) round icon button.
 - Test changes required by the plan: the D13 footer test and the compact scroll test in layouts.test.tsx now check D1's structure; the TeachersPage toggle test now expects no visible words (D6) and the Last Login column test became the Date Approved test; the dashboard order test finds labels by `data-card-label` instead of the uppercase class.
+
+## DEC-049: Defaults chosen in Round 3, H2 (Profiles and data)
+
+Context: docs/POLISH_PLAN_3.md D7. No question asked, as the plan says.
+Decision:
+- Data: the existing `email`, `sex`, `birth_date` and `address` serve D7's email, gender, date_of_birth and address. The migration `polish3_login_events` only adds `users.password_changed_at` (nullable) and the `login_events` table.
+- `password_changed_at` is set on a password change and on a reset to the default, and is empty until then. The page shows "Not changed yet" for an empty value. The days are whole Manila calendar days, computed on the server (`passwordChangedDaysAgo`).
+- A login event is written in one transaction with `last_login_at`, only after every login check has passed.
+- Activity counts. Admin: Teachers Managed is every Teacher account, active or disabled; Enrolled Students Monitored uses the same rule as the dashboard (ACTIVE in the current school year); Reports Generated is reports of type LIQUIDATION. Teacher: the same student rule for their center, ACTIVE Parents of the center, and all reports of the center. Parent: Logins This Month only. "This month" is the Manila calendar month.
+- Layout: D7 puts every role on the Admin frame's layout, although the Teacher frame 88:695 has a different one (detail columns, report cards and status activity). D7 wins. Parent has no frame and uses the same layout.
+- Kept for the Teacher, because they exist only here: Teacher ID and center in Account Summary, Position and Qualification in Personal Information and the edit form. The Admin and Parent edit forms have the six fields D7 lists.
+- Removed from the own Profile page, because the D7 content does not list them: Username, and the Last Login value (Login History replaces it). The Admin's View Profile still shows Last Login, and its "Date Registered" is now "Date Approved".
+- The Admin footer line follows the Admin frame with the year 2026: "© 2026 RICPortal: Rural Improvement Club, Libmanan, Camarines Sur. All rights reserved." The Teacher and Parent footers and Login keep the shorter line of their frames.
+- Seven icons added from lucide-static 1.70.0, fetched from the published package and pinned in icons.test.tsx: chart-column, clock, mail, phone, shield-check, smartphone, user.
+- Test changes required by D7: `ProfilePage.test.tsx` now finds the new labels and the header card, and no longer expects Username or "Never"; the Admin footer test in `layouts.test.tsx` expects the new full line.

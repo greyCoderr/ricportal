@@ -68,8 +68,9 @@ export function createUsersService(deps: {
   repository: UsersRepository;
   bcryptCost: number;
   defaultPassword: string;
+  now: () => Date;
 }) {
-  const { repository, bcryptCost, defaultPassword } = deps;
+  const { repository, bcryptCost, defaultPassword, now } = deps;
 
   // D6: sets the default, forces a change at next login, ends old sessions and
   // clears a lockout. Only a plain message goes back.
@@ -77,6 +78,7 @@ export function createUsersService(deps: {
     await repository.resetPassword(
       id,
       await hashPassword(defaultPassword, bcryptCost),
+      now(),
     );
     return { message: PASSWORD_RESET_MESSAGE };
   }

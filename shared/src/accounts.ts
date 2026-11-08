@@ -183,7 +183,30 @@ export type ProfileDto = {
   qualification: string | null;
   createdAt: string;
   lastLoginAt: string | null;
+  passwordChangedAt: string | null;
+  // Whole Manila calendar days since the change; null if it never changed.
+  passwordChangedDaysAgo: number | null;
 };
+
+// System Activity on the Profile page, scoped to the caller (Plan 3 D7).
+export type ProfileActivityDto =
+  | {
+      role: "ADMIN";
+      teachersManaged: number;
+      enrolledStudents: number;
+      reportsGenerated: number;
+      loginsThisMonth: number;
+    }
+  | {
+      role: "TEACHER";
+      childrenEnrolled: number;
+      parentsApproved: number;
+      reportsSubmitted: number;
+      loginsThisMonth: number;
+    }
+  | { role: "PARENT"; loginsThisMonth: number };
+
+export type LoginEventDto = { at: string };
 
 export type SessionUser = {
   id: number;

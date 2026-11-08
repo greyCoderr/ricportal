@@ -54,6 +54,16 @@ export function createAuthController(
       ok(res, await service.profile(currentUser(req).id));
     },
 
+    activity: async (req: Request, res: Response) => {
+      res.set("Cache-Control", "no-store");
+      ok(res, await service.activity(currentUser(req)));
+    },
+
+    logins: async (req: Request, res: Response) => {
+      res.set("Cache-Control", "no-store");
+      ok(res, await service.recentLogins(currentUser(req).id));
+    },
+
     updateProfile: async (req: Request, res: Response) => {
       ok(
         res,

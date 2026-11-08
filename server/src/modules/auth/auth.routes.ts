@@ -19,6 +19,8 @@ export function createAuthRouter(
   const everyRole = requireRole("ADMIN", "TEACHER", "PARENT");
   router.get("/profile", authenticate, everyRole, controller.profile);
   router.patch("/profile", authenticate, everyRole, controller.updateProfile);
+  router.get("/profile/activity", authenticate, everyRole, controller.activity);
+  router.get("/logins", authenticate, everyRole, controller.logins);
   return router;
 }
 
