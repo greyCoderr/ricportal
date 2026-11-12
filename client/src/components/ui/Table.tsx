@@ -21,6 +21,8 @@ type TableProps<T> = {
   // the cards stay until 1280 px, and on touch screens (comfortable mode) always.
   cardsUntilDesktop?: boolean;
   rowClassName?: (row: T) => string;
+  // Figma's gray header band (Plan 4 D8): header token background, bold 12 px.
+  band?: boolean;
 };
 
 // A real table with ruled lines (DESIGN_LANGUAGE rule 1). It scrolls inside
@@ -34,6 +36,7 @@ export function Table<T>({
   cardsOnPhone = false,
   cardsUntilDesktop = false,
   rowClassName,
+  band = false,
 }: TableProps<T>) {
   return (
     <>
@@ -56,13 +59,21 @@ export function Table<T>({
             {caption}
           </caption>
           <thead>
-            <tr className="border-b border-border">
+            <tr
+              className={cx(
+                "border-b border-border",
+                band && "ric-table-band bg-header",
+              )}
+            >
               {columns.map((column) => (
                 <th
                   key={column.key}
                   scope="col"
                   className={cx(
-                    "px-3 py-2 font-medium whitespace-nowrap text-text-secondary",
+                    "px-3 py-2 whitespace-nowrap",
+                    band
+                      ? "text-12 font-bold text-text"
+                      : "font-medium text-text-secondary",
                     column.align === "right" ? "text-right" : "text-left",
                   )}
                 >

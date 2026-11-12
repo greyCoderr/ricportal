@@ -9,10 +9,13 @@ export function Tabs({
   label,
   items,
   initial,
+  variant = "line",
 }: {
   label: string;
   items: TabItem[];
   initial?: string;
+  // pill: the green tabs of the Admin dashboard's Recent Reports (Figma 267:9689).
+  variant?: "line" | "pill";
 }) {
   const [active, setActive] = useState(initial ?? items[0]?.id);
   const base = useId();
@@ -22,7 +25,11 @@ export function Tabs({
       <div
         role="tablist"
         aria-label={label}
-        className="mb-4 flex flex-wrap gap-1 border-b border-border-subtle"
+        className={
+          variant === "pill"
+            ? "mb-2 flex flex-wrap gap-2 border-b border-border-subtle"
+            : "mb-4 flex flex-wrap gap-1 border-b border-border-subtle"
+        }
       >
         {items.map((item) => {
           const selected = item.id === current?.id;
@@ -38,10 +45,16 @@ export function Tabs({
                 setActive(item.id);
               }}
               className={cx(
-                "-mb-px min-h-11 border-b-2 px-3 text-15",
-                selected
-                  ? "border-primary font-semibold text-text"
-                  : "border-transparent text-text-secondary",
+                variant === "pill"
+                  ? "-mb-px min-h-11 rounded-t-control border border-b-0 px-4 text-13 compact:min-h-7"
+                  : "-mb-px min-h-11 border-b-2 px-3 text-15",
+                variant === "pill"
+                  ? selected
+                    ? "border-accent bg-accent font-semibold text-primary-contrast"
+                    : "border-border-subtle text-text-secondary"
+                  : selected
+                    ? "border-primary font-semibold text-text"
+                    : "border-transparent text-text-secondary",
                 FOCUS_RING,
               )}
             >

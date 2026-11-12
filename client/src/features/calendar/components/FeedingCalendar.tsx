@@ -5,6 +5,7 @@ import { addDays, weekdayIndex } from "@ricportal/shared";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { formatDate, formatMenuName } from "../../../lib/format";
 import type { DayRange } from "../hooks";
+import { WEEKDAY_LABELS } from "../mini-calendar";
 
 export type CalendarEntry = { date: string; menuName: string; mine?: boolean };
 
@@ -36,16 +37,8 @@ export function rangeFromDates(startStr: string, endStr: string): DayRange {
   };
 }
 
-// Figma's weekday bar (378:15585 to 378:15567).
-export const WEEKDAY_LABELS = [
-  "Sun",
-  "Mon",
-  "Tues",
-  "Wed",
-  "Thurs",
-  "Fri",
-  "Sat",
-];
+// Figma's weekday bar, shared with the mini calendar.
+export { WEEKDAY_LABELS };
 
 // FullCalendar hands a local Date for a cell; this is the day it shows.
 export function cellDate(date: Date): string {
@@ -86,6 +79,8 @@ type FeedingCalendarProps = {
   tone?: "green" | "red";
   // Fill the parent's height on a desktop, for a dashboard that must not scroll.
   fit?: boolean;
+  // The month to open at (Plan 4 D2: a day clicked on a dashboard).
+  initialDate?: string | undefined;
   onRangeChange: (range: DayRange) => void;
   onDayClick: (date: string) => void;
 };
@@ -97,6 +92,7 @@ export function FeedingCalendar({
   selectedDate,
   tone = "green",
   fit = false,
+  initialDate,
   onRangeChange,
   onDayClick,
 }: FeedingCalendarProps) {
@@ -116,7 +112,7 @@ export function FeedingCalendar({
         <button
           type="button"
           aria-label="Previous month"
-          className="inline-flex size-11 items-center justify-start rounded-control text-24 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+          className="inline-flex size-11 items-center justify-start rounded-control text-24 lg:text-42 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
           onClick={() => calendar.current?.getApi().prev()}
         >
           ‹
@@ -127,7 +123,7 @@ export function FeedingCalendar({
         <button
           type="button"
           aria-label="Next month"
-          className="inline-flex size-11 items-center justify-center rounded-control text-24 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+          className="inline-flex size-11 items-center justify-center rounded-control text-24 lg:text-42 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
           onClick={() => calendar.current?.getApi().next()}
         >
           ›
@@ -141,6 +137,7 @@ export function FeedingCalendar({
           ref={calendar}
           plugins={[dayGridPlugin]}
           initialView="dayGridMonth"
+          {...(initialDate === undefined ? {} : { initialDate })}
           headerToolbar={false}
           height={filling ? "100%" : "auto"}
           // Weeks share the height equally, six-week months too (D5).

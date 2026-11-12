@@ -10,6 +10,7 @@ import { NavLink, useLocation } from "react-router";
 import avatar from "../../assets/avatar-placeholder.png";
 import logoutIcon from "../../assets/nav-logout.png";
 import emblem from "../../assets/ric-emblem.png";
+import { TopBarSlotContext } from "../../components/TopBarTitle";
 import { Icon } from "../../components/ui";
 import { useNativeDialog } from "../../components/ui/useNativeDialog";
 import { LABELS } from "../../lib/labels";
@@ -125,6 +126,7 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
   const drawerRef = useNativeDialog(menuOpen, closeMenu);
   const { pathname } = useLocation();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [titleSlot, setTitleSlot] = useState<HTMLDivElement | null>(null);
 
   // The window never scrolls, so a new page must reset the content area.
   useEffect(() => {
@@ -201,6 +203,13 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
               Rural Improvement Club, Libmanan, Camarines Sur
             </p>
           </div>
+          {/* Pages that Figma titles in the header row put their title here
+              (TopBarTitle, Plan 4 D6). */}
+          <div
+            ref={setTitleSlot}
+            data-testid="top-bar-title"
+            className="hidden min-w-0 flex-1 lg:block"
+          />
           <div className="ml-auto flex min-w-0 items-center gap-3 max-lg:shrink-0">
             <img
               src={avatar}
@@ -224,7 +233,9 @@ export function AppShell({ user, onLogout, children }: AppShellProps) {
           data-testid="content-scroll"
           className="flex min-h-0 flex-1 flex-col overflow-y-auto [container-type:size]"
         >
-          <main className="min-w-0 flex-1 shrink-0 p-4 lg:p-6">{children}</main>
+          <main className="min-w-0 flex-1 shrink-0 p-4 lg:p-6">
+            <TopBarSlotContext value={titleSlot}>{children}</TopBarSlotContext>
+          </main>
           <AppFooter role={user.role} />
         </div>
       </div>

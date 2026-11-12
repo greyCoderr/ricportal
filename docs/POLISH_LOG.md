@@ -468,3 +468,42 @@ Asked for by the Developer. Seed on the local database, then Playwright against 
 - State afterwards: the smoke test on port 3000 passes 19 of 19 on the seeded data. The seed does not reset `password_changed_at`, so `teacher.sibujo` shows "Last changed today" (then N days ago) instead of "Not changed yet". The seed also keeps login events of Admin and Teacher, so their Logins This Month include these checks.
 
 Still not verified: Report Tracking and Admin Feedback with real rows in the browser, touch screens, real phones.
+
+# Round 4 (docs/POLISH_PLAN_4.md)
+
+Branch demo-polish-4, confirmed with git status and git branch before starting (2026-11-12). The
+Developer's `.claude/settings.json`, `docs/POLISH_PLAN_4.md` and the untracked fixture
+`server/test/fixtures/SF MENU for 30 days.xlsx` were already there; only the plan is committed by this
+round. The five reference images in `docs/feedback/` were read first.
+
+Setup notes:
+- Decisions start at DEC-051, as the plan says (DEC-050 is the last one).
+- The Figma MCP server did not connect (ENOTFOUND for mcp.figma.com) and was still unavailable when
+  checked again. No Figma call was made this round (0 of 40). Comparisons use the reference images in
+  `docs/feedback/` and the measurements recorded in docs/components.md in Rounds 2 and 3.
+- The Playwright MCP server timed out on connect. Browser checks use the Playwright package from the
+  local npx cache, driven by scripts in the session scratchpad, as in Rounds 2 and 3.
+- The memory directory named in the session has no MEMORY.md; the memory rules are the ones recorded
+  as DEC-035, DEC-042 and DEC-047 in docs/DECISIONS.md, and the Round 3 browser rules in this log.
+
+## I1 Admin
+
+Plan:
+1. Tests first: MiniCalendar grid (pure function) and component, dashboard cards and Quick Actions,
+   Recent Reports tabs, Admin Students page, upload card and the no-menu banner.
+2. D1 to D6, with the RIC Teachers page getting a "Manage Centers" button.
+3. Browser: Dashboard and Calendar at 1440x900, 1366x768 and 390x844. Commit.
+
+Summary of I1, done:
+- Built: five Figma cards (D1), `MiniCalendar` on the dashboard (D2), Figma's four Quick Actions and "Manage Centers" on RIC Teachers (D3), the read-only Admin Students page and record at `/admin/students` (D4), Recent Reports with three pill tabs (D5), the Admin Calendar's header-row title and center control, per-month banner, accent Upload & Process and .xlsx check in the browser (D6). `Table` gained `band` for D8. Decisions: DEC-051.
+- Tests first: 14 client tests failed and 3 new files could not load before the code; then all passed. The touched client folders: 289 of 289 on one worker. Typecheck, lint and format of the changed files clean.
+- Two new tests passed alone but timed out in group runs under load (a page and its queries took more than Testing Library's 1 s wait). The client setup now waits up to 5 s (DEC-051); no assertion changed.
+- Browser (the built server on port 3100 with RATE_LIMIT_MAX set in that shell only; one Chromium at a time, closed after each script; the server stopped by its process id afterwards and no Node process left): Admin at 1440x900, 1366x768 and 390x844 on Dashboard, Calendar, Admin Students and a student record: document scroll 0, sideways scroll 0, no element past the right edge, no overlapping text, no page errors or 500s. The dashboard fits with 0 to 1 px to spare at both desktop sizes. On the Calendar the whole month shows at 1366x768 (20 px to spare, 42 cells). Flows: a mini-calendar click opens `/calendar?date=2026-11-18` with that day selected; March 2027 shows "No Menu/Food Rotation Upload for March 2027"; Upload Document focuses the file input; Upload & Process is disabled without a file and rgb(2, 91, 2); November 2026 shows no banner.
+- Compared by eye with figma-admin-dashboard.png and figma-admin-calendar.png at 1440 and 1366. Fixed after the first look: the month headings were 24 px (the compact `text-40` caps at 24 px; now `text-48`), the title class `text-32` does not exist (now `text-42`), the center control moved into the header row and was widened so "All centers (menus only)" fits.
+- The first audit flagged one overlap on the Calendar at 1366: the measuring range included the hidden third line of a two-line-clamped dish name. The script now clips each text box to its element, and the rerun found none.
+- Process note: once, a typecheck was started while a background test run was finishing, so two commands overlapped for a moment. Nothing failed.
+
+NOT verified in I1:
+- Figma nodes could not be read (no Figma connection); card icons are not Figma's (DEC-051).
+- Recent Reports with real rows in the browser: the local database has no reports, so the empty state showed.
+- Uploading and confirming a file through the new card in a real browser (covered by client tests; the browser check chose no file).

@@ -50,8 +50,16 @@ export function useMenuImportFlow() {
     previewing: previewMutation.isPending,
     confirming: confirmMutation.isPending,
     chooseFile: (next: File | null) => {
-      setFile(next);
       setPreview(null);
+      // The importer reads only the DSWD Excel file (Plan 4 D6): refuse any
+      // other file here, before an upload.
+      if (next !== null && !next.name.toLowerCase().endsWith(".xlsx")) {
+        setFile(null);
+        setError("Choose an Excel file ending in .xlsx.");
+        setInputKey((key) => key + 1);
+        return;
+      }
+      setFile(next);
       setError(null);
       if (next === null) {
         setInputKey((key) => key + 1);

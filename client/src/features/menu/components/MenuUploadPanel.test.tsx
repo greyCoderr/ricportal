@@ -141,6 +141,59 @@ describe("MenuUploadPanel (D7)", () => {
     ).toBeDefined();
   });
 
+  it("Plan 4 D6: the button is the dark green accent, enabled only with a file", () => {
+    mockApi();
+    renderPanel();
+    const upload = screen.getByRole<HTMLButtonElement>("button", {
+      name: "Upload & Process",
+    });
+    expect(upload.className).toContain("bg-accent");
+    expect(upload.className).not.toContain("bg-primary");
+    chooseFile();
+    expect(upload.disabled).toBe(false);
+  });
+
+  it("Plan 4 D6: the Selected File chip shows the name, size and a remove x", () => {
+    mockApi();
+    renderPanel();
+    fireEvent.change(screen.getByLabelText("Choose the DSWD Excel file"), {
+      target: {
+        files: [new File(["x".repeat(1_258_291)], "January 2026 Menu.xlsx")],
+      },
+    });
+    const chip = screen.getByTestId("selected-file");
+    expect(within(chip).getByText("January 2026 Menu.xlsx")).toBeDefined();
+    expect(within(chip).getByText("1.2 MB")).toBeDefined();
+    expect(
+      within(chip).getByRole("button", { name: "Remove the file" }),
+    ).toBeDefined();
+  });
+
+  it("Plan 4 D6: a file that is not .xlsx is refused before any upload", () => {
+    const paths = mockApi();
+    renderPanel();
+    fireEvent.change(screen.getByLabelText("Choose the DSWD Excel file"), {
+      target: { files: [new File(["x"], "menu.pdf")] },
+    });
+    expect(
+      screen.getByText("Choose an Excel file ending in .xlsx."),
+    ).toBeDefined();
+    expect(screen.queryByText("Selected File")).toBe(null);
+    expect(
+      screen.getByRole<HTMLButtonElement>("button", {
+        name: "Upload & Process",
+      }).disabled,
+    ).toBe(true);
+    expect(paths).toEqual([]);
+  });
+
+  it("Plan 4 D6: the texts say .xlsx only", () => {
+    mockApi();
+    renderPanel();
+    expect(screen.getByText(/\.xlsx/)).toBeDefined();
+    expect(screen.queryByText(/PDF|DOCX/)).toBe(null);
+  });
+
   it("a removed file clears the choice", () => {
     mockApi();
     renderPanel();

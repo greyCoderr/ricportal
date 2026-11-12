@@ -19,6 +19,8 @@ export type StudentListParams = {
   q?: string;
   status?: StudentStatus | undefined;
   schoolYear?: string | undefined;
+  // The Admin's center filter (Plan 4 D4); the server ignores it for a Teacher.
+  centerId?: number | undefined;
   page: number;
 };
 
@@ -28,6 +30,9 @@ export function fetchStudents(params: StudentListParams) {
   if (params.status !== undefined) search.set("status", params.status);
   if (params.schoolYear !== undefined) {
     search.set("schoolYear", params.schoolYear);
+  }
+  if (params.centerId !== undefined) {
+    search.set("centerId", String(params.centerId));
   }
   return apiGet<StudentDto[], PageMeta>(`/api/students?${search.toString()}`);
 }

@@ -1,4 +1,4 @@
-import { useState, type DragEvent } from "react";
+import { useState, type DragEvent, type Ref } from "react";
 import { Link } from "react-router";
 import {
   Banner,
@@ -17,7 +17,12 @@ function fileSize(bytes: number): string {
 // The Upload Menu/Food Rotation panel of the Admin Calendar (Figma 268:11404, D7).
 // Figma lists PDF and DOCX too; the importer reads only the DSWD Excel file, so
 // the text says .xlsx (DEC-045). Choose a file, preview, then confirm.
-export function MenuUploadPanel() {
+// `inputRef` lets the page's Upload Document button open the file chooser.
+export function MenuUploadPanel({
+  inputRef,
+}: {
+  inputRef?: Ref<HTMLInputElement>;
+}) {
   const flow = useMenuImportFlow();
   const [dragging, setDragging] = useState(false);
 
@@ -63,6 +68,7 @@ export function MenuUploadPanel() {
         Drag and drop your file here or click to browse
         <input
           key={flow.inputKey}
+          ref={inputRef}
           type="file"
           accept=".xlsx"
           aria-label="Choose the DSWD Excel file"
@@ -76,7 +82,10 @@ export function MenuUploadPanel() {
       {flow.file !== null && (
         <div className="mt-3">
           <p className="text-12 font-medium">Selected File</p>
-          <div className="mt-1 flex items-center gap-2 rounded-control border border-border-subtle px-2">
+          <div
+            data-testid="selected-file"
+            className="mt-1 flex items-center gap-2 rounded-control border border-border-subtle px-2"
+          >
             <Icon name="file-text" size={16} />
             <span className="min-w-0 flex-1 truncate text-12">
               {flow.file.name}
@@ -102,6 +111,7 @@ export function MenuUploadPanel() {
       )}
 
       <Button
+        variant="accent"
         icon="upload"
         className="mt-3 w-full"
         disabled={flow.file === null}

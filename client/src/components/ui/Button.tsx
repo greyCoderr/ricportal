@@ -5,9 +5,10 @@ import { cx, FOCUS_RING } from "./styles";
 
 // Variants from Figma (docs/components.md): primary is the red button
 // (241:1105, 258:5832); secondary is the bordered `Action` (361:2417).
-// No green variant (DEC-028). Sizes: sm 32 px, md 44 px (default; Parent
-// screens use md).
-export type ButtonVariant = "primary" | "secondary";
+// accent is the dark green Upload & Process of the Admin Calendar (268:11404,
+// Plan 4 D6; DEC-051 amends DEC-028's "no green variant"). Sizes: sm 32 px,
+// md 44 px (default; Parent screens use md).
+export type ButtonVariant = "primary" | "secondary" | "accent";
 export type ButtonSize = "sm" | "md";
 
 const VARIANT: Record<ButtonVariant, { base: string; hover: string }> = {
@@ -18,6 +19,10 @@ const VARIANT: Record<ButtonVariant, { base: string; hover: string }> = {
   secondary: {
     base: "border border-border-subtle bg-surface text-text",
     hover: "hover:border-border",
+  },
+  accent: {
+    base: "bg-accent text-primary-contrast",
+    hover: "hover:bg-accent/90",
   },
 };
 

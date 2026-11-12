@@ -21,6 +21,8 @@ import { ReportsPage } from "../features/reports/pages/ReportsPage";
 import { StudentFormPage } from "../features/students/pages/StudentFormPage";
 import { StudentProfilePage } from "../features/students/pages/StudentProfilePage";
 import { StudentsPage } from "../features/students/pages/StudentsPage";
+import { AdminStudentRecordPage } from "../features/students/pages/AdminStudentRecordPage";
+import { AdminStudentsPage } from "../features/students/pages/AdminStudentsPage";
 import { ChildRecordDetailPage } from "../features/child-records/pages/ChildRecordDetailPage";
 import { ChildRecordsPage } from "../features/child-records/pages/ChildRecordsPage";
 import { ComingSoonPage } from "./pages/ComingSoonPage";
@@ -44,6 +46,11 @@ export const router = createBrowserRouter([
           { path: "/teachers", element: <TeachersPage /> },
           { path: "/teachers/:id", element: <TeacherProfilePage /> },
           { path: "/menu-imports", element: <MenuImportsPage /> },
+          { path: "/admin/students", element: <AdminStudentsPage /> },
+          {
+            path: "/admin/students/:id",
+            element: <AdminStudentRecordPage />,
+          },
         ],
       },
       {

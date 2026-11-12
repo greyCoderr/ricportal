@@ -309,7 +309,16 @@ export function TeachersPage() {
           >
             Clear Filters
           </Button>
-          <div className="sm:ml-auto">
+          <div className="flex flex-wrap gap-2 sm:ml-auto">
+            {/* Centers management lives here since the dashboard's tiles
+                follow Figma (Plan 4 D3). */}
+            <Link
+              to="/centers"
+              className="inline-flex h-11 items-center gap-2 rounded-control border border-border-subtle bg-surface px-4 text-13 font-medium hover:border-border focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text"
+            >
+              <Icon name="map-pin" size={16} />
+              Manage Centers
+            </Link>
             <Button
               icon="plus"
               onClick={() => {

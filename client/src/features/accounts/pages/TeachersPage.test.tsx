@@ -109,6 +109,16 @@ afterEach(() => {
 });
 
 describe("TeachersPage", () => {
+  it("Plan 4 D3: Centers management is one click away as Manage Centers", async () => {
+    mockApi();
+    renderPage();
+    expect(
+      (
+        await screen.findByRole("link", { name: "Manage Centers" })
+      ).getAttribute("href"),
+    ).toBe("/centers");
+  });
+
   it("shows the real counts on the Figma cards", async () => {
     mockApi();
     renderPage();

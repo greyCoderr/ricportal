@@ -123,9 +123,12 @@ function ConferenceForm({
 export function ConferencesTab({
   studentId,
   childName,
+  readOnly = false,
 }: {
   studentId: number;
   childName: string;
+  // The Admin reads a record without changing it (Plan 4 D4).
+  readOnly?: boolean;
 }) {
   const entries = useConferences(studentId);
   const remove = useDeleteConference(studentId);
@@ -135,16 +138,18 @@ export function ConferencesTab({
 
   return (
     <>
-      <div className="mb-3">
-        <Button
-          icon="plus"
-          onClick={() => {
-            setEditing("new");
-          }}
-        >
-          Add conference note
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="mb-3">
+          <Button
+            icon="plus"
+            onClick={() => {
+              setEditing("new");
+            }}
+          >
+            Add conference note
+          </Button>
+        </div>
+      )}
       <QueryBoundary
         query={entries}
         errorTitle="Could not load the conference notes."
@@ -163,15 +168,17 @@ export function ConferencesTab({
                       {formatDate(entry.noteDate)}
                       {entry.noteTime === null ? "" : `, ${entry.noteTime}`}
                     </p>
-                    <EntryActions
-                      label={`conference note of ${formatDate(entry.noteDate)}`}
-                      onEdit={() => {
-                        setEditing(entry);
-                      }}
-                      onDelete={() => {
-                        setDeleting(entry);
-                      }}
-                    />
+                    {!readOnly && (
+                      <EntryActions
+                        label={`conference note of ${formatDate(entry.noteDate)}`}
+                        onEdit={() => {
+                          setEditing(entry);
+                        }}
+                        onDelete={() => {
+                          setDeleting(entry);
+                        }}
+                      />
+                    )}
                   </div>
                   <p className="mt-2 text-15 whitespace-pre-wrap">
                     {entry.notes}
@@ -282,9 +289,12 @@ function ProgressForm({
 export function ProgressTab({
   studentId,
   childName,
+  readOnly = false,
 }: {
   studentId: number;
   childName: string;
+  // The Admin reads a record without changing it (Plan 4 D4).
+  readOnly?: boolean;
 }) {
   const entries = useProgress(studentId);
   const remove = useDeleteProgress(studentId);
@@ -294,16 +304,18 @@ export function ProgressTab({
 
   return (
     <>
-      <div className="mb-3">
-        <Button
-          icon="plus"
-          onClick={() => {
-            setEditing("new");
-          }}
-        >
-          Add progress note
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="mb-3">
+          <Button
+            icon="plus"
+            onClick={() => {
+              setEditing("new");
+            }}
+          >
+            Add progress note
+          </Button>
+        </div>
+      )}
       <QueryBoundary
         query={entries}
         errorTitle="Could not load the progress notes."
@@ -319,15 +331,17 @@ export function ProgressTab({
                     <p className="text-15 font-semibold">
                       {formatDate(entry.noteDate)}
                     </p>
-                    <EntryActions
-                      label={`progress note of ${formatDate(entry.noteDate)}`}
-                      onEdit={() => {
-                        setEditing(entry);
-                      }}
-                      onDelete={() => {
-                        setDeleting(entry);
-                      }}
-                    />
+                    {!readOnly && (
+                      <EntryActions
+                        label={`progress note of ${formatDate(entry.noteDate)}`}
+                        onEdit={() => {
+                          setEditing(entry);
+                        }}
+                        onDelete={() => {
+                          setDeleting(entry);
+                        }}
+                      />
+                    )}
                   </div>
                   <p className="mt-2 text-15 whitespace-pre-wrap">
                     {entry.progressNotes}
@@ -451,9 +465,12 @@ function HomeVisitForm({
 export function HomeVisitsTab({
   studentId,
   childName,
+  readOnly = false,
 }: {
   studentId: number;
   childName: string;
+  // The Admin reads a record without changing it (Plan 4 D4).
+  readOnly?: boolean;
 }) {
   const entries = useHomeVisits(studentId);
   const remove = useDeleteHomeVisit(studentId);
@@ -463,16 +480,18 @@ export function HomeVisitsTab({
 
   return (
     <>
-      <div className="mb-3">
-        <Button
-          icon="plus"
-          onClick={() => {
-            setEditing("new");
-          }}
-        >
-          Add home visit
-        </Button>
-      </div>
+      {!readOnly && (
+        <div className="mb-3">
+          <Button
+            icon="plus"
+            onClick={() => {
+              setEditing("new");
+            }}
+          >
+            Add home visit
+          </Button>
+        </div>
+      )}
       <QueryBoundary
         query={entries}
         errorTitle="Could not load the home visits."
@@ -488,15 +507,17 @@ export function HomeVisitsTab({
                     <p className="text-15 font-semibold">
                       {formatDate(entry.visitDate)}
                     </p>
-                    <EntryActions
-                      label={`home visit of ${formatDate(entry.visitDate)}`}
-                      onEdit={() => {
-                        setEditing(entry);
-                      }}
-                      onDelete={() => {
-                        setDeleting(entry);
-                      }}
-                    />
+                    {!readOnly && (
+                      <EntryActions
+                        label={`home visit of ${formatDate(entry.visitDate)}`}
+                        onEdit={() => {
+                          setEditing(entry);
+                        }}
+                        onDelete={() => {
+                          setDeleting(entry);
+                        }}
+                      />
+                    )}
                   </div>
                   <p className="mt-2 text-15 whitespace-pre-wrap">
                     {entry.observation}

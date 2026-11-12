@@ -192,3 +192,7 @@ Polish calls so far: 31 of 120.
 | 2026-11-08 | H3 | `get_screenshot` | 254:4572 | Add Student with narrative and home visit sections, not a record detail (DEC-050) |
 
 Round 3 calls so far: 13 of 60.
+
+## Polish Round 4 Figma calls (limit 40)
+
+The Figma MCP server did not connect in this round (ENOTFOUND for mcp.figma.com, checked at the start and again before I1). No call was made: 0 of 40. The comparisons used the reference images in docs/feedback/ (figma-admin-dashboard.png for 267:9689, figma-admin-calendar.png for 268:11404, figma-teacher-profile.png for 88:695) and the node measurements recorded above in Round 3. Frame 175:1023 (Teacher Home) could not be read again (DEC-052).
