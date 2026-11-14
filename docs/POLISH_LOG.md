@@ -535,3 +535,30 @@ NOT verified in I2:
 - The Teacher Profile with real reports and activity in the browser: the local database has no reports, so the table, pages and timeline showed their empty states. They are covered by client tests with a mocked API and by db tests.
 
 I2 full check, foreground steps (2026-11-14): `npm run typecheck` clean; full lint and format clean; unit 300 of 300 on one worker. The client project run (one worker) was stopped by the system because memory was critically low. Per DEC-035 and the system notice it was not restarted, and work stops here, reported to the Developer. The client and db projects of the full check, and I3, are not done. No tag was made.
+
+## I2 full check resumed in batches (2026-11-14)
+
+After the memory stop above, the client and db projects were run in small batches, one command at a
+time in the foreground, one worker each (`--maxWorkers=1`), with a JSON report per batch to list the
+files that ran.
+
+Client (8 batches): features/auth 2 files 39/39; features/accounts and calendar 6 files 53/53;
+child-records, dashboard, health, home and menu 5 files 45/45; purchase and reports 4 files 34/34;
+students 4 files 23/23; components 13 files 175/175; lib and app 5 files 47/47; client/test 7 files
+113/113. Total 46 files, 529 of 529. The batch file lists, joined and sorted, equal the full list of 46
+client test files (diff empty), so every client file ran exactly once. No batch was killed for memory.
+
+Db (5 batches of 3 to 5 files): 5 files 78/78; 5 files 57/57; permissions, polish2-admin and polish3
+340/340; polish3-profile, polish3-teacher, polish4-teacher-summary and profile 50/50; purchase, reset,
+students, students-extra and teacher-pages 84/84. Total 22 files, 609 of 609; the lists match the 22 db
+files exactly. Unit was already clean (300 of 300, above).
+
+Proof that the I2 tests can fail (each a one-line change, run alone, then `git restore` on that file):
+- Scoping: `auth.repository.ts` `listOwnLiquidation` without `teacherId` in its `where`. The
+  teacher-summary file failed 10 of 11: "never shows another teacher's reports or activity" (expected
+  another teacher's report list to be empty, got one row). Restored: 11 of 11. Note: the summary is
+  scoped by the teacher's own id, not by center; the center filter applies only to the enrolled count.
+- Pagination: `auth.service.ts` `const skip = 0;`. Failed 10 of 11: "pages the reports on the server,
+  newest first, 5 by default" (page 2 returned page 1's ids). Restored: 11 of 11.
+- `git status` after each restore showed only the Developer's `.claude/settings.json` and the untracked
+  fixture.
