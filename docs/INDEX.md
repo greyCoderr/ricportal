@@ -67,6 +67,9 @@ Started empty; later tasks append to them (see blueprint Section 8.1).
 | [ui-specs/shell.md](ui-specs/shell.md) | App shell, Login, footer and Profile |
 | [ui-specs/calendar.md](ui-specs/calendar.md) | Calendar, day panels and the Assign Parents modal |
 | [ui-specs/student-form.md](ui-specs/student-form.md) | Student form field mapping, for client confirmation |
+| [POLISH_PLAN_5.md](POLISH_PLAN_5.md) | Plan 5: finish Objective 2 (audit, fidelity, Parent pass, cut items, hardening, docs) |
+| [AUDIT_REPORT.md](AUDIT_REPORT.md) | Code audit of Plan 5 J1: findings with evidence, severity and proposed fix |
+| [OBJ3_PLAN.md](OBJ3_PLAN.md) | Plan for Objective 3 (report file uploads and review): scope, data, endpoints, tasks, estimate. No code yet |
 | [SPRINT_SHORTCUTS.md](SPRINT_SHORTCUTS.md) | What was cut or simplified for the demo, and how to restore it |
 | [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | How to start the demo, the accounts and the click path |
 | [components.md](components.md) | UI kit components: Figma calls, node ids read (one read per node), source of each component |

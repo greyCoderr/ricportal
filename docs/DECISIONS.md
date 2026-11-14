@@ -651,3 +651,29 @@ Decision:
 - Kept from the frame's differences, on purpose: Enrolled Students has no delete button (Teachers do not
   delete students) and keeps an "Actions" header for screen readers; its rows keep the 44 px touch height
   rather than the frame's 33 px.
+
+## DEC-054: Code audit and the three high fixes (Plan 5, J1)
+
+Context: docs/POLISH_PLAN_5.md J1. No question asked, as the plan says. Report: docs/AUDIT_REPORT.md.
+Decision:
+- Severity scale: critical = another user's data or an account can be reached now; high = a business rule
+  or a security control fails in normal use or with two simple requests; medium = needs unusual timing, an
+  unusual file or a deployment mistake; low = small or documentation. Only critical and high are fixed in J1;
+  the rest are in docs/BACKLOG.md under their AUD ids, each with the Plan 5 stage that could take it.
+- AUD-001 (BR-19): a login attempt is counted before its password is checked, with one conditional UPDATE.
+  The fifth attempt taken sets the lock at once; a right password clears the count and the lock. So the
+  rule "5 failures lock the account" is unchanged for one request at a time, and holds for parallel ones.
+  Six right-password logins at the same moment can give one of them a 429; accepted.
+- AUD-002 (BR-05): change-password refuses the current password and the default password. The check is in
+  the service, because only the server knows the default; the shared Zod schema is unchanged.
+- AUD-003 (BR-11, BR-12): adding or deleting a row first locks the day's request row with
+  `SELECT ... FOR UPDATE` (raw SQL through Prisma, in the repository). MariaDB and TiDB both accept it
+  (DEC-005); it ran only on MariaDB. A unique index on (request, item number) was not added: it needs a
+  migration that would fail where duplicate numbers already exist. No migration in J1.
+- AUD-010, the login limit per IP, stays with J4 (a), which already plans it, although BR-19 and P1-T07
+  describe it. It is rated medium: one guess of the shared default password needs no second try, so a
+  limiter would not stop that; the real exposure is the default password itself (AUD-011, a client decision).
+- The intermittent 404 (assignments-week test): cause narrowed, not proven (report section 4). The
+  assertion in the test setup stays.
+- docs/OBJ3_PLAN.md is a proposal. Its open questions and estimate wait for the Developer.
+

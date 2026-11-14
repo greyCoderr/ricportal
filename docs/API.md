@@ -71,12 +71,12 @@ Session: httpOnly cookie `rp_session` (HS256, 8 hours, SameSite=Lax, Secure from
 
 | Method and path | Role | Purpose and failures |
 | --- | --- | --- |
-| POST /api/auth/login | Public | 200 with the user. 401 "Invalid username or password" (wrong password and unknown user alike). 403 with the status message for PENDING, DECLINED or DISABLED, after correct credentials only. 429 "Too many attempts. Try again in 15 minutes." with `Retry-After` in seconds: every attempt while locked, right or wrong password, and the same for unknown usernames (BR-19, DEC-026) |
+| POST /api/auth/login | Public | 200 with the user. 401 "Invalid username or password" (wrong password and unknown user alike). 403 with the status message for PENDING, DECLINED or DISABLED, after correct credentials only. 429 "Too many attempts. Try again in 15 minutes." with `Retry-After` in seconds: every attempt while locked, right or wrong password, and the same for unknown usernames (BR-19, DEC-026). Each attempt is counted before its password is checked, so of several attempts sent at the same moment only as many as are left are checked and the others get this 429 (AUD-001) |
 | POST /api/auth/parent-signup | Public | 201 `{ centerName }`, creates a PENDING Parent. 409 duplicate username, 422 inactive center |
 | GET /api/public/centers | Public | Active centers: id and name only |
 | POST /api/auth/logout | Any | Clears the cookie |
 | GET /api/auth/me | Any | Current user and center |
-| POST /api/auth/change-password | Any | Current and new password; increments `token_version` and sets a fresh cookie |
+| POST /api/auth/change-password | Any | Current and new password; increments `token_version` and sets a fresh cookie. 400 with field `currentPassword` when it is wrong; 400 with field `newPassword` when the new password equals the current one or the default password (BR-05, AUD-002) |
 | GET /api/auth/profile | Any role | Own profile: id, role, username, fullName, mobile, centerId, centerName, status. 403 during a forced password change (D11) |
 | PATCH /api/auth/profile | Any role | `fullName` and `mobile` only (Zod `profileUpdateSchema`). A blank mobile clears it, except for a Parent (400) |
 | GET, POST /api/centers; PATCH /api/centers/:id | Admin | List (`q`, pagination), create, edit, `isActive`. 409 duplicate name, 422 deactivating a center with an active Teacher |

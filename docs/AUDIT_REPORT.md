@@ -6,7 +6,8 @@ docs/blueprint/03-blueprint.md, docs/phases/*.md, docs/SPRINT_SHORTCUTS.md and d
 
 ## 1. Result in short
 
-- Critical: 0. High: 3 (AUD-001 to AUD-003, fixed in J1b). Medium: 19. Low: 20.
+- Critical: 0. High: 3 (AUD-001 to AUD-003, fixed in J1b on 2026-11-14, each with a test seen failing
+  first). Medium: 19. Low: 20. The medium and low findings are in docs/BACKLOG.md under their ids.
 - No way was found for one role or center to read or change another center's data by id, and no PATCH
   accepts a field it should not (section 3).
 - Nothing in the code handles concurrent requests on purpose, and no test sends two requests at once.
@@ -51,7 +52,7 @@ Size: S = under 1 hour, M = 1 to 4 hours, L = more than 4 hours.
 | AUD-019 | Personal data in error logs (BR-21) | `error-handler.ts:49-58` logs the whole error; the redaction in `logger.ts:11-24` covers passwords and cookies only | A Prisma validation error prints the arguments of the failed call, which can hold a child's name or birthdate. Only on unexpected errors | Log the error name, code and stack, not the message of Prisma validation errors | S |
 | AUD-020 | Missing tests | No db test uses `Promise.all`; phase-5 and phase-6 edge cases "locking while a Parent's request is in flight" and "concurrent Submit by two browser tabs" have no test; no test cites BR-05, BR-08, BR-09, BR-17 or BR-21 by id (BR-06 and BR-20 are Objective 3) | The races above were not caught. J1b adds the first three concurrent tests | Add concurrent tests for AUD-004 and AUD-005, and tag the existing password, date, PDF and log tests with their rule ids | M |
 | AUD-021 | Teacher moved to another center | `auth.repository.ts:167-207` filters by `teacherId` only | After the Admin moves a Teacher, the Teacher Profile still counts and lists the reports of the old center (ids, dates, status). Phase 1 says old center data is no longer visible | Filter by the current center as well | S |
-| AUD-022 | Database clock for defaults | `schema.prisma` `@default(now())`; `adapter-mariadb` writes UTC strings | If a row is inserted without Prisma filling the time (raw SQL, some seeds), MariaDB's local time (+08:00) is stored and read back as UTC, 8 hours ahead. Not confirmed in this audit; TiDB Cloud runs in UTC | Check once with a test; if confirmed set the session time zone to UTC on connect | S |
+| AUD-022 | Database clock for defaults | `schema.prisma` `@default(now())`; `adapter-mariadb` writes UTC strings | Confirmed on 2026-11-14 with a throwaway test on the test database (session time zone SYSTEM, +08:00): a row created through Prisma has the right time, and a row inserted with raw SQL using the column default is stored 8 hours ahead. Nothing in the application inserts with raw SQL today, so no stored time is wrong now. TiDB Cloud runs in UTC | Set the session time zone to UTC on connect in `core/db.ts`, so a later raw insert or a manual fix cannot store local time | S |
 
 ### Low
 
@@ -138,7 +139,7 @@ failed save and the page shows the error. AUD-015 removes the tight limits.
   contrast or keyboard walk-through was done. J2 visits every page.
 - Licences were read from each package.json `license` field only, not from the licence files, and only
   for the packages installed on this machine (Windows builds).
-- AUD-017 (PDF characters) and AUD-022 (database clock) come from reading; neither was run.
+- AUD-017 (PDF characters) comes from reading; it was not run.
 - Behaviour on TiDB Cloud was not tested (DEC-016). The AUD-003 fix uses row locks that MariaDB and TiDB
   both support, but it ran only on the local MariaDB.
 - `server/prisma/*.ts` seed scripts, `client` tests and the Figma fidelity were not part of this audit.

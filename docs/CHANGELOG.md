@@ -17,3 +17,15 @@ Migrations (additive): `20261107085701_polish_week_team_created_by`, `2026110709
 Fixed, from the browser check: dark background on the login page and the footer logos; sideways scroll on Enrolled Students on phones; the day button and the today fill on the calendar; focus after closing a modal or drawer; wrapping in the sidebar; the family table at 1440 px; the dashboard cards.
 
 Fixed, from the save-flow check: dates on the report detail and Menu Imports pages now read MM/DD/YYYY; the Reports table keeps Status and Actions in view from 1366 px; the report link is a full tap target at 768 px.
+
+## v0.9.8-demo (2026-11-14)
+
+Added: docs/AUDIT_REPORT.md (code audit, 42 findings) and docs/OBJ3_PLAN.md (plan for Objective 3, no code).
+
+Fixed, from the audit: the login lock now counts wrong passwords sent at the same moment (AUD-001);
+change-password refuses the current password and the default password (AUD-002); rows added to a Purchase
+Request at the same moment keep the numbers 1 to n, a day opens once, and a row cannot be added or deleted
+after the lock (AUD-003).
+
+No migration.
+
