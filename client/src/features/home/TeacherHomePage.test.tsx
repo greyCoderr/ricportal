@@ -1,13 +1,14 @@
-import { screen, within } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { fireEvent, screen, within } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderWithQuery } from "../../../test/render";
 
-// FullCalendar needs a real browser.
+// FullCalendar needs a real browser; Home must not use it (Plan 4 D2).
+const { feedingCalendar } = vi.hoisted(() => ({
+  feedingCalendar: vi.fn(() => null),
+}));
 vi.mock("../calendar/components/FeedingCalendar", () => ({
-  FeedingCalendar: ({ fit }: { fit?: boolean }) => (
-    <p>{fit === true ? "Calendar filling its box" : "Calendar"}</p>
-  ),
+  FeedingCalendar: feedingCalendar,
 }));
 vi.mock("../auth/components/guards", () => ({
   useCurrentUser: () => ({
@@ -74,10 +75,18 @@ function mockApi(answers: { reports?: unknown[]; feedback?: unknown[] }) {
   );
 }
 
+function Where() {
+  const location = useLocation();
+  return <p>At {`${location.pathname}${location.search}`}</p>;
+}
+
 function renderPage() {
   renderWithQuery(
     <MemoryRouter>
-      <TeacherHomePage />
+      <Routes>
+        <Route path="/" element={<TeacherHomePage />} />
+        <Route path="*" element={<Where />} />
+      </Routes>
     </MemoryRouter>,
   );
 }
@@ -108,10 +117,23 @@ describe("TeacherHomePage (D10, 175:1023)", () => {
     expect(box.getByText("Need Revision")).toBeDefined();
   });
 
-  it("the calendar fills its box, for a screen that must not scroll (D3)", async () => {
+  it("Plan 4 D2: a mini calendar of day numbers, not FullCalendar", async () => {
     mockApi({});
     renderPage();
-    expect(await screen.findByText("Calendar filling its box")).toBeDefined();
+    const grid = await screen.findByRole("grid");
+    expect(within(grid).getAllByRole("gridcell")).toHaveLength(42);
+    expect(feedingCalendar).not.toHaveBeenCalled();
+  });
+
+  it("Plan 4 D2: a click on a day opens the Calendar at that date", async () => {
+    mockApi({});
+    renderPage();
+    const grid = await screen.findByRole("grid");
+    const day = within(grid).getAllByRole("button")[12];
+    if (day === undefined) throw new Error("no day");
+    const date = day.getAttribute("data-date") ?? "";
+    fireEvent.click(day);
+    expect(await screen.findByText(`At /calendar?date=${date}`)).toBeDefined();
   });
 
   it("D8: lists four students, with or without a feedback box", async () => {
@@ -124,35 +146,49 @@ describe("TeacherHomePage (D10, 175:1023)", () => {
     expect(screen.queryByRole("cell", { name: "Student 5" })).toBe(null);
   });
 
-  it("D8: the student preview sits below the calendar row", async () => {
-    mockApi({});
+  it("Plan 4 D7: Recent Reports, then Enrolled Students, under the calendar", async () => {
+    mockApi({ reports: [REPORT] });
     renderPage();
-    const calendar = await screen.findByText("Calendar filling its box");
+    const calendar = await screen.findByRole("grid");
+    const recent = screen.getByRole("heading", { name: "Recent Reports" });
     const students = screen.getByRole("heading", {
       name: "Enrolled Students",
     });
     const tracking = screen.getByRole("heading", { name: "Report Tracking" });
-    expect(
-      calendar.compareDocumentPosition(students) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-    expect(
-      tracking.compareDocumentPosition(students) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
-  });
-
-  it("D8: Report Tracking and Admin Feedback replace Recent Reports", async () => {
-    mockApi({ reports: [REPORT] });
-    renderPage();
-    await trackingBox().findByText("Liquidation, 11/01/2026");
-    expect(screen.queryByRole("heading", { name: "Recent Reports" })).toBe(
-      null,
-    );
+    const follows = (a: Node, b: Node) =>
+      (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+    expect(follows(calendar, recent)).toBe(true);
+    expect(follows(recent, students)).toBe(true);
+    expect(follows(tracking, recent)).toBe(true);
     expect(
       screen.getByRole("heading", { name: "Admin Feedback" }),
     ).toBeDefined();
-    expect(await screen.findByText("No feedback yet.")).toBeDefined();
+  });
+
+  it("Plan 4 D7: Recent Reports lists the own liquidation reports", async () => {
+    mockApi({ reports: [REPORT] });
+    renderPage();
+    const table = await screen.findByRole("table", { name: "Recent Reports" });
+    expect(
+      within(table)
+        .getAllByRole("columnheader")
+        .map((cell) => cell.textContent),
+    ).toEqual(["Report Type", "Date Submitted", "Status"]);
+    expect(within(table).getByText("Liquidation Report")).toBeDefined();
+    expect(within(table).getByText("11/06/2026")).toBeDefined();
+  });
+
+  it("Plan 4 D8: both tables have the gray header band", async () => {
+    mockApi({ reports: [REPORT] });
+    renderPage();
+    for (const name of ["Recent Reports", "Enrolled Students"]) {
+      const table = await screen.findByRole("table", { name });
+      const header = table.querySelector("thead tr");
+      expect(header?.className).toContain("ric-table-band");
+      expect(header?.className).toContain("bg-header");
+      expect(table.querySelector("th")?.className).toContain("font-bold");
+      expect(table.querySelector("th")?.className).toContain("text-12");
+    }
   });
 
   it("D8: Report Tracking lists only liquidation submissions", async () => {

@@ -12,7 +12,7 @@ import {
 } from "../../components/ui";
 import { formatDate, formatInstantDate } from "../../lib/format";
 import { useCurrentUser } from "../auth/components/guards";
-import { FeedingCalendar } from "../calendar/components/FeedingCalendar";
+import { MiniCalendar } from "../calendar/components/MiniCalendar";
 import { useCalendar, type DayRange } from "../calendar/hooks";
 import { useFeedback, useReports } from "../reports/hooks";
 import { useStudents, useStudentSummary } from "../students/hooks";
@@ -130,6 +130,53 @@ function ReportTracking({ reports }: { reports: ReportDto[] }) {
   );
 }
 
+// The own liquidation reports, newest first (Plan 4 D7: Figma's Recent
+// Reports box returns).
+function RecentReports({ reports }: { reports: ReportDto[] }) {
+  return (
+    <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+      <div className="mb-2 flex items-center justify-between gap-2 compact:mb-1">
+        <h2 className="text-15 font-medium">Recent Reports</h2>
+        <Link
+          to="/reports"
+          className={`inline-flex min-h-11 items-center text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
+        >
+          View all
+        </Link>
+      </div>
+      {reports.length === 0 ? (
+        <EmptyState title="No reports submitted yet." />
+      ) : (
+        <Table
+          band
+          cardsOnPhone
+          cardsUntilDesktop
+          caption="Recent Reports"
+          rows={reports.slice(0, 4)}
+          rowKey={(row) => row.id}
+          columns={[
+            {
+              key: "type",
+              header: "Report Type",
+              render: () => "Liquidation Report",
+            },
+            {
+              key: "date",
+              header: "Date Submitted",
+              render: (row) => formatInstantDate(row.submittedAt),
+            },
+            {
+              key: "status",
+              header: "Status",
+              render: (row) => <StatusBadge status={row.status} />,
+            },
+          ]}
+        />
+      )}
+    </section>
+  );
+}
+
 // Teacher Home (Figma 175:1023, Plan 3 D8) with real data for the own center. The
 // top rows fit one desktop screen; Enrolled Students follows below the calendar row.
 export function TeacherHomePage() {
@@ -144,6 +191,8 @@ export function TeacherHomePage() {
   const students = useStudents({ status: "ACTIVE", page: 1 });
   const [range, setRange] = useState<DayRange | null>(null);
   const calendar = useCalendar(range);
+  const liquidation =
+    reports.data?.data.filter((report) => report.type === "LIQUIDATION") ?? [];
   const latestFeedback =
     feedback.data?.data.find((row) => row.reportStatus === "NEED_REVISION") ??
     feedback.data?.data[0];
@@ -225,14 +274,18 @@ export function TeacherHomePage() {
               </div>
             </section>
           </div>
-          <section className="min-w-0 compact:min-h-0">
-            <FeedingCalendar
-              fit
+          {/* Plan 4 D2: the small month, numbers only; a day opens the
+              Calendar page at that date. */}
+          <section
+            aria-label="Feeding calendar"
+            className="h-[22rem] min-w-0 compact:h-auto compact:min-h-0"
+          >
+            <MiniCalendar
               days={calendar.data ?? []}
-              selectedDate={manilaToday()}
+              today={manilaToday()}
               onRangeChange={handleRange}
-              onDayClick={() => {
-                void navigate("/calendar");
+              onDayClick={(date) => {
+                void navigate(`/calendar?date=${date}`);
               }}
             />
           </section>
@@ -271,80 +324,88 @@ export function TeacherHomePage() {
         </div>
       </div>
 
-      <section className="mt-4 min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
-        <div className="mb-2 flex compact:mb-0 items-center justify-between gap-2">
-          <h2 className="text-15 font-medium">Enrolled Students</h2>
-          <span className="flex items-center gap-3">
-            <Link
-              to="/students"
-              className={`inline-flex min-h-11 items-center text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
+      {/* Plan 4 D7: Figma 175:1023 stacks Recent Reports and Enrolled Students
+          under the calendar (DEC-046), so they share its column on a desktop. */}
+      <div className="mt-4 grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)] compact:grid-cols-[18rem_minmax(0,1fr)_17rem]">
+        <div className="flex min-w-0 flex-col gap-4 xl:col-start-2">
+          <RecentReports reports={liquidation} />
+          <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+            <div className="mb-2 flex compact:mb-0 items-center justify-between gap-2">
+              <h2 className="text-15 font-medium">Enrolled Students</h2>
+              <span className="flex items-center gap-3">
+                <Link
+                  to="/students"
+                  className={`inline-flex min-h-11 items-center text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
+                >
+                  View all
+                </Link>
+                <Link
+                  to="/students/new"
+                  className={`inline-flex min-h-11 items-center rounded-control bg-primary px-3 text-13 font-medium text-primary-contrast hover:bg-primary-hover compact:min-h-8 ${LINK_FOCUS}`}
+                >
+                  + Add Student
+                </Link>
+              </span>
+            </div>
+            <QueryBoundary
+              query={students}
+              errorTitle="Could not load the students."
             >
-              View all
-            </Link>
-            <Link
-              to="/students/new"
-              className={`inline-flex min-h-11 items-center rounded-control bg-primary px-3 text-13 font-medium text-primary-contrast hover:bg-primary-hover compact:min-h-8 ${LINK_FOCUS}`}
-            >
-              + Add Student
-            </Link>
-          </span>
+              {(students.data?.data.length ?? 0) === 0 ? (
+                <EmptyState title="No students enrolled yet." />
+              ) : (
+                <Table
+                  band
+                  cardsOnPhone
+                  cardsUntilDesktop
+                  caption="Enrolled Students"
+                  rows={students.data?.data.slice(0, 4) ?? []}
+                  rowKey={(row) => row.id}
+                  columns={[
+                    {
+                      key: "number",
+                      header: "#",
+                      render: (row) =>
+                        String((students.data?.data.indexOf(row) ?? 0) + 1),
+                    },
+                    {
+                      key: "name",
+                      header: "Student name",
+                      render: (row) => row.displayName,
+                    },
+                    {
+                      key: "date",
+                      header: "Date Enrolled",
+                      render: (row) => formatDate(row.enrolledOn),
+                    },
+                    {
+                      key: "age",
+                      header: "Age",
+                      align: "right",
+                      render: (row) => String(row.age),
+                    },
+                    {
+                      key: "edit",
+                      header: "Actions",
+                      align: "right",
+                      render: (row) =>
+                        row.isEditable ? (
+                          <IconButton
+                            icon="pencil"
+                            label={`Edit ${row.displayName}`}
+                            onClick={() => {
+                              void navigate(`/students/${String(row.id)}/edit`);
+                            }}
+                          />
+                        ) : null,
+                    },
+                  ]}
+                />
+              )}
+            </QueryBoundary>
+          </section>
         </div>
-        <QueryBoundary
-          query={students}
-          errorTitle="Could not load the students."
-        >
-          {(students.data?.data.length ?? 0) === 0 ? (
-            <EmptyState title="No students enrolled yet." />
-          ) : (
-            <Table
-              cardsOnPhone
-              cardsUntilDesktop
-              caption="Enrolled Students"
-              rows={students.data?.data.slice(0, 4) ?? []}
-              rowKey={(row) => row.id}
-              columns={[
-                {
-                  key: "number",
-                  header: "#",
-                  render: (row) =>
-                    String((students.data?.data.indexOf(row) ?? 0) + 1),
-                },
-                {
-                  key: "name",
-                  header: "Student name",
-                  render: (row) => row.displayName,
-                },
-                {
-                  key: "date",
-                  header: "Date Enrolled",
-                  render: (row) => formatDate(row.enrolledOn),
-                },
-                {
-                  key: "age",
-                  header: "Age",
-                  align: "right",
-                  render: (row) => String(row.age),
-                },
-                {
-                  key: "edit",
-                  header: "Actions",
-                  align: "right",
-                  render: (row) =>
-                    row.isEditable ? (
-                      <IconButton
-                        icon="pencil"
-                        label={`Edit ${row.displayName}`}
-                        onClick={() => {
-                          void navigate(`/students/${String(row.id)}/edit`);
-                        }}
-                      />
-                    ) : null,
-                },
-              ]}
-            />
-          )}
-        </QueryBoundary>
-      </section>
+      </div>
     </>
   );
 }

@@ -507,3 +507,29 @@ NOT verified in I1:
 - Figma nodes could not be read (no Figma connection); card icons are not Figma's (DEC-051).
 - Recent Reports with real rows in the browser: the local database has no reports, so the empty state showed.
 - Uploading and confirming a file through the new card in a real browser (covered by client tests; the browser check chose no file).
+
+## I2 Teacher
+
+Plan:
+1. Tests first: teacher-summary scoping, counts, pages, activity order and texts, display codes, Qualification; Teacher Home per the frame; header bands.
+2. `GET /api/auth/profile/teacher-summary`, Teacher Home, the Teacher Profile.
+3. Browser: Teacher Home and Profile at the three sizes. Full check in foreground steps. Commit per page.
+
+Teacher Home against 175:1023, before fixing. The frame could not be read again (no Figma connection), so the list comes from what Rounds 2 and 3 recorded about it (DEC-046, DEC-050, docs/components.md: 1920 x 1671, screenshots of 2026-11-07 and 2026-11-08):
+- Figma: header, four summary cards, then Quick Actions on the left, the calendar, and Report Tracking with Admin Feedback on the right. Ours: the same. No change.
+- Figma has a Recent Reports box; ours had none since Round 3 (DEC-050 removed it). Fix: restore it.
+- Figma stacks Recent Reports and Enrolled Students under the calendar; ours had Enrolled Students across the full width below the row. Fix: both cards in the calendar's column, Recent Reports first.
+- Figma's tables have a gray header band; ours had a plain header with a black rule. Fix: `band` (D8).
+- Ours used FullCalendar with dish names in the calendar box; D2 asks for the mini calendar on Teacher Home too. Fix: `MiniCalendar`.
+- Not checkable without the frame: card widths and heights in pixels. Ours keep the Round 3 sizes.
+
+Summary of I2, done:
+- Built: `GET /api/auth/profile/teacher-summary` (Teacher only, own data, paged reports, latest 10 activity entries), display codes in `shared/src/display-codes.ts`, the Teacher Profile of 88:695 above the Round 3 sections, Teacher Home with the mini calendar and Recent Reports restored under the calendar, header bands. No migration: `users.qualification` already existed (DEC-052).
+- Tests: the client tests for Home and Profile were written before the code but first run after it, and the endpoint's code was written before its db test's first run. So these were not seen failing first; the honest order is recorded here. The db test's migration check failed once on my test (it read `migration_lock.toml`, then was too strict about Round 2's enum MODIFY) and was corrected to check the `users` statement and that Round 4 adds no migration.
+- Results: db `polish4-teacher-summary` 11 of 11 and the permission matrix with the new row (325 of 325 for the two files); unit display codes 3 of 3; client Home 10 of 10 and auth 39 of 39 (two Profile tests timed out once at 15 s in a group run and passed alone). Typecheck clean.
+- Browser (the built server on port 3100, RATE_LIMIT_MAX in that shell; one Chromium at a time; the server stopped by its process id, no Node left): Teacher at 1440x900, 1366x768 and 390x844 on Home and Profile: document scroll 0, sideways scroll 0, nothing past the right edge, no overlapping or clipped text, no page errors or 500s. Home: Recent Reports then Enrolled Students start under the calendar, in its column (left edges equal), the header band is rgb(240, 240, 240) with bold 12 px text. Profile: teacher-summary answers 200, Teacher ID RIC-2026-002. Read: Home at 1366 (top and bottom), Profile at 1440 and 390, compared by eye with figma-teacher-profile.png.
+- Process note: the stop command first matched no listener, because the server listened on a line my pattern missed; the server's own log named its process id (12368), which was then stopped and confirmed gone.
+
+NOT verified in I2:
+- Frame 175:1023 itself (no Figma connection): the Teacher Home layout follows what earlier rounds recorded, not a fresh reading. Pixel sizes of its cards were not compared.
+- The Teacher Profile with real reports and activity in the browser: the local database has no reports, so the table, pages and timeline showed their empty states. They are covered by client tests with a mocked API and by db tests.
