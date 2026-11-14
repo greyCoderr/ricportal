@@ -37,6 +37,51 @@ const TEACHER_ACTIVITY = {
 
 const ok = (data: unknown) => ({ status: 200, body: { data, meta: {} } });
 
+const SUMMARY = {
+  teacherCode: "RIC-2026-002",
+  centerName: "Sibujo",
+  createdAt: "2026-03-01T02:00:00.000Z",
+  counts: {
+    enrolledStudents: 15,
+    submittedReports: 6,
+    pendingReports: 1,
+    returnedReports: 2,
+  },
+  reports: [
+    {
+      id: 7,
+      code: "2026-007",
+      type: "LIQUIDATION",
+      submittedAt: "2026-06-02T00:30:00.000Z",
+      status: "APPROVED",
+    },
+    {
+      id: 5,
+      code: "2026-005",
+      type: "LIQUIDATION",
+      submittedAt: "2026-05-05T00:30:00.000Z",
+      status: "NEED_REVISION",
+    },
+  ],
+  activity: [
+    {
+      at: "2026-06-03T07:30:00.000Z",
+      reportCode: "2026-007",
+      text: "Admin approved the report.",
+    },
+    {
+      at: "2026-06-02T00:30:00.000Z",
+      reportCode: "2026-007",
+      text: "Report submitted.",
+    },
+  ],
+};
+
+const summaryPage = (page: number, total = 12) => ({
+  status: 200,
+  body: { data: SUMMARY, meta: { page, pageSize: 5, total } },
+});
+
 function mockApi(answers: Record<string, { status: number; body: unknown }>) {
   const calls: Call[] = [];
   vi.stubGlobal(
@@ -77,6 +122,8 @@ function renderPage() {
 const READ = {
   "GET /api/auth/profile": ok(PROFILE),
   "GET /api/auth/profile/activity": ok(TEACHER_ACTIVITY),
+  "GET /api/auth/profile/teacher-summary?page=1&pageSize=5": summaryPage(1),
+  "GET /api/auth/profile/teacher-summary?page=2&pageSize=5": summaryPage(2),
 };
 
 afterEach(() => {
@@ -84,16 +131,45 @@ afterEach(() => {
 });
 
 describe("ProfilePage (D11)", () => {
-  it("D7: shows the header card, the role and the center", async () => {
-    mockApi(READ);
+  it("Plan 4 D9: the Teacher header card as Figma 88:695", async () => {
+    mockApi({
+      ...READ,
+      "GET /api/auth/profile": ok({
+        ...PROFILE,
+        email: "ana@example.com",
+        address: "Purok 2, Sibujo",
+        sex: "Female",
+        birthDate: "1990-03-14",
+        qualification: "Bachelor of Elementary Education",
+      }),
+    });
     renderPage();
     await screen.findByRole("heading", { name: "RIC Teacher Profile" });
-    expect(screen.getAllByText("Ana Cruz").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("RIC Teacher").length).toBeGreaterThan(0);
-    expect(screen.getByText("Sibujo")).toBeDefined();
-    expect(screen.getAllByText("09171234567").length).toBeGreaterThan(0);
-    expect(screen.getByText("Joined 03/01/2026")).toBeDefined();
-    expect(screen.getByText("Active")).toBeDefined();
+    const card = await screen.findByRole("region", { name: "Ana Cruz" });
+    for (const text of [
+      "Active Teacher",
+      "ana@example.com",
+      "09171234567",
+      "Purok 2, Sibujo",
+      "Female",
+      "03/01/2026",
+      "03/14/1990",
+      "Sibujo",
+      "Bachelor of Elementary Education",
+    ]) {
+      expect(within(card).getByText(text)).toBeDefined();
+    }
+    expect(await within(card).findByText("RIC-2026-002")).toBeDefined();
+    for (const label of [
+      "Teacher ID",
+      "Sex",
+      "Date Registered",
+      "BirthDate",
+      "Barangay",
+      "Qualification",
+    ]) {
+      expect(within(card).getByText(label)).toBeDefined();
+    }
   });
 
   it("D7: Admin sees the frame's summary and four activity counts", async () => {
@@ -130,20 +206,102 @@ describe("ProfilePage (D11)", () => {
     expect(screen.getAllByText("System Administrator").length).toBe(2);
   });
 
-  it("D7: Teacher sees their counts and center details", async () => {
+  it("Plan 4 D9: four stat cards with the real counts and Figma's links", async () => {
     mockApi(READ);
     renderPage();
-    expect(await screen.findByText("Children Enrolled")).toBeDefined();
-    for (const text of [
-      "31",
-      "Parents Approved",
-      "Reports Submitted",
-      "RIC-TCHR-002",
-      "Position",
-      "Qualification",
-    ]) {
-      expect(screen.getByText(text)).toBeDefined();
+    for (const [label, value, link] of [
+      ["Total Enrolled Students", "15", "View all students"],
+      ["Submitted Reports", "6", "View all reports"],
+      ["Pending Reports", "1", "For approval"],
+      ["Return for Revision", "2", "Review and Revise"],
+    ] as const) {
+      const card = (await screen.findByText(label)).closest("[data-stat]");
+      if (!(card instanceof HTMLElement)) throw new Error(label);
+      expect(within(card).getByText(value)).toBeDefined();
+      expect(within(card).getByRole("link", { name: link })).toBeDefined();
     }
+    expect(screen.queryByText("Children Enrolled")).toBe(null);
+  });
+
+  it("Plan 4 D9: Recent Submitted Reports with Report ID, date and Manila time", async () => {
+    mockApi(READ);
+    renderPage();
+    const table = await screen.findByRole("table", {
+      name: "Recent Submitted Reports",
+    });
+    expect(
+      within(table)
+        .getAllByRole("columnheader")
+        .map((cell) => cell.textContent),
+    ).toEqual(["Report ID", "Report Type", "Date and Time", "Status"]);
+    expect(within(table).getByText("2026-007")).toBeDefined();
+    expect(within(table).getAllByText("Liquidation Report")).toHaveLength(2);
+    expect(within(table).getByText("06/02/2026 8:30 AM")).toBeDefined();
+    expect(within(table).getByText("Need Revision")).toBeDefined();
+    expect(table.querySelector("thead tr")?.className).toContain(
+      "ric-table-band",
+    );
+  });
+
+  it("Plan 4 D9: numbered pages, 5 per page, with aria-current", async () => {
+    const calls = mockApi(READ);
+    renderPage();
+    const pages = await screen.findByRole("navigation", {
+      name: "Report pages",
+    });
+    const buttons = within(pages).getAllByRole("button", { name: /^Page / });
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      "1",
+      "2",
+      "3",
+    ]);
+    expect(buttons[0]?.getAttribute("aria-current")).toBe("page");
+    fireEvent.click(within(pages).getByRole("button", { name: "Page 2" }));
+    await waitFor(() => {
+      expect(
+        within(pages)
+          .getByRole("button", { name: "Page 2" })
+          .getAttribute("aria-current"),
+      ).toBe("page");
+    });
+    expect(
+      calls.some((call) =>
+        call.path.endsWith("teacher-summary?page=2&pageSize=5"),
+      ),
+    ).toBe(true);
+  });
+
+  it("Plan 4 D9: Recent Status Activity with date, time and text", async () => {
+    mockApi(READ);
+    renderPage();
+    const list = await screen.findByRole("list", {
+      name: "Recent Status Activity",
+    });
+    const items = within(list).getAllByRole("listitem");
+    expect(items).toHaveLength(2);
+    expect(
+      within(items[0] as HTMLElement).getByText("06/03/2026"),
+    ).toBeDefined();
+    expect(within(items[0] as HTMLElement).getByText("3:30 PM")).toBeDefined();
+    expect(
+      within(items[0] as HTMLElement).getByText("Admin approved the report."),
+    ).toBeDefined();
+    expect(
+      within(items[1] as HTMLElement).getByText("Report submitted."),
+    ).toBeDefined();
+  });
+
+  it("Plan 4 D9: Edit Profile and Account Security stay below", async () => {
+    mockApi(READ);
+    renderPage();
+    expect(
+      await screen.findByRole("button", { name: "Edit Profile" }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Change Password" }),
+    ).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
+    expect(screen.getByLabelText(/^Qualification/)).toBeDefined();
   });
 
   it("D7: Parent sees the smaller version", async () => {
@@ -189,10 +347,23 @@ describe("ProfilePage (D11)", () => {
   });
 
   it.each(["View History", "View All Activity"])(
-    "D7: %s opens the last logins with numeric dates",
+    "D7: %s opens the last logins with numeric dates (Admin, whose System Activity card stays)",
     async (label) => {
       mockApi({
-        ...READ,
+        "GET /api/auth/profile": ok({
+          ...PROFILE,
+          role: "ADMIN",
+          username: "admin",
+          centerId: null,
+          centerName: null,
+        }),
+        "GET /api/auth/profile/activity": ok({
+          role: "ADMIN",
+          teachersManaged: 1,
+          enrolledStudents: 2,
+          reportsGenerated: 3,
+          loginsThisMonth: 4,
+        }),
         "GET /api/auth/logins": ok([
           { at: "2026-11-05T02:00:00.000Z" },
           { at: "2026-11-01T02:00:00.000Z" },
@@ -251,30 +422,11 @@ describe("ProfilePage (D11)", () => {
     expect(within(dialog).queryByLabelText(/Position/)).toBe(null);
   });
 
-  it("D9: shows the frame's fields, and Not set for an empty one", async () => {
-    mockApi({
-      ...READ,
-      "GET /api/auth/profile": ok({
-        ...PROFILE,
-        email: "ana@example.com",
-        address: "Purok 2",
-        sex: "Female",
-        birthDate: "1990-03-14",
-      }),
-    });
+  it("D9: an empty field shows Not set in the Teacher header card", async () => {
+    mockApi(READ);
     renderPage();
-    await screen.findByRole("heading", { name: "RIC Teacher Profile" });
-    for (const text of [
-      "RIC-TCHR-002",
-      "Joined 03/01/2026",
-      "Purok 2",
-      "Female",
-      "03/14/1990",
-    ]) {
-      expect(screen.getByText(text)).toBeDefined();
-    }
-    expect(screen.getAllByText("ana@example.com").length).toBe(2);
-    expect(screen.getAllByText("Not set").length).toBeGreaterThan(0);
+    const card = await screen.findByRole("region", { name: "Ana Cruz" });
+    expect(within(card).getAllByText("Not set").length).toBeGreaterThan(0);
   });
 
   it("D9: saves a new field, and only what changed", async () => {

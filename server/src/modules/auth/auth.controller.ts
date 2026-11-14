@@ -3,6 +3,7 @@ import {
   loginSchema,
   parentSignupSchema,
   profileUpdateSchema,
+  teacherSummaryQuerySchema,
 } from "@ricportal/shared";
 import type { Request, Response } from "express";
 import { SESSION_COOKIE } from "../../core/auth-token.js";
@@ -57,6 +58,15 @@ export function createAuthController(
     activity: async (req: Request, res: Response) => {
       res.set("Cache-Control", "no-store");
       ok(res, await service.activity(currentUser(req)));
+    },
+
+    teacherSummary: async (req: Request, res: Response) => {
+      res.set("Cache-Control", "no-store");
+      const { summary, meta } = await service.teacherSummary(
+        currentUser(req),
+        parseWith(teacherSummaryQuerySchema, req.query),
+      );
+      ok(res, summary, meta);
     },
 
     logins: async (req: Request, res: Response) => {

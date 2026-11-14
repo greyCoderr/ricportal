@@ -2,6 +2,7 @@ import type {
   ChangePasswordInput,
   LoginEventDto,
   LoginInput,
+  PageMeta,
   ParentSignupInput,
   ProfileActivityDto,
   ProfileDto,
@@ -9,6 +10,7 @@ import type {
   PublicCenter,
   SessionUser,
   SignupResult,
+  TeacherSummaryDto,
 } from "@ricportal/shared";
 import { ApiError, apiGet, apiRequest } from "../../lib/api";
 
@@ -52,6 +54,15 @@ export async function updateProfile(
 
 export async function fetchProfileActivity(): Promise<ProfileActivityDto> {
   return (await apiGet<ProfileActivityDto>("/api/auth/profile/activity")).data;
+}
+
+// Plan 4 D9: the Teacher Profile, 5 reports per page.
+export const TEACHER_REPORTS_PAGE_SIZE = 5;
+
+export function fetchTeacherSummary(page: number) {
+  return apiGet<TeacherSummaryDto, PageMeta>(
+    `/api/auth/profile/teacher-summary?page=${String(page)}&pageSize=${String(TEACHER_REPORTS_PAGE_SIZE)}`,
+  );
 }
 
 export async function fetchRecentLogins(): Promise<LoginEventDto[]> {

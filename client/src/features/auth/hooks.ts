@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { SESSION_KEY } from "../../lib/query-client";
 import {
   changePassword,
@@ -7,6 +12,7 @@ import {
   fetchPublicCenters,
   fetchRecentLogins,
   fetchSession,
+  fetchTeacherSummary,
   login,
   logout,
   parentSignup,
@@ -65,6 +71,14 @@ export function useProfileActivity() {
   return useQuery({
     queryKey: [...PROFILE_KEY, "activity"],
     queryFn: fetchProfileActivity,
+  });
+}
+
+export function useTeacherSummary(page: number) {
+  return useQuery({
+    queryKey: [...PROFILE_KEY, "teacher-summary", page],
+    queryFn: () => fetchTeacherSummary(page),
+    placeholderData: keepPreviousData,
   });
 }
 

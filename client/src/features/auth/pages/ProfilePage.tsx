@@ -25,11 +25,19 @@ import {
   ProfileSummaryCard,
 } from "../components/ProfileSections";
 import {
+  RecentStatusActivity,
+  RecentSubmittedReports,
+  TeacherHeaderCard,
+  TeacherStatCards,
+} from "../components/TeacherProfileSections";
+import {
   useChangePassword,
   useProfile,
   useRecentLogins,
+  useTeacherSummary,
   useUpdateProfile,
 } from "../hooks";
+import { TEACHER_REPORTS_PAGE_SIZE } from "../api";
 
 const TITLE: Record<Role, string> = {
   ADMIN: "Profile",
@@ -228,6 +236,34 @@ function LoginHistoryDialog({ onClose }: { onClose: () => void }) {
   );
 }
 
+// Plan 4 D9: the Teacher Profile of Figma 88:695 above the Round 3 sections.
+function TeacherOverview({ profile }: { profile: ProfileDto }) {
+  const [page, setPage] = useState(1);
+  const summary = useTeacherSummary(page);
+  const data = summary.data?.data;
+  const total = summary.data?.meta.total ?? 0;
+  return (
+    <div className="mb-4 flex flex-col gap-4">
+      <TeacherHeaderCard profile={profile} teacherCode={data?.teacherCode} />
+      <QueryBoundary
+        query={summary}
+        errorTitle="Could not load your reports and activity."
+      >
+        <TeacherStatCards counts={data?.counts} />
+        <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+          <RecentSubmittedReports
+            reports={data?.reports ?? []}
+            page={page}
+            pages={Math.ceil(total / TEACHER_REPORTS_PAGE_SIZE)}
+            onPage={setPage}
+          />
+          <RecentStatusActivity activity={data?.activity ?? []} />
+        </div>
+      </QueryBoundary>
+    </div>
+  );
+}
+
 function ProfileDetails({ profile }: { profile: ProfileDto }) {
   const [dialog, setDialog] = useState<"edit" | "password" | "logins" | null>(
     null,
@@ -250,14 +286,18 @@ function ProfileDetails({ profile }: { profile: ProfileDto }) {
           <Banner tone="success">Your password was changed.</Banner>
         </div>
       )}
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,2.6fr)_minmax(0,1fr)]">
-        <ProfileSummaryCard profile={profile} />
-        <ProfileActivityCard
-          onViewAll={() => {
-            setDialog("logins");
-          }}
-        />
-      </div>
+      {profile.role === "TEACHER" ? (
+        <TeacherOverview profile={profile} />
+      ) : (
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,2.6fr)_minmax(0,1fr)]">
+          <ProfileSummaryCard profile={profile} />
+          <ProfileActivityCard
+            onViewAll={() => {
+              setDialog("logins");
+            }}
+          />
+        </div>
+      )}
       <div className="mt-4 grid gap-4 xl:grid-cols-2">
         <PersonalInformationCard
           profile={profile}
@@ -293,7 +333,8 @@ function ProfileDetails({ profile }: { profile: ProfileDto }) {
   );
 }
 
-// Profile for every role in the layout of the Admin frame (Plan 3 D7, DEC-049).
+// Admin and Parent in the layout of the Admin frame (Plan 3 D7, DEC-049); the
+// Teacher in the layout of 88:695 (Plan 4 D9), with the same sections below.
 export function ProfilePage() {
   const profile = useProfile();
   return (

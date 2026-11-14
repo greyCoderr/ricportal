@@ -163,6 +163,49 @@ export function createAuthRepository(prisma: PrismaClient) {
       return prisma.report.count({ where: { centerId } });
     },
 
+    // Plan 4 D9: the Teacher's own liquidation reports.
+    countOwnLiquidation(
+      teacherId: number,
+      status?: "SUBMITTED" | "NEED_REVISION",
+    ) {
+      return prisma.report.count({
+        where: {
+          teacherId,
+          type: "LIQUIDATION",
+          ...(status === undefined ? {} : { status }),
+        },
+      });
+    },
+
+    listOwnLiquidation(teacherId: number, skip: number, take: number) {
+      return prisma.report.findMany({
+        where: { teacherId, type: "LIQUIDATION" },
+        orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
+        skip,
+        take,
+        select: {
+          id: true,
+          type: true,
+          status: true,
+          submittedAt: true,
+        },
+      });
+    },
+
+    // Every version and review of the Teacher's liquidation reports, for the
+    // status activity. Bounded by the Teacher's own reports.
+    listOwnReportHistory(teacherId: number) {
+      return prisma.report.findMany({
+        where: { teacherId, type: "LIQUIDATION" },
+        select: {
+          id: true,
+          submittedAt: true,
+          snapshots: { select: { versionNo: true, createdAt: true } },
+          reviews: { select: { id: true, decision: true, createdAt: true } },
+        },
+      });
+    },
+
     changePassword(id: number, passwordHash: string, at: Date) {
       return prisma.user.update({
         where: { id },

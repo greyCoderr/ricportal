@@ -39,6 +39,7 @@ export const MATRIX: Row[] = [
   ["patch", "/api/auth/profile", ATP],
   ["get", "/api/auth/profile/activity", ATP],
   ["get", "/api/auth/logins", ATP],
+  ["get", "/api/auth/profile/teacher-summary", T],
   ["get", "/api/centers", A],
   ["post", "/api/centers", A],
   ["patch", "/api/centers/:id", A],

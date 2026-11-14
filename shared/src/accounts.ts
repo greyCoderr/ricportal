@@ -208,6 +208,48 @@ export type ProfileActivityDto =
 
 export type LoginEventDto = { at: string };
 
+// The Teacher Profile of Figma (Plan 4 D9): own data only.
+export const teacherSummaryQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).max(10_000).default(1),
+  pageSize: z.coerce.number().int().min(1).max(50).default(5),
+});
+
+export type TeacherSummaryReportDto = {
+  id: number;
+  // "2025-007" (display only).
+  code: string;
+  type: "LIQUIDATION" | "ENROLLMENT" | "ACCOMPLISHMENT";
+  submittedAt: string;
+  status: "SUBMITTED" | "NEED_REVISION" | "APPROVED";
+};
+
+export type TeacherActivityDto = {
+  at: string;
+  reportCode: string;
+  text:
+    | "Report submitted."
+    | "Report resubmitted."
+    | "Returned for revision."
+    | "Admin approved the report.";
+};
+
+// `reports` is one page (page and total in the response's meta); `activity` is
+// the latest 10 entries.
+export type TeacherSummaryDto = {
+  // "RIC-2025-001" (display only).
+  teacherCode: string;
+  centerName: string | null;
+  createdAt: string;
+  counts: {
+    enrolledStudents: number;
+    submittedReports: number;
+    pendingReports: number;
+    returnedReports: number;
+  };
+  reports: TeacherSummaryReportDto[];
+  activity: TeacherActivityDto[];
+};
+
 export type SessionUser = {
   id: number;
   role: Role;

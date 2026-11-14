@@ -21,6 +21,14 @@ export function createAuthRouter(
   router.patch("/profile", authenticate, everyRole, controller.updateProfile);
   router.get("/profile/activity", authenticate, everyRole, controller.activity);
   router.get("/logins", authenticate, everyRole, controller.logins);
+  // Plan 4 D9: the Teacher's own summary. Every query in it is limited to the
+  // caller's id and center, so no other scope applies.
+  router.get(
+    "/profile/teacher-summary",
+    authenticate,
+    requireRole("TEACHER"),
+    controller.teacherSummary,
+  );
   return router;
 }
 

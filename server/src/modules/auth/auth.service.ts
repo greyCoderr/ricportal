@@ -2,7 +2,13 @@ import {
   INVALID_LOGIN_MESSAGE,
   LOCKED_MESSAGE,
   manilaToday,
+  reportDisplayCode,
+  teacherDisplayCode,
   type LoginEventDto,
+  type PageMeta,
+  type TeacherActivityDto,
+  type TeacherSummaryDto,
+  type teacherSummaryQuerySchema,
   type ProfileActivityDto,
   STATUS_LOGIN_MESSAGES,
   type changePasswordSchema,
@@ -141,6 +147,50 @@ class UnknownUserThrottle {
   }
 }
 
+type ReportHistory = Awaited<
+  ReturnType<AuthRepository["listOwnReportHistory"]>
+>;
+
+const ACTIVITY_SIZE = 10;
+
+// Recent Status Activity (Plan 4 D9): one entry per saved version (the first is
+// the submission) and per review, newest first. A report with no saved version
+// still shows its submission. On equal times the later step comes first.
+export function buildTeacherActivity(
+  reports: ReportHistory,
+): TeacherActivityDto[] {
+  const entries: (TeacherActivityDto & { order: number })[] = [];
+  for (const report of reports) {
+    const reportCode = reportDisplayCode(report.id, report.submittedAt);
+    const add = (at: Date, text: TeacherActivityDto["text"], order: number) => {
+      entries.push({ at: at.toISOString(), reportCode, text, order });
+    };
+    if (!report.snapshots.some((version) => version.versionNo === 1)) {
+      add(report.submittedAt, "Report submitted.", 0);
+    }
+    for (const version of report.snapshots) {
+      add(
+        version.createdAt,
+        version.versionNo === 1 ? "Report submitted." : "Report resubmitted.",
+        version.versionNo * 2,
+      );
+    }
+    for (const review of report.reviews) {
+      add(
+        review.createdAt,
+        review.decision === "APPROVED"
+          ? "Admin approved the report."
+          : "Returned for revision.",
+        review.id * 2 + 1,
+      );
+    }
+  }
+  return entries
+    .sort((a, b) => b.at.localeCompare(a.at) || b.order - a.order)
+    .slice(0, ACTIVITY_SIZE)
+    .map(({ at, reportCode, text }) => ({ at, reportCode, text }));
+}
+
 export function createAuthService(deps: {
   repository: AuthRepository;
   config: TokenConfig & { BCRYPT_COST: number };
@@ -263,6 +313,64 @@ export function createAuthService(deps: {
         parentsApproved,
         reportsSubmitted,
         loginsThisMonth,
+      };
+    },
+
+    // Plan 4 D9: the Teacher's own counts, one page of reports and the
+    // activity. Every query is limited to the caller's id or center.
+    async teacherSummary(
+      user: { id: number; centerId: number | null },
+      query: z.output<typeof teacherSummaryQuerySchema>,
+    ): Promise<{ summary: TeacherSummaryDto; meta: PageMeta }> {
+      const profile = await repository.findProfile(user.id);
+      if (profile === null) {
+        throw new UnauthenticatedError();
+      }
+      if (user.centerId === null) {
+        throw new ForbiddenError("This account has no RIC Children Center.");
+      }
+      const schoolYear = await settings.currentSchoolYear();
+      const skip = (query.page - 1) * query.pageSize;
+      const [
+        enrolledStudents,
+        submittedReports,
+        pendingReports,
+        returnedReports,
+        rows,
+        history,
+      ] = await Promise.all([
+        repository.countEnrolledStudents(schoolYear, user.centerId),
+        repository.countOwnLiquidation(user.id),
+        repository.countOwnLiquidation(user.id, "SUBMITTED"),
+        repository.countOwnLiquidation(user.id, "NEED_REVISION"),
+        repository.listOwnLiquidation(user.id, skip, query.pageSize),
+        repository.listOwnReportHistory(user.id),
+      ]);
+      return {
+        summary: {
+          teacherCode: teacherDisplayCode(profile.id, profile.createdAt),
+          centerName: profile.center?.name ?? null,
+          createdAt: profile.createdAt.toISOString(),
+          counts: {
+            enrolledStudents,
+            submittedReports,
+            pendingReports,
+            returnedReports,
+          },
+          reports: rows.map((row) => ({
+            id: row.id,
+            code: reportDisplayCode(row.id, row.submittedAt),
+            type: row.type,
+            submittedAt: row.submittedAt.toISOString(),
+            status: row.status,
+          })),
+          activity: buildTeacherActivity(history),
+        },
+        meta: {
+          page: query.page,
+          pageSize: query.pageSize,
+          total: submittedReports,
+        },
       };
     },
 
