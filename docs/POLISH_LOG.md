@@ -533,3 +533,5 @@ Summary of I2, done:
 NOT verified in I2:
 - Frame 175:1023 itself (no Figma connection): the Teacher Home layout follows what earlier rounds recorded, not a fresh reading. Pixel sizes of its cards were not compared.
 - The Teacher Profile with real reports and activity in the browser: the local database has no reports, so the table, pages and timeline showed their empty states. They are covered by client tests with a mocked API and by db tests.
+
+I2 full check, foreground steps (2026-11-14): `npm run typecheck` clean; full lint and format clean; unit 300 of 300 on one worker. The client project run (one worker) was stopped by the system because memory was critically low. Per DEC-035 and the system notice it was not restarted, and work stops here, reported to the Developer. The client and db projects of the full check, and I3, are not done. No tag was made.

@@ -87,3 +87,15 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | RIC Teachers | `/teachers` | Admin | polished | View Profile and the status toggle (267:9862, D8) |
 | RIC Teacher Profile | `/teachers/:id` | Admin | new | Developer-designed from 88:695. Edit, reset and the toggle live here (D8) |
 | Profile | `/profile` | Every role | polished | All the fields of 88:695 with a data source (D9) |
+
+## Polish Round 4 screens (I1, I2)
+
+| Screen | Route | Role | State | Notes |
+| --- | --- | --- | --- | --- |
+| Admin Dashboard | `/` | Admin | polished | Five cards, Figma's Quick Actions, Recent Reports tabs, mini calendar (267:9689, D1 to D5); title in the top bar |
+| Calendar | `/calendar` | Admin | polished | Title and center control in the top bar, per-month banner, accent Upload & Process (268:11404, D6); `?date=YYYY-MM-DD` opens a day |
+| Enrolled Students (Admin) | `/admin/students` | Admin | new | Read-only; center select, search, # / Student Name / Date Enrolled / Age / Center (D4) |
+| Child's Record (Admin) | `/admin/students/:id` | Admin | new | The Teacher's three tabs, read-only (D4) |
+| RIC Teachers | `/teachers` | Admin | polished | Manage Centers button (D3) |
+| Teacher Home | `/` | Teacher | polished | Mini calendar; Recent Reports and Enrolled Students under the calendar with gray header bands (175:1023, D7, D8) |
+| Profile | `/profile` | Teacher | polished | Header card, stat cards, Recent Submitted Reports with pages, Recent Status Activity (88:695, D9); Admin and Parent unchanged |
