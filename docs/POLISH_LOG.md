@@ -700,3 +700,22 @@ AUD-002 change-password accepted the same or the default password (BR-05). Fixed
   typecheck, lint and format of the changed files clean.
 - Not done: the same check in the shared Zod schema, so the form would refuse it before sending. The
   server message appears under the field instead.
+
+AUD-003 Rows added at the same moment (BR-11, BR-12). Fixed.
+- Test first: `server/test/db/audit-003-rows.db.test.ts`. Seen failing before the fix, 4 of 5: four adds
+  at once on a day not opened yet answered 201, 500, 500, 500; six adds at once on an open day gave the
+  item numbers 1, 2, 2, 2, 2, 5, 7; the repository added a row to a locked day and deleted one from it.
+  The fifth test (a locked day answers 409 through the API) passed before and after.
+- Fix, in `purchase-requests.repository.ts`: `lockOpenRequest` reads the request row with FOR UPDATE inside
+  the transaction and returns its status and last item number in the same statement; `addItem` and
+  `deleteItem` go through it and write nothing unless the day is OPEN; `open` reads the row again when its
+  insert loses to another request. The service answers 409 STATE_INVALID when the repository refuses.
+  The lock is on the request row only, not on item rows, so it cannot deadlock with a row being edited.
+  `isUniqueViolation` moved from `menu.service.ts` to `core/db-errors.ts` and is used by both.
+- Runs: the new file 5 of 5, then three more runs 5 of 5 each; `purchase`, `assignments-week`,
+  `liquidation` and `menu` db tests 108 of 108; server typecheck, lint and format of the changed files
+  clean. The assignments-week file passed again (31 of 31); no 404.
+- NOT verified: TiDB Cloud. The statement uses FOR UPDATE with a subquery, which MariaDB and TiDB both
+  accept, but it ran only on the local MariaDB (DEC-016). Run this test file against TiDB before go-live.
+- Not part of this fix (AUD-004, medium, in BACKLOG): lock, unlock, no-feeding and submit still change the
+  status without a condition.

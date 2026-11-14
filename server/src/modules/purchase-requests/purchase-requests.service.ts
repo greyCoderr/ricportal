@@ -233,10 +233,12 @@ export function createPurchaseRequestsService(deps: {
       if (pr.status !== "OPEN") {
         throw new StateInvalidError(LOCKED_MESSAGE);
       }
-      return toItemDto(
-        await repository.addItem(pr.id, description, user.id),
-        user,
-      );
+      // The repository checks the status again under a lock (AUD-003).
+      const item = await repository.addItem(pr.id, description, user.id);
+      if (item === null) {
+        throw new StateInvalidError(LOCKED_MESSAGE);
+      }
+      return toItemDto(item, user);
     },
 
     async updateItem(
@@ -316,7 +318,9 @@ export function createPurchaseRequestsService(deps: {
           "You can delete only the rows that you added.",
         );
       }
-      await repository.deleteItem(id, pr.id);
+      if (!(await repository.deleteItem(id, pr.id))) {
+        throw new StateInvalidError(LOCKED_MESSAGE);
+      }
     },
 
     async lock(user: AuthUser, date: string) {

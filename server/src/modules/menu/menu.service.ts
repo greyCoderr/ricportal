@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { CalendarDay, MenuBatchDto, MenuPreview } from "@ricportal/shared";
 import { fromDbDate } from "../../core/dates.js";
+import { isUniqueViolation } from "../../core/db-errors.js";
 import {
   ConflictError,
   RuleViolationError,
@@ -21,16 +22,6 @@ type HeldPreview = {
 
 const OVERLAP_MESSAGE =
   "Some dates in this file already have a menu. Remove the overlap from the file and upload it again.";
-
-// A failed insert with the unique feeding_date (Prisma P2002).
-function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === "P2002"
-  );
-}
 
 export function createMenuService(deps: {
   repository: MenuRepository;
