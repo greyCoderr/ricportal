@@ -196,3 +196,12 @@ Round 3 calls so far: 13 of 60.
 ## Polish Round 4 Figma calls (limit 40)
 
 The Figma MCP server did not connect in this round (ENOTFOUND for mcp.figma.com, checked at the start and again before I1). No call was made: 0 of 40. The comparisons used the reference images in docs/feedback/ (figma-admin-dashboard.png for 267:9689, figma-admin-calendar.png for 268:11404, figma-teacher-profile.png for 88:695) and the node measurements recorded above in Round 3. Frame 175:1023 (Teacher Home) could not be read again (DEC-052).
+
+Update 2026-11-14: the Figma server connected. Calls: `whoami`, `create_session` (file
+`EetVyXPcJxatZKCElGlqr6`), `get_metadata` 175:1023, `get_screenshot` 175:1023 (saved as
+docs/feedback/figma-teacher-home.png). Round 4 calls: 4 of 40.
+
+| Date | Stage | Tool | Node | Purpose |
+| --- | --- | --- | --- | --- |
+| 2026-11-14 | D7 | `get_metadata` | 175:1023 | Teacher Home cards, order, positions and sizes |
+| 2026-11-14 | D7 | `get_screenshot` | 175:1023 | Teacher Home look (DEC-053) |

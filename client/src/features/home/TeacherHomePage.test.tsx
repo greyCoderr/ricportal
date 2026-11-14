@@ -146,7 +146,7 @@ describe("TeacherHomePage (D10, 175:1023)", () => {
     expect(screen.queryByRole("cell", { name: "Student 5" })).toBe(null);
   });
 
-  it("Plan 4 D7: Recent Reports, then Enrolled Students, under the calendar", async () => {
+  it("Plan 4 D7: Recent Reports, then Enrolled Students, after the calendar", async () => {
     mockApi({ reports: [REPORT] });
     renderPage();
     const calendar = await screen.findByRole("grid");
@@ -173,9 +173,38 @@ describe("TeacherHomePage (D10, 175:1023)", () => {
       within(table)
         .getAllByRole("columnheader")
         .map((cell) => cell.textContent),
-    ).toEqual(["Report Type", "Date Submitted", "Status"]);
+    ).toEqual(["Report Title", "Date", "Status"]);
     expect(within(table).getByText("Liquidation Report")).toBeDefined();
     expect(within(table).getByText("11/06/2026")).toBeDefined();
+    expect(
+      screen
+        .getByRole("link", { name: "View all reports" })
+        .getAttribute("href"),
+    ).toBe("/reports");
+  });
+
+  it("Plan 4 D7 (175:1023 read 2026-11-14): Recent Reports shows three rows", async () => {
+    mockApi({ reports: [1, 2, 3, 4].map((id) => ({ ...REPORT, id })) });
+    renderPage();
+    const table = await screen.findByRole("table", { name: "Recent Reports" });
+    expect(within(table).getAllByText("Liquidation Report")).toHaveLength(3);
+  });
+
+  it("Plan 4 D7 (175:1023 read 2026-11-14): Recent Reports and Enrolled Students share one row after the calendar row", async () => {
+    mockApi({ reports: [REPORT] });
+    renderPage();
+    const calendar = await screen.findByRole("grid");
+    const recent = screen
+      .getByRole("heading", { name: "Recent Reports" })
+      .closest("section");
+    const students = screen
+      .getByRole("heading", { name: "Enrolled Students" })
+      .closest("section");
+    const row = recent?.parentElement ?? null;
+    expect(row).not.toBe(null);
+    expect(students?.parentElement).toBe(row);
+    expect(row?.contains(calendar)).toBe(false);
+    expect(row?.className).toContain("xl:grid-cols-[593fr_759fr_175fr]");
   });
 
   it("Plan 4 D8: both tables have the gray header band", async () => {

@@ -625,3 +625,29 @@ Decision:
 - D9 endpoint: `GET /api/auth/profile/teacher-summary` (Teacher only). The reports page is in `meta`; `activity` is the latest 10 entries, not paged, because the timeline in the frame shows a short list. Activity comes from liquidation snapshots (version 1 "Report submitted.", later versions "Report resubmitted.") and reviews ("Returned for revision.", "Admin approved the report."); a report with no snapshot shows its `submitted_at` as "Report submitted.". Only LIQUIDATION reports count, as the plan says for Submitted. Display codes use the Manila year (`shared/src/display-codes.ts`). The Profile's existing "RIC-TCHR-002" code (DEC-040) stays on the Admin pages; the Teacher Profile header shows the D9 code.
 - D9 layout: the Teacher sees the header card, four stat cards, Recent Submitted Reports with numbered pages (5 per page, server side) and Recent Status Activity, then the Round 3 Personal Information and Account Security cards. Account Summary and System Activity are no longer shown to the Teacher (the header and stat cards replace them); Admin and Parent are unchanged. The activity text shows no report code (Figma shows none); the code is in its tooltip.
 - Test changes required by the plan: in `TeacherHomePage.test.tsx`, "the calendar fills its box", "the student preview sits below the calendar row" and "Report Tracking and Admin Feedback replace Recent Reports" are replaced by the D2 and D7 tests. In `ProfilePage.test.tsx`, the Round 3 Teacher header and counts tests and the "frame's fields" test become D9 tests; "View All Activity opens the last logins" now runs as the Admin, because the Teacher no longer has that card. The permission matrix gains the new route.
+
+## DEC-053: Teacher Home follows frame 175:1023, read on 2026-11-14 (Round 4, D7)
+
+Context: docs/POLISH_PLAN_4.md D7. The Figma server connected on 2026-11-14, so frame 175:1023 was read
+(`get_metadata` and one screenshot, saved as docs/feedback/figma-teacher-home.png). The I2 layout
+(DEC-052) came from older notes and differed from the frame. No question asked, as the plan says.
+Decision:
+- Rows as the frame: header; four stat cards (346 x 133 at 1920, gaps about 4% of the width); then Quick
+  Actions (375 px), the calendar (690 x 523) and the right column (322 px) with gaps of 108 and 73 px; then
+  Recent Reports (593 px) and Enrolled Students (759 px) side by side, with the frame's 175 px left free at
+  the right. This reverses DEC-052's "both cards in the calendar's column".
+- On compact desktops (`compact`, 1024 px and up with a fine pointer) the widths are fractions of the
+  frame's pixels (`[375fr_108fr_690fr_73fr_322fr]`, `[593fr_759fr_175fr]`), and heights use rem values equal
+  to the frame's pixels scaled like the rest of the app (stat cards `min-h-32`, tiles `min-h-[7.5rem]`,
+  Report Tracking, Admin Feedback and the two bottom cards `min-h-52`). The calendar keeps the frame's
+  690:523 ratio. Phones and touch laptops keep the stacked layout.
+- Report Tracking starts level with the calendar's weekday row, as in the frame. Our month heading is
+  shorter than the frame's, so that row sits 40 px below the row top at 1440 (frame: 81 px when scaled).
+- Home no longer uses `FIT_SCREEN`: the frame's top rows are shorter than a screen and the bottom row
+  follows them directly. Measured: the top rows end at y 684 at 1440x900 and y 665 at 1366x768.
+- Recent Reports as the frame: columns "Report Title" (document icon and "Liquidation Report"), "Date",
+  "Status"; three rows; link "View all reports →". Dates stay MM/DD/YYYY (plan section 3), not the frame's
+  "June 7, 2026". Enrolled Students' link reads "View all →".
+- Kept from the frame's differences, on purpose: Enrolled Students has no delete button (Teachers do not
+  delete students) and keeps an "Actions" header for screen readers; its rows keep the 44 px touch height
+  rather than the frame's 33 px.

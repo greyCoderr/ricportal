@@ -16,7 +16,6 @@ import { MiniCalendar } from "../calendar/components/MiniCalendar";
 import { useCalendar, type DayRange } from "../calendar/hooks";
 import { useFeedback, useReports } from "../reports/hooks";
 import { useStudents, useStudentSummary } from "../students/hooks";
-import { FIT_SCREEN } from "../../lib/layout";
 
 const LINK_FOCUS =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-text";
@@ -37,7 +36,7 @@ function SummaryCard({
   urgent?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-card border border-border-subtle p-3 shadow-panel compact:p-2">
+    <div className="flex items-center gap-3 rounded-card border border-border-subtle p-3 shadow-panel compact:min-h-32 compact:p-2">
       <span
         className={`inline-flex size-14 shrink-0 items-center justify-center rounded-full ${
           urgent
@@ -81,7 +80,7 @@ function QuickAction({
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2 ${LINK_FOCUS}`}
+      className={`flex items-center gap-3 rounded-control border border-border-subtle p-3 shadow-panel compact:min-h-[7.5rem] compact:p-2 ${LINK_FOCUS}`}
     >
       <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-icon bg-accent-soft text-accent compact:size-10">
         <Icon name={icon} size={24} />
@@ -107,7 +106,7 @@ function ReportTracking({ reports }: { reports: ReportDto[] }) {
     .filter((report) => report.type === "LIQUIDATION")
     .slice(0, TRACKED_REPORTS);
   return (
-    <section className="shrink-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+    <section className="shrink-0 rounded-control border border-border-subtle p-3 shadow-panel compact:min-h-52 compact:p-2">
       <h2 className="text-13 font-medium">Report Tracking</h2>
       {shown.length === 0 ? (
         <p className="mt-1 text-12">No report yet.</p>
@@ -130,18 +129,22 @@ function ReportTracking({ reports }: { reports: ReportDto[] }) {
   );
 }
 
+// Figma 175:1023 shows three rows in Recent Reports and four in Enrolled Students.
+const RECENT_REPORT_ROWS = 3;
+
 // The own liquidation reports, newest first (Plan 4 D7: Figma's Recent
-// Reports box returns).
+// Reports box returns, columns as frame 175:1023).
 function RecentReports({ reports }: { reports: ReportDto[] }) {
   return (
-    <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+    <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:min-h-52 compact:p-2">
       <div className="mb-2 flex items-center justify-between gap-2 compact:mb-1">
         <h2 className="text-15 font-medium">Recent Reports</h2>
         <Link
           to="/reports"
-          className={`inline-flex min-h-11 items-center text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
+          className={`inline-flex min-h-11 items-center gap-1 text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
         >
-          View all
+          View all reports
+          <span aria-hidden="true">→</span>
         </Link>
       </div>
       {reports.length === 0 ? (
@@ -152,17 +155,22 @@ function RecentReports({ reports }: { reports: ReportDto[] }) {
           cardsOnPhone
           cardsUntilDesktop
           caption="Recent Reports"
-          rows={reports.slice(0, 4)}
+          rows={reports.slice(0, RECENT_REPORT_ROWS)}
           rowKey={(row) => row.id}
           columns={[
             {
-              key: "type",
-              header: "Report Type",
-              render: () => "Liquidation Report",
+              key: "title",
+              header: "Report Title",
+              render: () => (
+                <span className="inline-flex items-center gap-1">
+                  <Icon name="file-text" size={16} />
+                  Liquidation Report
+                </span>
+              ),
             },
             {
               key: "date",
-              header: "Date Submitted",
+              header: "Date",
               render: (row) => formatInstantDate(row.submittedAt),
             },
             {
@@ -177,8 +185,8 @@ function RecentReports({ reports }: { reports: ReportDto[] }) {
   );
 }
 
-// Teacher Home (Figma 175:1023, Plan 3 D8) with real data for the own center. The
-// top rows fit one desktop screen; Enrolled Students follows below the calendar row.
+// Teacher Home (Figma 175:1023, Plan 3 D8) with real data for the own center. It
+// follows the rows and proportions of that frame (DEC-053); Recent Reports and Enrolled Students share the last row.
 export function TeacherHomePage() {
   const user = useCurrentUser();
   const navigate = useNavigate();
@@ -205,16 +213,16 @@ export function TeacherHomePage() {
 
   return (
     <>
-      <div className={`flex flex-col ${FIT_SCREEN}`}>
+      <div className="flex flex-col">
         <h1 className="text-24 font-semibold tracking-label text-accent lg:text-40">
           Welcome, Teacher {firstName}!
         </h1>
-        <p className="mb-4 flex shrink-0 items-center gap-1 compact:mb-2 text-13 tracking-label text-text-secondary">
+        <p className="mb-4 flex shrink-0 items-center gap-1 compact:mb-8 text-13 tracking-label text-text-secondary">
           <Icon name="map-pin" size={16} />
           {user.centerName ?? ""}, Libmanan, Camarines Sur
         </p>
 
-        <div className="grid shrink-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid shrink-0 gap-3 sm:grid-cols-2 xl:grid-cols-4 compact:gap-x-[4%]">
           <SummaryCard
             icon="users"
             label="Total Enrolled Students"
@@ -246,13 +254,13 @@ export function TeacherHomePage() {
           />
         </div>
 
-        <div className="mt-6 grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)] compact:mt-3 compact:min-h-0 compact:flex-1 compact:grid-cols-[18rem_minmax(0,1fr)_17rem]">
-          <div className="flex min-w-0 flex-col gap-3 compact:min-h-0">
-            <section className="shrink-0">
+        <div className="mt-6 grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)] compact:mt-9 compact:gap-0 compact:grid-cols-[375fr_108fr_690fr_73fr_322fr]">
+          <div className="flex min-w-0 flex-col gap-3 compact:col-start-1">
+            <section className="shrink-0 compact:flex compact:h-full compact:flex-col">
               <h2 className="mb-2 text-20 tracking-label compact:mb-1">
                 Quick Actions
               </h2>
-              <div className="flex flex-col gap-3 compact:gap-2">
+              <div className="flex flex-col gap-3 compact:flex-1 compact:justify-between">
                 <QuickAction
                   to="/students/new"
                   icon="plus"
@@ -278,7 +286,7 @@ export function TeacherHomePage() {
               Calendar page at that date. */}
           <section
             aria-label="Feeding calendar"
-            className="h-[22rem] min-w-0 compact:h-auto compact:min-h-0"
+            className="h-[22rem] min-w-0 compact:col-start-3 compact:aspect-[690/523] compact:h-auto compact:self-start"
           >
             <MiniCalendar
               days={calendar.data ?? []}
@@ -289,9 +297,9 @@ export function TeacherHomePage() {
               }}
             />
           </section>
-          <div className="flex min-w-0 flex-col gap-3 xl:col-span-2 compact:col-span-1 compact:min-h-0 compact:overflow-y-auto">
+          <div className="flex min-w-0 flex-col gap-3 xl:col-span-2 compact:col-span-1 compact:col-start-5 compact:gap-8 compact:pt-13">
             <ReportTracking reports={reports.data?.data ?? []} />
-            <section className="shrink-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
+            <section className="shrink-0 rounded-control border border-border-subtle p-3 shadow-panel compact:min-h-52 compact:p-2">
               <h2 className="text-13 font-medium text-danger-text">
                 Admin Feedback
               </h2>
@@ -324,87 +332,87 @@ export function TeacherHomePage() {
         </div>
       </div>
 
-      {/* Plan 4 D7: Figma 175:1023 stacks Recent Reports and Enrolled Students
-          under the calendar (DEC-046), so they share its column on a desktop. */}
-      <div className="mt-4 grid gap-4 xl:grid-cols-[18rem_minmax(0,1fr)] compact:grid-cols-[18rem_minmax(0,1fr)_17rem]">
-        <div className="flex min-w-0 flex-col gap-4 xl:col-start-2">
-          <RecentReports reports={liquidation} />
-          <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:p-2">
-            <div className="mb-2 flex compact:mb-0 items-center justify-between gap-2">
-              <h2 className="text-15 font-medium">Enrolled Students</h2>
-              <span className="flex items-center gap-3">
-                <Link
-                  to="/students"
-                  className={`inline-flex min-h-11 items-center text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
-                >
-                  View all
-                </Link>
-                <Link
-                  to="/students/new"
-                  className={`inline-flex min-h-11 items-center rounded-control bg-primary px-3 text-13 font-medium text-primary-contrast hover:bg-primary-hover compact:min-h-8 ${LINK_FOCUS}`}
-                >
-                  + Add Student
-                </Link>
-              </span>
-            </div>
-            <QueryBoundary
-              query={students}
-              errorTitle="Could not load the students."
-            >
-              {(students.data?.data.length ?? 0) === 0 ? (
-                <EmptyState title="No students enrolled yet." />
-              ) : (
-                <Table
-                  band
-                  cardsOnPhone
-                  cardsUntilDesktop
-                  caption="Enrolled Students"
-                  rows={students.data?.data.slice(0, 4) ?? []}
-                  rowKey={(row) => row.id}
-                  columns={[
-                    {
-                      key: "number",
-                      header: "#",
-                      render: (row) =>
-                        String((students.data?.data.indexOf(row) ?? 0) + 1),
-                    },
-                    {
-                      key: "name",
-                      header: "Student name",
-                      render: (row) => row.displayName,
-                    },
-                    {
-                      key: "date",
-                      header: "Date Enrolled",
-                      render: (row) => formatDate(row.enrolledOn),
-                    },
-                    {
-                      key: "age",
-                      header: "Age",
-                      align: "right",
-                      render: (row) => String(row.age),
-                    },
-                    {
-                      key: "edit",
-                      header: "Actions",
-                      align: "right",
-                      render: (row) =>
-                        row.isEditable ? (
-                          <IconButton
-                            icon="pencil"
-                            label={`Edit ${row.displayName}`}
-                            onClick={() => {
-                              void navigate(`/students/${String(row.id)}/edit`);
-                            }}
-                          />
-                        ) : null,
-                    },
-                  ]}
-                />
-              )}
-            </QueryBoundary>
-          </section>
-        </div>
+      {/* Plan 4 D7: frame 175:1023 (read 2026-11-14) puts Recent Reports
+          (593 px) and Enrolled Students (759 px) side by side in one row
+          after the Quick Actions and calendar row (DEC-053). */}
+      <div className="mt-4 grid items-start gap-4 xl:grid-cols-[593fr_759fr_175fr] compact:gap-6">
+        <RecentReports reports={liquidation} />
+        <section className="min-w-0 rounded-control border border-border-subtle p-3 shadow-panel compact:min-h-52 compact:p-2">
+          <div className="mb-2 flex compact:mb-0 items-center justify-between gap-2">
+            <h2 className="text-15 font-medium">Enrolled Students</h2>
+            <span className="flex items-center gap-3">
+              <Link
+                to="/students"
+                className={`inline-flex min-h-11 items-center gap-1 text-13 text-accent underline compact:min-h-6 ${LINK_FOCUS}`}
+              >
+                View all
+                <span aria-hidden="true">→</span>
+              </Link>
+              <Link
+                to="/students/new"
+                className={`inline-flex min-h-11 items-center rounded-control bg-primary px-3 text-13 font-medium text-primary-contrast hover:bg-primary-hover compact:min-h-8 ${LINK_FOCUS}`}
+              >
+                + Add Student
+              </Link>
+            </span>
+          </div>
+          <QueryBoundary
+            query={students}
+            errorTitle="Could not load the students."
+          >
+            {(students.data?.data.length ?? 0) === 0 ? (
+              <EmptyState title="No students enrolled yet." />
+            ) : (
+              <Table
+                band
+                cardsOnPhone
+                cardsUntilDesktop
+                caption="Enrolled Students"
+                rows={students.data?.data.slice(0, 4) ?? []}
+                rowKey={(row) => row.id}
+                columns={[
+                  {
+                    key: "number",
+                    header: "#",
+                    render: (row) =>
+                      String((students.data?.data.indexOf(row) ?? 0) + 1),
+                  },
+                  {
+                    key: "name",
+                    header: "Student name",
+                    render: (row) => row.displayName,
+                  },
+                  {
+                    key: "date",
+                    header: "Date Enrolled",
+                    render: (row) => formatDate(row.enrolledOn),
+                  },
+                  {
+                    key: "age",
+                    header: "Age",
+                    align: "right",
+                    render: (row) => String(row.age),
+                  },
+                  {
+                    key: "edit",
+                    header: "Actions",
+                    align: "right",
+                    render: (row) =>
+                      row.isEditable ? (
+                        <IconButton
+                          icon="pencil"
+                          label={`Edit ${row.displayName}`}
+                          onClick={() => {
+                            void navigate(`/students/${String(row.id)}/edit`);
+                          }}
+                        />
+                      ) : null,
+                  },
+                ]}
+              />
+            )}
+          </QueryBoundary>
+        </section>
       </div>
     </>
   );

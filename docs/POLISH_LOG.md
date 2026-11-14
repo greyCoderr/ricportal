@@ -562,3 +562,37 @@ Proof that the I2 tests can fail (each a one-line change, run alone, then `git r
   newest first, 5 by default" (page 2 returned page 1's ids). Restored: 11 of 11.
 - `git status` after each restore showed only the Developer's `.claude/settings.json` and the untracked
   fixture.
+
+## D7 again, with frame 175:1023 (2026-11-14)
+
+Figma connected this time (tried once): `whoami`, `create_session`, `get_metadata` and one
+`get_screenshot` of 175:1023 (4 of 40; docs/feedback/figma-teacher-home.png).
+
+The frame at 1920 (content from x 290): header and location; four stat cards 346 x 133 at x 310, 714,
+1125, 1535; Quick Actions title at y 408 and three tiles 375 x 126 at y 461, 638, 810; the calendar 690 x
+523 at x 809, y 397 (weekday row at y 506); Report Tracking 322 x 213 at x 1572, y 507 and Admin Feedback
+322 x 213 at y 754; then Recent Reports 593 x 213 at x 321, y 995 and Enrolled Students 759 x 222 at x 947,
+y 991, side by side; the footer at y 1288. Recent Reports: Report Title (document icon), Date, Status,
+three rows, "View all reports →". Enrolled Students: #, Student name, Date Enrolled, Age, edit and delete
+icons, "View all →", "+ Add Student".
+
+Ours at 1440x900, before fixing (Figma scaled to our content width, factor 0.74, in brackets):
+- Recent Reports and Enrolled Students stacked in the calendar's column (frame: side by side in their own
+  row, 439 and 562 px wide). The I2 reading of the old notes was wrong.
+- Quick Actions 222 px wide [278], tiles 57 to 69 px tall with 6 px gaps [93, gaps 38].
+- Calendar 707 x 641 [511 x 387]; gaps between the columns 16 px [80 and 54].
+- Right column 209 px [238], starting at the row top [level with the weekday row]; boxes as tall as their
+  text [158 each, gap 25].
+- Stat cards 80 px tall with 12 px gaps [98, gaps 47].
+- Recent Reports columns Report Type, Date Submitted; four rows; "View all" [Report Title, Date; three;
+  "View all reports →"].
+
+Fixed (DEC-053). Tests first: the column names and link, three rows, and both cards sharing one row
+outside the calendar row failed 3 of 12, then passed 12 of 12. Ours after, at 1440x900: Quick Actions 278
+wide, calendar 512 x 388, right column 239 with boxes 160 tall and a 25 px gap, the first box level with
+the weekday row (336 and 337), Recent Reports 437 and Enrolled Students 560 side by side. At 1366x768 the
+top rows end at y 665, inside the screen. At 390x844 everything stacks; document and sideways scroll 0 at
+all three sizes. Home tests 12 of 12 and client/test 113 of 113; typecheck clean.
+
+Not matched, on purpose (DEC-053): dates MM/DD/YYYY, no delete button, table rows at the 44 px touch
+height, our shorter month heading.
