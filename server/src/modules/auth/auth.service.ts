@@ -232,18 +232,27 @@ export function createAuthService(deps: {
         throw lockedError(user.lockedUntil, at);
       }
 
+      // Every attempt is counted before its password is checked, so attempts
+      // sent at the same moment cannot pass the limit together (AUD-001). A
+      // correct password clears the count below.
+      if (user.lockedUntil !== null) {
+        await repository.releaseExpiredLock(user.id, at);
+      }
+      const lockUntil = new Date(at.getTime() + LOGIN_LOCK_MS);
+      const taken = await repository.takeLoginAttempt(
+        user.id,
+        LOGIN_MAX_FAILURES,
+      );
+      await repository.lockWhenSpent(user.id, LOGIN_MAX_FAILURES, lockUntil);
+      if (!taken) {
+        throw lockedError(
+          (await repository.findLockedUntil(user.id)) ?? lockUntil,
+          at,
+        );
+      }
+
       const matches = await verifyPassword(input.password, user.passwordHash);
       if (!matches) {
-        // A lock that has run out starts a new count.
-        const previous = user.lockedUntil === null ? user.failedLoginCount : 0;
-        const count = previous + 1;
-        await repository.recordFailure(
-          user.id,
-          count,
-          count >= LOGIN_MAX_FAILURES
-            ? new Date(at.getTime() + LOGIN_LOCK_MS)
-            : null,
-        );
         throw new UnauthenticatedError(INVALID_LOGIN_MESSAGE);
       }
 

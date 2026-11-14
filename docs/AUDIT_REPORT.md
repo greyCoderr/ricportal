@@ -73,7 +73,7 @@ Size: S = under 1 hour, M = 1 to 4 hours, L = more than 4 hours.
 | AUD-036 | Page titles and skip link | `client/index.html:6`; no `document.title` in `client/src` | Every page is titled "RICPortal", and there is no "skip to content" link (WCAG 2.4.2, 2.4.1) | Set the title per route; add a skip link in the shell | S |
 | AUD-037 | docs/API.md | 15 of 79 routes are missing (the entry PATCH and DELETE routes, the three entry lists, `GET /api/centers`, decline, disable, enable, restore, two report PDFs); line 83 still says "temporary password returned once"; line 11 calls health "the only public route" | The document cannot be trusted | Planned in J5 | M |
 | AUD-038 | Blueprint and CLAUDE.md | 4.3 says bcrypt and file-type (code: bcryptjs, no file-type); 4.5 `reports` unique (center, type, year, month) and `report_versions` (schema: period dates, no unique, no table); BR-19 login limiter (AUD-010); CLAUDE.md says "Phase: 0" and React Hook Form (DEC-030) | Documents and code disagree | Planned in J5 | S |
-| AUD-039 | Dependencies | exceljs 4.4.0 brings `uuid` with 2 moderate advisories (BACKLOG, J4 g). The licence listing and a fresh `npm audit` did not finish in this session (section 5) | Known; no new information | J4 (g) | S |
+| AUD-039 | Dependencies | `npm audit` on 2026-11-14: 11 moderate, 0 high, 0 critical. Two roots: `uuid` through exceljs 4.4.0 (runtime, the Admin's Excel import only; BACKLOG, J4 g) and `minimatch` through eslint and typescript-eslint (development tools only; eslint 10.15.0 fixes part without a major change). Licences of the 51 direct packages: MIT 45, Apache-2.0 4, BSD-3-Clause 1, OFL-1.1 1 (the Montserrat font). Installed below them: `mariadb` LGPL-2.1-or-later (the database driver, used unchanged), `lightningcss` MPL-2.0 (build tool), `elkjs` EPL-2.0, and `busboy`, `streamsearch`, `buffers`, `png-js` with no licence field in package.json | No advisory is reachable by a Teacher or Parent. The LGPL driver is used as an unchanged library, which the licence allows; say so in the final documentation | J4 (g); update eslint; read the four licence files that have no field | S |
 | AUD-040 | Settings values | `purchase-requests.service.ts:146-161`, `settings.repository.ts` | A rate that is not a number in the settings table gives 500 on every day view | Validate on read; J3 (b) adds the screen | S |
 | AUD-041 | Disabled Parents in teams | `assignments.repository.ts:13-35` | A Parent disabled after being assigned still shows on the day and in the team | Hide or mark them | S |
 | AUD-042 | Sign-up flood | `auth.routes.ts:13` | Sign-up is public and limited only by the global limit, so a Teacher's Parent Requests list can be filled | J4 (a) limiter on sign-up | S |
@@ -136,8 +136,8 @@ failed save and the page shows the error. AUD-015 removes the tight limits.
 
 - The client was sampled with searches (section 3, item 9), not read file by file. No screen reader,
   contrast or keyboard walk-through was done. J2 visits every page.
-- `npm audit` and the licence listing were started but had not answered after 3 minutes; AUD-039 repeats
-  the known state from docs/BACKLOG.md.
+- Licences were read from each package.json `license` field only, not from the licence files, and only
+  for the packages installed on this machine (Windows builds).
 - AUD-017 (PDF characters) and AUD-022 (database clock) come from reading; neither was run.
 - Behaviour on TiDB Cloud was not tested (DEC-016). The AUD-003 fix uses row locks that MariaDB and TiDB
   both support, but it ran only on the local MariaDB.

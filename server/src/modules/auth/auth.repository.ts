@@ -89,12 +89,37 @@ export function createAuthRepository(prisma: PrismaClient) {
       });
     },
 
-    recordFailure(id: number, count: number, lockedUntil: Date | null) {
-      return prisma.user.update({
-        where: { id },
-        data: { failedLoginCount: count, lockedUntil },
-        select: { id: true },
+    // A lock that has run out starts a new count.
+    releaseExpiredLock(id: number, at: Date) {
+      return prisma.user.updateMany({
+        where: { id, lockedUntil: { lte: at } },
+        data: { failedLoginCount: 0, lockedUntil: null },
       });
+    },
+
+    // Takes one login attempt, in one statement, so attempts made at the same
+    // moment cannot share one (AUD-001). False when none is left.
+    takeLoginAttempt(id: number, max: number) {
+      return prisma.user
+        .updateMany({
+          where: { id, lockedUntil: null, failedLoginCount: { lt: max } },
+          data: { failedLoginCount: { increment: 1 } },
+        })
+        .then((result) => result.count === 1);
+    },
+
+    // Locks the account once every attempt is taken. Safe to repeat.
+    lockWhenSpent(id: number, max: number, lockedUntil: Date) {
+      return prisma.user.updateMany({
+        where: { id, lockedUntil: null, failedLoginCount: { gte: max } },
+        data: { lockedUntil },
+      });
+    },
+
+    findLockedUntil(id: number) {
+      return prisma.user
+        .findUnique({ where: { id }, select: { lockedUntil: true } })
+        .then((row) => row?.lockedUntil ?? null);
     },
 
     clearFailures(id: number) {

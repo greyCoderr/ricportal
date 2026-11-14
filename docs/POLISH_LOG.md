@@ -671,3 +671,19 @@ Result: docs/AUDIT_REPORT.md. 0 critical, 3 high, 19 medium, 20 low.
   over Prisma's default 2 s and 5 s limits on a loaded laptop). Most likely, not proven; AUD-015.
 - Not verified: listed in section 5 of the report (client read by sampling, npm audit did not answer,
   two findings from reading only, TiDB).
+
+After the report was committed, `npm audit` and the licence listing answered (they had taken over 3
+minutes): 11 moderate, 0 high, 0 critical; details in AUD-039, and section 5 of the report is corrected.
+
+## J1b Fixes for the high findings (2026-11-14)
+
+AUD-001 Login lock passed by parallel requests (BR-19). Fixed.
+- Test first: `server/test/db/audit-001-lockout.db.test.ts`. Seen failing before the fix: ten wrong
+  passwords at once all answered 401 (expected five 401 and five 429). Its two other tests (right password
+  on the fifth attempt, count restarts after the lock) passed before and after; they guard the old rules.
+- Fix: each attempt is counted before its password is checked, with one conditional UPDATE
+  (`takeLoginAttempt`); `lockWhenSpent` sets the lock when the fifth is taken; a request that gets no
+  attempt answers the same 429 with Retry-After. `recordFailure` is removed. A right password still
+  clears the count. Cost: two small UPDATEs per login instead of one on failure.
+- Runs: the new file and `auth.db.test.ts` together 23 of 23; server typecheck, lint and format of the
+  changed files clean.
