@@ -97,5 +97,5 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | Enrolled Students (Admin) | `/admin/students` | Admin | new | Read-only; center select, search, # / Student Name / Date Enrolled / Age / Center (D4) |
 | Child's Record (Admin) | `/admin/students/:id` | Admin | new | The Teacher's three tabs, read-only (D4) |
 | RIC Teachers | `/teachers` | Admin | polished | Manage Centers button (D3) |
-| Teacher Home | `/` | Teacher | polished | Mini calendar; Recent Reports and Enrolled Students under the calendar with gray header bands (175:1023, D7, D8) |
+| Teacher Home | `/` | Teacher | polished | Rows and proportions of 175:1023 (read 2026-11-14, DEC-053): stat cards, Quick Actions, mini calendar, Report Tracking and Admin Feedback; then Recent Reports and Enrolled Students side by side with gray header bands (D7, D8) |
 | Profile | `/profile` | Teacher | polished | Header card, stat cards, Recent Submitted Reports with pages, Recent Status Activity (88:695, D9); Admin and Parent unchanged |

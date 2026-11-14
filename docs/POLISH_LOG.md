@@ -596,3 +596,57 @@ all three sizes. Home tests 12 of 12 and client/test 113 of 113; typecheck clean
 
 Not matched, on purpose (DEC-053): dates MM/DD/YYYY, no delete button, table rows at the 44 px touch
 height, our shorter month heading.
+
+## I3 Verify and tag (2026-11-14)
+
+Browser audit (Playwright from the npx cache, scratchpad script; the built app with the API on port 3100,
+started with `PORT=3100 RATE_LIMIT_MAX=100000` in that shell only; one Chromium per role, closed after
+each run; two Node processes that were running before, 8952 and 5900, were not touched; the server,
+process 14808, was stopped by its id afterwards and port 3100 confirmed free). Each view measures document
+scroll, document and content-area sideways scroll, elements past the right edge (outside deliberate
+scrollers), overlapping text (leaf text boxes clipped to their scroller), page errors and 5xx answers.
+- Admin, 11 pages: Dashboard, Calendar, Admin Students, a student record, RIC Teachers, a Teacher, Centers,
+  Reports, Menu Imports, Admin Feedback (the no-access page, as expected) and Profile.
+- Teacher, 14 pages: Home, Enrolled Students, Add Student, a student, Edit Student, Calendar, Child's
+  Record list and a record, Submit Report, Status, Report Status, Admin Feedback, Parent Requests, Profile.
+- Parent, 4 pages: Home (the Calendar), /calendar (the no-access page, as expected), Status, Profile.
+- At 1440x900, 1366x768 and 390x844: 87 views, 0 findings. Read by eye: Teacher Home at 1440 and 1366,
+  Admin Dashboard at 1366 (fits one screen; the 42 px left to scroll is the footer).
+- Script notes: the first Teacher run missed Edit Student (it opens from a button, not a link) and took
+  `main` as the scroller; both fixed and all three roles rerun with the final script.
+
+Smoke test of the built app on port 3100 (node fetch script): 21 of 21. `/` serves the built client,
+health 200, `/api/auth/me` 401 without login; the three roles log in; the Admin reads me, the dashboard
+summary, teachers, teacher 2 and the profile, and gets 403 on teacher-summary; the Teacher reads me, the
+profile, teacher-summary, students and reports, and gets 403 on teacher 2; the Parent reads me and gets 403
+on teacher-summary and teachers.
+
+Checks: typecheck, full lint and full format clean; unit 300 of 300 (I2), client 46 files 529 of 529 and
+db 22 files 609 of 609 in batches (above), then after D7 the Home file 12 of 12 and client/test 113 of 113;
+`npm run build` and the client build after D7 clean. `npm run check` was not run as one command, on
+purpose (memory, DEC-035).
+
+## Round 4 summary
+
+Done: I1 (Admin Dashboard, mini calendar, Quick Actions, Admin Students, Recent Reports tabs, Admin
+Calendar), I2 (teacher-summary endpoint, Teacher Profile, Teacher Home, header bands), D7 again from the
+real frame 175:1023 (DEC-053), the full check in batches, the proof that the I2 scoping and pagination
+tests fail when the code is broken, the I3 audit and smoke test, DEMO_SCRIPT and UI_MAP. Tag v0.9.7-demo
+on the commit that holds this summary. Decisions DEC-051 to DEC-053. Figma calls: 4 of 40.
+
+NOT verified:
+- Figma frames other than 175:1023 were not read this round (267:9689, 268:11404 and 88:695 were compared
+  with the images in docs/feedback/ only). Card icons are not Figma's.
+- Pixel-exact match: Teacher Home matches the frame's proportions within a few pixels at 1440, but our
+  month heading is shorter than the frame's, table rows keep 44 px, and dates stay MM/DD/YYYY (DEC-053).
+- Real report rows in the browser: the local database has no reports, so Recent Reports, Report Tracking,
+  Admin Feedback, the Profile's report table, pages and timeline showed their empty states. They are
+  covered by client tests with a mocked API and by db tests.
+- Uploading a menu file through the new upload card in a real browser.
+- The 390 px views were measured and screenshotted, but only the desktop screenshots listed above were
+  read by eye.
+- Content-area scroll heights from the audit depend on which scroller the script picks; they were used
+  only as a hint, not as a pass or fail check.
+- `npm run check` as a single command, and the whole client project in one run (memory).
+- The demo date line in docs/DEMO_SCRIPT.md still says Tue 2026-11-10; the presentation moved to next week
+  and its date is not in the plan.
