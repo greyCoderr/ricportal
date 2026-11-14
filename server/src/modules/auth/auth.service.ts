@@ -193,7 +193,7 @@ export function buildTeacherActivity(
 
 export function createAuthService(deps: {
   repository: AuthRepository;
-  config: TokenConfig & { BCRYPT_COST: number };
+  config: TokenConfig & { BCRYPT_COST: number; DEFAULT_PASSWORD: string };
   settings: { currentSchoolYear: () => Promise<string> };
   now: () => Date;
 }) {
@@ -456,6 +456,22 @@ export function createAuthService(deps: {
           {
             field: "currentPassword",
             message: "Your current password is not correct.",
+          },
+        ]);
+      }
+      // A change must change something (BR-05, AUD-002): the same password
+      // would clear a forced change, and the default one is known to others.
+      if (
+        input.newPassword === input.currentPassword ||
+        input.newPassword === config.DEFAULT_PASSWORD
+      ) {
+        throw new ValidationError("Some fields are not valid.", [
+          {
+            field: "newPassword",
+            message:
+              input.newPassword === config.DEFAULT_PASSWORD
+                ? "This is the default password. Choose a different one."
+                : "Choose a password that is different from your current one.",
           },
         ]);
       }

@@ -687,3 +687,16 @@ AUD-001 Login lock passed by parallel requests (BR-19). Fixed.
   clears the count. Cost: two small UPDATEs per login instead of one on failure.
 - Runs: the new file and `auth.db.test.ts` together 23 of 23; server typecheck, lint and format of the
   changed files clean.
+
+AUD-002 change-password accepted the same or the default password (BR-05). Fixed.
+- Test first: `server/test/db/audit-002-password.db.test.ts`. Seen failing before the fix: 3 of 5 answered
+  200 where 400 is expected (keep the default after a reset; change to the same password; choose the
+  default). The other two (wrong current password reported first; a new password accepted) passed before
+  and after.
+- Fix: in `auth.service.ts`, after the current password is confirmed, a new password equal to the current
+  one or to `DEFAULT_PASSWORD` is refused with a `newPassword` field message. The forced-change flag and
+  the session stay as they were. The service now receives `DEFAULT_PASSWORD` from the config it already had.
+- Runs: the new file with `passwords`, `accounts` and `polish3-profile` db tests, 64 of 64; server
+  typecheck, lint and format of the changed files clean.
+- Not done: the same check in the shared Zod schema, so the form would refuse it before sending. The
+  server message appears under the field instead.
