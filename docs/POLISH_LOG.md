@@ -650,3 +650,24 @@ NOT verified:
 - `npm run check` as a single command, and the whole client project in one run (memory).
 - The demo date line in docs/DEMO_SCRIPT.md still says Tue 2026-11-10; the presentation moved to next week
   and its date is not in the plan.
+
+# Plan 5 (docs/POLISH_PLAN_5.md)
+
+Branch demo-polish-5, confirmed with git status and git branch before starting (Sat 2026-11-14).
+`.claude/settings.json` (modified) and the untracked `server/test/fixtures/SF MENU for 30 days.xlsx` were
+already there and are not committed by this plan. Model for J1: Claude Fable 5.2.
+
+## J1a Read-only audit (2026-11-14)
+
+Read: every file in `server/src` except the tests, `shared/src`, `schema.prisma`, the permission matrix
+test, the test harness and the assignments-week test; the client by searches only.
+
+Result: docs/AUDIT_REPORT.md. 0 critical, 3 high, 19 medium, 20 low.
+- No access across centers by id and no mass assignment was found.
+- High: AUD-001 the login lock can be passed with parallel requests; AUD-002 change-password accepts the
+  same (default) password; AUD-003 two people adding a row at once get the same item number or a 500, and
+  a row can be added just after a lock.
+- The intermittent 404: the cause is narrowed to a failed week save in the test setup (a transaction
+  over Prisma's default 2 s and 5 s limits on a loaded laptop). Most likely, not proven; AUD-015.
+- Not verified: listed in section 5 of the report (client read by sampling, npm audit did not answer,
+  two findings from reading only, TiDB).
