@@ -36,7 +36,8 @@ function wholeNumber(min: number, max: number) {
 }
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(NODE_ENVS).default("development"),
+  // No default (AUD-009): see withDefaults.
+  NODE_ENV: z.enum(NODE_ENVS).optional(),
   PORT: wholeNumber(1, 65535).default(DEFAULT_SERVER_PORT),
   LOG_LEVEL: z.enum(LOG_LEVELS).default("info"),
   TZ: z.string().min(1).default("Asia/Manila"),
@@ -65,7 +66,10 @@ const envSchema = z.object({
 type ParsedEnv = z.output<typeof envSchema>;
 type EnvKey = keyof ParsedEnv;
 
-// Fake values for this machine only. Never used in production.
+// Fake values for this machine only. They apply only when NODE_ENV is written
+// out as development or test (AUD-009). They are in the repository, so anyone
+// can read them: a server that used them by accident would accept forged
+// sessions.
 const DEV_JWT_SECRET = "development-only-jwt-secret-not-for-production";
 const DEV_ADMIN_USERNAME = "admin";
 const DEV_ADMIN_PASSWORD = "Admin2026!";
@@ -83,8 +87,9 @@ const REQUIRED_IN_PRODUCTION = [
 
 export type Env = Omit<
   ParsedEnv,
-  (typeof REQUIRED_IN_PRODUCTION)[number] | "BCRYPT_COST"
+  (typeof REQUIRED_IN_PRODUCTION)[number] | "BCRYPT_COST" | "NODE_ENV"
 > & {
+  NODE_ENV: (typeof NODE_ENVS)[number];
   JWT_SECRET: string;
   COOKIE_SECURE: boolean;
   SESSION_HOURS: number;
@@ -132,24 +137,35 @@ export class EnvError extends Error {
   }
 }
 
+const NODE_ENV_NOT_SET =
+  "NODE_ENV is not set, so the production rules apply (on your own machine set NODE_ENV=development)";
+
+// A missing or empty NODE_ENV counts as production (AUD-009): the server
+// refuses to start unless every secret is given, and never falls back to the
+// built-in ones.
 function withDefaults(parsed: ParsedEnv): Env {
-  if (parsed.NODE_ENV === "production") {
+  const nodeEnv = parsed.NODE_ENV ?? "production";
+  if (nodeEnv === "production") {
     const missing = REQUIRED_IN_PRODUCTION.filter(
       (key) => parsed[key] === undefined,
     );
     if (missing.length > 0) {
-      throw new EnvError(missing.map((key) => `${key} is missing`));
+      throw new EnvError([
+        ...(parsed.NODE_ENV === undefined ? [NODE_ENV_NOT_SET] : []),
+        ...missing.map((key) => `${key} is missing`),
+      ]);
     }
   }
   return {
     ...parsed,
+    NODE_ENV: nodeEnv,
     JWT_SECRET: parsed.JWT_SECRET ?? DEV_JWT_SECRET,
     COOKIE_SECURE: parsed.COOKIE_SECURE ?? false,
     SESSION_HOURS: parsed.SESSION_HOURS ?? 8,
     ADMIN_USERNAME: parsed.ADMIN_USERNAME ?? DEV_ADMIN_USERNAME,
     ADMIN_PASSWORD: parsed.ADMIN_PASSWORD ?? DEV_ADMIN_PASSWORD,
     DEFAULT_PASSWORD: parsed.DEFAULT_PASSWORD ?? DEV_DEFAULT_PASSWORD,
-    BCRYPT_COST: parsed.BCRYPT_COST ?? (parsed.NODE_ENV === "test" ? 4 : 12),
+    BCRYPT_COST: parsed.BCRYPT_COST ?? (nodeEnv === "test" ? 4 : 12),
   };
 }
 

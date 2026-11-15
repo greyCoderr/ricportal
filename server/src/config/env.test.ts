@@ -55,7 +55,7 @@ describe("parseEnv", () => {
   });
 
   it("gives development safe defaults for the auth settings", () => {
-    const env = parseEnv({ DATABASE_URL: DB });
+    const env = parseEnv({ DATABASE_URL: DB, NODE_ENV: "development" });
     expect(env.JWT_SECRET.length).toBeGreaterThanOrEqual(32);
     expect(env.COOKIE_SECURE).toBe(false);
     expect(env.SESSION_HOURS).toBe(8);
@@ -84,15 +84,19 @@ describe("parseEnv", () => {
   });
 
   it("a short JWT_SECRET is refused without printing it", () => {
-    const error = errorFrom({ DATABASE_URL: DB, JWT_SECRET: "short-secret" });
+    const error = errorFrom({
+      DATABASE_URL: DB,
+      NODE_ENV: "development",
+      JWT_SECRET: "short-secret",
+    });
     expect(error.problems).toEqual([
       "JWT_SECRET must be at least 32 characters",
     ]);
     expect(error.message).not.toContain("short-secret");
   });
 
-  it("applies defaults when only DATABASE_URL is given", () => {
-    const env = parseEnv({ DATABASE_URL: DB });
+  it("applies defaults when only DATABASE_URL and NODE_ENV are given", () => {
+    const env = parseEnv({ DATABASE_URL: DB, NODE_ENV: "development" });
 
     expect(env.NODE_ENV).toBe("development");
     expect(env.PORT).toBe(3000);
@@ -101,13 +105,21 @@ describe("parseEnv", () => {
   });
 
   it("treats an empty value as missing, so the default applies", () => {
-    const env = parseEnv({ DATABASE_URL: DB, PORT: "" });
+    const env = parseEnv({
+      DATABASE_URL: DB,
+      NODE_ENV: "development",
+      PORT: "",
+    });
 
     expect(env.PORT).toBe(3000);
   });
 
   it("ignores variables it does not know", () => {
-    const env = parseEnv({ DATABASE_URL: DB, SOMETHING_ELSE: "x" });
+    const env = parseEnv({
+      DATABASE_URL: DB,
+      NODE_ENV: "development",
+      SOMETHING_ELSE: "x",
+    });
 
     expect(env).not.toHaveProperty("SOMETHING_ELSE");
   });
@@ -158,7 +170,7 @@ describe("parseEnv", () => {
 
 describe("parseEnv security settings", () => {
   it("applies safe defaults", () => {
-    const env = parseEnv({ DATABASE_URL: DB });
+    const env = parseEnv({ DATABASE_URL: DB, NODE_ENV: "development" });
 
     expect(env.BODY_LIMIT).toBe("100kb");
     expect(env.RATE_LIMIT_ENABLED).toBe(true);
@@ -170,6 +182,7 @@ describe("parseEnv security settings", () => {
   it("parses valid values", () => {
     const env = parseEnv({
       DATABASE_URL: DB,
+      NODE_ENV: "development",
       BODY_LIMIT: "1mb",
       RATE_LIMIT_ENABLED: "false",
       RATE_LIMIT_WINDOW_MS: "60000",
@@ -241,6 +254,96 @@ describe("parseEnv security settings", () => {
 describe("PORT default (shared with the client dev proxy)", () => {
   it("defaults PORT to DEFAULT_SERVER_PORT from shared", () => {
     expect(DEFAULT_SERVER_PORT).toBe(3000);
-    expect(parseEnv({ DATABASE_URL: DB }).PORT).toBe(DEFAULT_SERVER_PORT);
+    expect(parseEnv({ DATABASE_URL: DB, NODE_ENV: "development" }).PORT).toBe(
+      DEFAULT_SERVER_PORT,
+    );
+  });
+});
+
+// AUD-009 (docs/AUDIT_REPORT.md): the built-in secret and passwords are for
+// this machine only. They apply when NODE_ENV says development or test, never
+// when it is missing, empty or anything else.
+describe("built-in secrets need an explicit NODE_ENV (AUD-009)", () => {
+  const SECRETS = {
+    JWT_SECRET: PROD_SECRET,
+    ADMIN_PASSWORD: "NotADefault2026",
+    DEFAULT_PASSWORD: "NotADefaultEither2026",
+  };
+  const REST = {
+    COOKIE_SECURE: "true",
+    SESSION_HOURS: "8",
+    ADMIN_USERNAME: "mao.admin",
+  };
+
+  it.each([
+    ["missing", {}],
+    ["empty", { NODE_ENV: "" }],
+  ])("NODE_ENV %s: refuses to start without the secrets", (_name, extra) => {
+    const error = errorFrom({ DATABASE_URL: DB, ...extra });
+    expect(error.problems).toContain("JWT_SECRET is missing");
+    expect(error.problems).toContain("ADMIN_PASSWORD is missing");
+    expect(error.problems).toContain("DEFAULT_PASSWORD is missing");
+    expect(error.problems[0]).toContain("NODE_ENV is not set");
+    expect(error.message).not.toContain("development-only-jwt-secret");
+    expect(error.message).not.toContain("Admin2026!");
+    expect(error.message).not.toContain("RICPortal2026!");
+  });
+
+  it.each(["JWT_SECRET", "ADMIN_PASSWORD", "DEFAULT_PASSWORD"] as const)(
+    "NODE_ENV missing: %s alone left out is refused",
+    (key) => {
+      const source: Record<string, string> = {
+        DATABASE_URL: DB,
+        ...SECRETS,
+        ...REST,
+      };
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete source[key];
+      expect(errorFrom(source).problems).toContain(`${key} is missing`);
+    },
+  );
+
+  it("NODE_ENV missing with every secret set: starts under the production rules", () => {
+    const env = parseEnv({ DATABASE_URL: DB, ...SECRETS, ...REST });
+    expect(env.NODE_ENV).toBe("production");
+    expect(env.JWT_SECRET).toBe(PROD_SECRET);
+    expect(env.ADMIN_PASSWORD).toBe("NotADefault2026");
+    expect(env.DEFAULT_PASSWORD).toBe("NotADefaultEither2026");
+    expect(env.BCRYPT_COST).toBe(12);
+  });
+
+  it("NODE_ENV with any other word is refused, secrets or not", () => {
+    const error = errorFrom({
+      DATABASE_URL: DB,
+      NODE_ENV: "staging",
+      ...SECRETS,
+      ...REST,
+    });
+    expect(error.problems).toEqual([
+      "NODE_ENV must be one of: development, test, production",
+    ]);
+  });
+
+  it.each(["development", "test"])(
+    "NODE_ENV %s, written out: the built-in values apply",
+    (nodeEnv) => {
+      const env = parseEnv({ DATABASE_URL: DB, NODE_ENV: nodeEnv });
+      expect(env.NODE_ENV).toBe(nodeEnv);
+      expect(env.JWT_SECRET.length).toBeGreaterThanOrEqual(32);
+      expect(env.ADMIN_PASSWORD).toBe("Admin2026!");
+      expect(env.DEFAULT_PASSWORD).toBe("RICPortal2026!");
+    },
+  );
+
+  it("a short JWT_SECRET is refused when NODE_ENV is missing", () => {
+    const error = errorFrom({
+      DATABASE_URL: DB,
+      ...SECRETS,
+      ...REST,
+      JWT_SECRET: "short-secret",
+    });
+    expect(error.problems).toEqual([
+      "JWT_SECRET must be at least 32 characters",
+    ]);
   });
 });

@@ -760,3 +760,27 @@ parallel requests, AUD-002 change-password to the same or default password, AUD-
 day and the lock with parallel row adds). Tag v0.9.8-demo on the commit that holds this summary.
 Remains: the 39 medium and low findings (docs/BACKLOG.md); the cause of the intermittent 404 is narrowed
 to a failed week save in the test setup but not proven; AUD-003 is not verified on TiDB; J2 to J6.
+
+## J1d Extra stage: medium findings on security and data integrity (2026-11-15)
+
+Asked by the Developer after J1. Branch demo-polish-5, confirmed with git status and git branch. Same
+rules as the plan. Nothing was written to any .env file; `.env.example` is the only env file changed.
+
+AUD-009 Built-in secrets without NODE_ENV. Fixed.
+- Test first, in `server/src/config/env.test.ts`: 6 of 11 new tests seen failing (NODE_ENV missing or
+  empty started the server with the built-in JWT secret and passwords).
+- Fix in `config/env.ts`: NODE_ENV has no default. Missing or empty counts as production: the server
+  refuses to start unless JWT_SECRET (32 or more), COOKIE_SECURE, SESSION_HOURS, ADMIN_USERNAME,
+  ADMIN_PASSWORD and DEFAULT_PASSWORD are all set, and the first line of the message says NODE_ENV is not
+  set. Any other word is refused as before. The built-in values apply only with NODE_ENV=development or
+  test, written out. This is stricter than asked in one way: three more settings are required, because a
+  missing NODE_ENV is treated exactly as production.
+- Tests changed because the requirement changed, not to make them pass: eight older tests in the same
+  file called `parseEnv` with no NODE_ENV and expected the development defaults; they now pass
+  NODE_ENV "development". One was renamed ("applies defaults when only DATABASE_URL and NODE_ENV are given").
+- `.env.example` says this at the top and shows the six values. It already had NODE_ENV=development.
+- FOR THE DEVELOPER: I did not read `.env`. If it has no NODE_ENV line, `npm start`, `npm run db:seed`
+  and `npm run db:seed:demo` now stop with "NODE_ENV is not set"; add `NODE_ENV=development`. The demo
+  seed's own guard reads NODE_ENV from the process as before.
+- Runs: env tests 39 of 39 with demo-guard; `server/test/startup.test.ts` timed out once at its 30 s limit
+  in the same run (it starts a process with tsx) and passed alone in 18 s. Typecheck and lint clean.
