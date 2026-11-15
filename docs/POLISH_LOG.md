@@ -831,3 +831,11 @@ AUD-007 Menu file values that do not fit the database. Fixed.
   route refuses a file name over 255 characters with 400. A sheet name cannot be too long (Excel allows
   31). The real DSWD fixture still parses with no errors.
 - Runs: menu unit tests 22 of 22; the new db file and `menu` db tests 16 of 16.
+
+AUD-008 Liquidation submit hid every error as a 409. Fixed.
+- Test first: `liquidation-submit.test.ts` (service with a stand-in repository), 2 of 2 failing: a
+  database failure came back as "This period was just submitted".
+- Fix: the repository throws `SubmitRaceError` for the expected race (a day or the report taken by
+  another request); the service turns only that, and a write conflict, into the 409. Anything else
+  reaches the error handler, is logged and answers 500 or 503.
+- Runs: liquidation unit tests 2 of 2; `liquidation` and `audit-004` db tests 23 of 23.

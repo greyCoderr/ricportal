@@ -16,6 +16,15 @@ const REPORT_INCLUDE = {
 // whole submit rolls back (AUD-004).
 const SUBMITTABLE: ("LOCKED" | "NO_FEEDING")[] = ["LOCKED", "NO_FEEDING"];
 
+// The one failure of submit that is expected: another request took a day or
+// the report first. Everything else is a real error (AUD-008).
+export class SubmitRaceError extends Error {
+  constructor() {
+    super("Another request submitted this period first.");
+    this.name = "SubmitRaceError";
+  }
+}
+
 function asJson(payload: object): Prisma.InputJsonObject {
   return payload;
 }
@@ -112,7 +121,7 @@ export function createLiquidationRepository(prisma: PrismaClient) {
           data: { submittedReportId: report.id },
         });
         if (marked.count !== input.prIds.length) {
-          throw new Error("A day is already part of another report.");
+          throw new SubmitRaceError();
         }
         return report.id;
       });
@@ -136,7 +145,7 @@ export function createLiquidationRepository(prisma: PrismaClient) {
           },
         });
         if (moved.count !== 1) {
-          throw new Error("This report was already resubmitted.");
+          throw new SubmitRaceError();
         }
         await tx.liquidationSnapshot.create({
           data: {
@@ -154,7 +163,7 @@ export function createLiquidationRepository(prisma: PrismaClient) {
           data: { submittedReportId: input.reportId },
         });
         if (marked.count !== input.prIds.length) {
-          throw new Error("A day is already part of another report.");
+          throw new SubmitRaceError();
         }
       });
     },

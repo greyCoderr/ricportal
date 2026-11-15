@@ -9,6 +9,7 @@ import type {
 } from "@ricportal/shared";
 import type { z } from "zod";
 import { fromDbDate } from "../../core/dates.js";
+import { isWriteConflict } from "../../core/db-errors.js";
 import {
   ConflictError,
   NotFoundError,
@@ -30,7 +31,10 @@ import {
 import { renderPdf } from "../pdf/pdf.js";
 import type { SettingsRepository } from "../settings/settings.repository.js";
 import { buildLiquidationData } from "./builder.js";
-import type { LiquidationRepository } from "./liquidation.repository.js";
+import {
+  SubmitRaceError,
+  type LiquidationRepository,
+} from "./liquidation.repository.js";
 
 type ReportRow = NonNullable<
   Awaited<ReturnType<LiquidationRepository["findReport"]>>
@@ -221,11 +225,15 @@ export function createLiquidationService(deps: {
             at: now(),
           });
         }
-      } catch {
+      } catch (error) {
         // Two tabs at once: the transaction rolled back, nothing was saved.
-        throw new ConflictError(
-          "This period was just submitted. Please refresh the page.",
-        );
+        // Any other failure goes to the error handler as it is (AUD-008).
+        if (error instanceof SubmitRaceError || isWriteConflict(error)) {
+          throw new ConflictError(
+            "This period was just submitted. Please refresh the page.",
+          );
+        }
+        throw error;
       }
       return this.getReport(user, reportId);
     },
