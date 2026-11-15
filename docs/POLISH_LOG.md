@@ -719,3 +719,44 @@ AUD-003 Rows added at the same moment (BR-11, BR-12). Fixed.
   accept, but it ran only on the local MariaDB (DEC-016). Run this test file against TiDB before go-live.
 - Not part of this fix (AUD-004, medium, in BACKLOG): lock, unlock, no-feeding and submit still change the
   status without a condition.
+
+AUD-022 (medium) checked with a throwaway db test, deleted afterwards: on the local MariaDB a row created
+through Prisma has the right time; a row inserted with raw SQL using the column default is 8 hours ahead
+(session time zone SYSTEM, +08:00). Nothing in the application inserts that way today. Report updated.
+
+Medium and low findings (39) are in docs/BACKLOG.md under "From the code audit", each with its id, size
+and the Plan 5 stage that could take it. Decisions: DEC-054. docs/API.md has the two changed answers of
+login and change-password; docs/CHANGELOG.md, docs/INDEX.md and docs/PHASE_LOG.md are updated.
+
+Checks after the three fixes (one command at a time, one worker):
+- `npm run typecheck`, full lint and full format check: clean.
+- unit: 25 files, 300 of 300.
+- db in three batches: 9 files 98 of 98; 8 files 416 of 416; 8 files 108 of 108. 25 files, 622 of 622
+  (609 before, plus 13 new).
+- Batch 3 needed three runs. Run 1: 1 failure in 396 s; which test was not captured. Run 2: "LOCKED then
+  unlock is 200 and ends OPEN" (`purchase.db.test.ts:242`) timed out at 15 s; that run reported a duration
+  of 82,467 s, so the laptop slept during it. `purchase.db.test.ts` alone then passed 44 of 44, and run 3
+  of the whole batch passed 108 of 108 in 175 s. That test opens, locks and unlocks a day without rows; it
+  does not reach the changed add and delete code. I read the failure as the machine, not the code, but
+  the first failure was not identified, so this is not proven.
+- `npm run build`: succeeds (main script 855 kB, known, J4 e).
+- Not run: the client test project (no client file changed), `npm run check` as one command (memory,
+  DEC-035), and any browser or built-app check (no screen changed in J1).
+
+## J1c Objective 3 plan (2026-11-14)
+
+docs/OBJ3_PLAN.md, documents only: scope from Annex A, what is reused, additive data model
+(`file_assets`, `report_versions`, BR-06 uniqueness in two possible ways), endpoints, BR-06, BR-07 and
+BR-20 with their tests, the upload security design, screens mapped to the Figma frames of
+docs/figma-inventory.md, 11 tasks (O3-T01 to O3-T11) with tests, risks, and an estimate of 12 to 15
+working days. Six open questions for the Developer, each with a default. No Figma call was made (count in
+docs/components.md unchanged): the frames are read when their tasks start.
+
+## J1 summary
+
+Found: 42 findings, 0 critical, 3 high, 19 medium, 20 low. No access across centers and no mass assignment.
+Fixed: the 3 high ones, each with a test seen failing first and its own commit (AUD-001 login lock with
+parallel requests, AUD-002 change-password to the same or default password, AUD-003 item numbers, opening a
+day and the lock with parallel row adds). Tag v0.9.8-demo on the commit that holds this summary.
+Remains: the 39 medium and low findings (docs/BACKLOG.md); the cause of the intermittent 404 is narrowed
+to a failed week save in the test setup but not proven; AUD-003 is not verified on TiDB; J2 to J6.
