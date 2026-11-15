@@ -7,9 +7,16 @@ import type { AuthController } from "./auth.controller.js";
 export function createAuthRouter(
   controller: AuthController,
   authenticate: RequestHandler,
+  // The login limit per client address (AUD-010); left out when rate limits
+  // are switched off.
+  loginRateLimit?: RequestHandler,
 ): Router {
   const router = Router();
-  router.post("/login", controller.login);
+  router.post(
+    "/login",
+    loginRateLimit === undefined ? [] : [loginRateLimit],
+    controller.login,
+  );
   router.post("/parent-signup", controller.parentSignup);
   router.post("/logout", authenticate, controller.logout);
   router.get("/me", authenticate, controller.me);

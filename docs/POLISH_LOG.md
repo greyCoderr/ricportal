@@ -839,3 +839,16 @@ AUD-008 Liquidation submit hid every error as a 409. Fixed.
   another request); the service turns only that, and a write conflict, into the 409. Anything else
   reaches the error handler, is logged and answers 500 or 503.
 - Runs: liquidation unit tests 2 of 2; `liquidation` and `audit-004` db tests 23 of 23.
+
+AUD-010 No login limit per client address (BR-19, P1-T07). Fixed. This is the login part of J4 (a).
+- Test first: `server/test/db/audit-010-login-limit.db.test.ts`, 1 of 3 failing: after 30 wrong passwords
+  on 30 different usernames from one address, the next login answered 200.
+- Fix: `createLoginRateLimit` in `core/middleware/rate-limit.ts`, on `POST /api/auth/login` only: 30 failed
+  logins from one address in 15 minutes (`LOGIN_IP_MAX_FAILURES` in `config/limits.ts`); successful
+  logins do not count; the answer is the same 429, text and Retry-After as a locked account. It is on
+  when `RATE_LIMIT_ENABLED` is true, like the global limit, and off in the other tests.
+- To know: it counts by `req.ip`. Behind a proxy with TRUST_PROXY 0 every user shares one address, so 30
+  failed logins by anyone would stop logins for everyone for up to 15 minutes. TRUST_PROXY must be right
+  on the host (AUD-016, docs/DEPLOY.md). The count is in memory, per server process.
+- Not done: a limit on sign-up (AUD-042, low).
+- Runs: the new file, `auth` and `permissions` db tests, 337 of 337.

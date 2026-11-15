@@ -2,6 +2,7 @@ import type { Router } from "express";
 import type { Logger } from "pino";
 import type { AppConfig } from "./config/app-config.js";
 import { createAuthenticate } from "./core/middleware/authenticate.js";
+import { createLoginRateLimit } from "./core/middleware/rate-limit.js";
 import type { PrismaClient } from "./generated/prisma/client.js";
 import { createAssignmentsController } from "./modules/assignments/assignments.controller.js";
 import { createAssignmentsRepository } from "./modules/assignments/assignments.repository.js";
@@ -239,7 +240,11 @@ export function buildApiMounts(deps: ApiDeps): ApiMount[] {
     },
     {
       path: "/api/auth",
-      router: createAuthRouter(authController, authenticate),
+      router: createAuthRouter(
+        authController,
+        authenticate,
+        config.RATE_LIMIT_ENABLED ? createLoginRateLimit() : undefined,
+      ),
     },
     { path: "/api/public", router: createPublicRouter(authController) },
     {
