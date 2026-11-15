@@ -83,21 +83,24 @@ export function createUsersService(deps: {
     return { message: PASSWORD_RESET_MESSAGE };
   }
 
+  function slotTaken() {
+    return new ConflictError("This center already has an active RIC Teacher.", [
+      {
+        field: "centerId",
+        message: "This center already has an active RIC Teacher.",
+      },
+    ]);
+  }
+
+  // A first check for a clear answer. The repository checks again under a lock
+  // when it writes, so two requests at once cannot both pass (AUD-006).
   async function requireTeacherSlot(centerId: number, exceptId?: number) {
     const others = await repository.countOtherActiveTeachers(
       centerId,
       exceptId,
     );
     if (others > 0) {
-      throw new ConflictError(
-        "This center already has an active RIC Teacher.",
-        [
-          {
-            field: "centerId",
-            message: "This center already has an active RIC Teacher.",
-          },
-        ],
-      );
+      throw slotTaken();
     }
   }
 
@@ -154,6 +157,9 @@ export function createUsersService(deps: {
           bcryptCost,
         ),
       });
+      if (row === null) {
+        throw slotTaken();
+      }
       return toTeacherDto(row);
     },
 
@@ -178,7 +184,15 @@ export function createUsersService(deps: {
       if (input.mobile !== undefined) data.mobile = input.mobile;
       if (input.centerId !== undefined) data.centerId = input.centerId;
       if (input.status !== undefined) data.status = input.status;
-      return toTeacherDto(await repository.updateTeacher(id, data));
+      const row = await repository.updateTeacher(
+        id,
+        data,
+        status === "ACTIVE" ? centerId : null,
+      );
+      if (row === null) {
+        throw slotTaken();
+      }
+      return toTeacherDto(row);
     },
 
     async resetTeacherPassword(id: number) {

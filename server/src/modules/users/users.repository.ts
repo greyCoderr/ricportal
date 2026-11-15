@@ -1,5 +1,5 @@
 import type { UserStatus } from "@ricportal/shared";
-import type { PrismaClient } from "../../generated/prisma/client.js";
+import type { Prisma, PrismaClient } from "../../generated/prisma/client.js";
 
 const TEACHER_SELECT = {
   id: true,
@@ -33,6 +33,24 @@ const PARENT_SELECT = {
   centerId: true,
   parentProfile: { select: { childName: true } },
 } as const;
+
+// Locks the center row until the transaction ends and counts its other active
+// Teachers in the same statement. Two requests for one center wait here in
+// turn, so both cannot find the place free (A-02, AUD-006).
+async function otherActiveTeachers(
+  tx: Prisma.TransactionClient,
+  centerId: number,
+  exceptId: number,
+): Promise<number> {
+  const rows = await tx.$queryRaw<{ others: number | bigint }[]>`
+    SELECT (SELECT COUNT(*) FROM users u
+        WHERE u.center_id = c.id AND u.role = 'TEACHER'
+          AND u.status = 'ACTIVE' AND u.id <> ${exceptId}) AS others
+    FROM centers c
+    WHERE c.id = ${centerId}
+    FOR UPDATE`;
+  return Number(rows[0]?.others ?? 0);
+}
 
 export function createUsersRepository(prisma: PrismaClient) {
   return {
@@ -107,6 +125,7 @@ export function createUsersRepository(prisma: PrismaClient) {
       });
     },
 
+    // Null when the center already has an active Teacher (A-02).
     createTeacher(data: {
       username: string;
       passwordHash: string;
@@ -114,21 +133,29 @@ export function createUsersRepository(prisma: PrismaClient) {
       mobile: string | undefined;
       centerId: number;
     }) {
-      return prisma.user.create({
-        data: {
-          role: "TEACHER",
-          status: "ACTIVE",
-          mustChangePassword: true,
-          username: data.username,
-          passwordHash: data.passwordHash,
-          fullName: data.fullName,
-          mobile: data.mobile ?? null,
-          centerId: data.centerId,
-        },
-        select: TEACHER_SELECT,
+      return prisma.$transaction(async (tx) => {
+        if ((await otherActiveTeachers(tx, data.centerId, 0)) > 0) {
+          return null;
+        }
+        return tx.user.create({
+          data: {
+            role: "TEACHER",
+            status: "ACTIVE",
+            mustChangePassword: true,
+            username: data.username,
+            passwordHash: data.passwordHash,
+            fullName: data.fullName,
+            mobile: data.mobile ?? null,
+            centerId: data.centerId,
+          },
+          select: TEACHER_SELECT,
+        });
       });
     },
 
+    // `activeInCenter` is the center the Teacher will be active in after the
+    // change, or null when the Teacher will not be active. Null result: that
+    // center already has another active Teacher (A-02).
     updateTeacher(
       id: number,
       data: {
@@ -137,11 +164,20 @@ export function createUsersRepository(prisma: PrismaClient) {
         centerId?: number;
         status?: UserStatus;
       },
+      activeInCenter: number | null,
     ) {
-      return prisma.user.update({
-        where: { id },
-        data,
-        select: TEACHER_SELECT,
+      return prisma.$transaction(async (tx) => {
+        if (
+          activeInCenter !== null &&
+          (await otherActiveTeachers(tx, activeInCenter, id)) > 0
+        ) {
+          return null;
+        }
+        return tx.user.update({
+          where: { id },
+          data,
+          select: TEACHER_SELECT,
+        });
       });
     },
 

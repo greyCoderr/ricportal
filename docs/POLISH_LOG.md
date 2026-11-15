@@ -813,3 +813,12 @@ AUD-005 A doubled request answered 500. Fixed (it also removes the 500 half of A
   handler answers 409 CONFLICT "This was just saved by another request. Please refresh and try again."
   The losing transaction was already rolled back, so nothing is half saved. A 409 is not logged.
 - Runs: unit 17 of 17 with the old error-handler tests; db 34 of 34 with `assignments-week`.
+
+AUD-006 Two active Teachers in one center. Fixed.
+- Test first: `server/test/db/audit-006-one-teacher.db.test.ts`, 2 of 2 seen failing: two Teachers created
+  at once for one center both answered 201, and two disabled Teachers enabled at once both answered 200.
+- Fix in `users.repository.ts`: creating a Teacher, and any change that leaves a Teacher active in a
+  center, runs in a transaction that first locks the center row (`SELECT ... FOR UPDATE`) and counts its
+  other active Teachers in the same statement. The service keeps its earlier check for a clear message
+  and answers the same 409 when the repository refuses. No migration, no unique index.
+- Runs: the new file and `accounts` db tests, 19 of 19 (4 rounds each). MariaDB only, not TiDB.
