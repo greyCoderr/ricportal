@@ -1,7 +1,9 @@
 import type { ErrorRequestHandler } from "express";
 import type { Logger } from "pino";
+import { isWriteConflict } from "../db-errors.js";
 import {
   AppError,
+  ConflictError,
   InternalError,
   PayloadTooLargeError,
   RateLimitedError,
@@ -30,8 +32,16 @@ function toAppError(error: unknown): AppError | null {
     case "entity.too.large":
       return new PayloadTooLargeError();
     default:
-      return null;
+      break;
   }
+  // The second of two requests that wrote the same thing at once: a safe 409
+  // instead of a 500 (AUD-005). Its transaction was rolled back.
+  if (isWriteConflict(error)) {
+    return new ConflictError(
+      "This was just saved by another request. Please refresh and try again.",
+    );
+  }
+  return null;
 }
 
 // Unknown errors are logged in full but answered with a generic INTERNAL

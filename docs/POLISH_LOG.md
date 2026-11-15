@@ -803,3 +803,13 @@ AUD-004 Lock, unlock, No feeding and Submit without a condition. Fixed.
   and its transaction would get a snapshot from before the edit. It needs three more requests inside
   that gap; not closed.
 - Runs: the new file, `purchase` and `liquidation` db tests, 67 of 67 (6 concurrent rounds pass).
+
+AUD-005 A doubled request answered 500. Fixed (it also removes the 500 half of AUD-006).
+- Test first: `error-handler-conflict.test.ts` (3 failing: 500 where 409 is expected) and
+  `server/test/db/audit-005-conflicts.db.test.ts` (3 failing). Seen before the fix: the same week saved
+  four times at once answered 500, 500, 200, 500 with Prisma P2034 in the log; three sign-ups with one
+  username and three Add Student with one child each answered 201, 500, 500 with P2002.
+- Fix: `isWriteConflict` in `core/db-errors.ts` (P2002, P2034, the driver's deadlock 1213); the error
+  handler answers 409 CONFLICT "This was just saved by another request. Please refresh and try again."
+  The losing transaction was already rolled back, so nothing is half saved. A 409 is not logged.
+- Runs: unit 17 of 17 with the old error-handler tests; db 34 of 34 with `assignments-week`.
