@@ -265,6 +265,13 @@ export function createAuthService(deps: {
       return { user: toSessionUser(user), token: await issueToken(user) };
     },
 
+    // Logout ends the session on the server too, so a copied cookie is worth
+    // nothing afterwards (AUD-012). It ends the user's sessions on every
+    // device, as a password change does.
+    async logout(userId: number): Promise<void> {
+      await repository.endSessions(userId);
+    },
+
     async me(userId: number): Promise<SessionUser> {
       const row = await repository.findSessionUser(userId);
       if (row === null) {

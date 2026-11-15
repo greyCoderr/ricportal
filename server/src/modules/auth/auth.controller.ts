@@ -35,7 +35,8 @@ export function createAuthController(
       ok(res, user);
     },
 
-    logout: (_req: Request, res: Response) => {
+    logout: async (req: Request, res: Response) => {
+      await service.logout(currentUser(req).id);
       res.clearCookie(SESSION_COOKIE, {
         httpOnly: true,
         sameSite: "lax",

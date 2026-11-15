@@ -231,6 +231,15 @@ export function createAuthRepository(prisma: PrismaClient) {
       });
     },
 
+    // Every session token of the user stops working (AUD-012).
+    endSessions(id: number) {
+      return prisma.user.update({
+        where: { id },
+        data: { tokenVersion: { increment: 1 } },
+        select: { id: true },
+      });
+    },
+
     changePassword(id: number, passwordHash: string, at: Date) {
       return prisma.user.update({
         where: { id },

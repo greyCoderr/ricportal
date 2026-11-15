@@ -852,3 +852,10 @@ AUD-010 No login limit per client address (BR-19, P1-T07). Fixed. This is the lo
   on the host (AUD-016, docs/DEPLOY.md). The count is in memory, per server process.
 - Not done: a limit on sign-up (AUD-042, low).
 - Runs: the new file, `auth` and `permissions` db tests, 337 of 337.
+
+AUD-012 Logout only cleared the cookie. Fixed.
+- Test first: `server/test/db/audit-012-logout.db.test.ts`, failing: a cookie copied before logout still
+  answered 200 on `/api/auth/me` after it.
+- Fix: logout increments `token_version` (`endSessions`), then clears the cookie. A logout therefore ends
+  the user's sessions on every device, as a password change already does.
+- Runs: the new file, `auth` and `demo-flow` db tests, 22 of 22.
