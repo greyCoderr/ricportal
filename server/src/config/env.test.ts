@@ -297,7 +297,6 @@ describe("built-in secrets need an explicit NODE_ENV (AUD-009)", () => {
         ...SECRETS,
         ...REST,
       };
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete source[key];
       expect(errorFrom(source).problems).toContain(`${key} is missing`);
     },
