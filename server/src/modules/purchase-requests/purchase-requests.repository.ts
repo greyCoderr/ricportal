@@ -38,6 +38,10 @@ async function lockOpenRequest(
 }
 
 export function createPurchaseRequestsRepository(prisma: PrismaClient) {
+  function readWithItems(id: number) {
+    return prisma.purchaseRequest.findUnique({ where: { id }, include: ITEMS });
+  }
+
   return {
     findMenuDay(date: string) {
       return prisma.menuDay.findUnique({
@@ -91,7 +95,12 @@ export function createPurchaseRequestsRepository(prisma: PrismaClient) {
       }
     },
 
-    lock(
+    // The three changes of state below each run as one UPDATE that also
+    // checks the state it starts from (AUD-004). A request that read the day a
+    // moment earlier cannot overwrite what another request did since; it gets
+    // null. An UPDATE waits for a submit that is marking the same row, and
+    // then sees the mark.
+    async lock(
       id: number,
       snapshot: {
         enrolledCount: number;
@@ -101,16 +110,21 @@ export function createPurchaseRequestsRepository(prisma: PrismaClient) {
         lockedBy: number;
       },
     ) {
-      return prisma.purchaseRequest.update({
-        where: { id },
+      const changed = await prisma.purchaseRequest.updateMany({
+        where: { id, status: "OPEN" },
         data: { status: "LOCKED", ...snapshot },
-        include: ITEMS,
       });
+      return changed.count === 0 ? null : readWithItems(id);
     },
 
-    setOpen(id: number) {
-      return prisma.purchaseRequest.update({
-        where: { id },
+    // Never reopens a day that is part of a submitted report (BR-12, BR-16).
+    async setOpen(id: number) {
+      const changed = await prisma.purchaseRequest.updateMany({
+        where: {
+          id,
+          status: { in: ["LOCKED", "NO_FEEDING"] },
+          submittedReportId: null,
+        },
         data: {
           status: "OPEN",
           enrolledCount: null,
@@ -119,16 +133,16 @@ export function createPurchaseRequestsRepository(prisma: PrismaClient) {
           lockedAt: null,
           lockedBy: null,
         },
-        include: ITEMS,
       });
+      return changed.count === 0 ? null : readWithItems(id);
     },
 
-    setNoFeeding(id: number) {
-      return prisma.purchaseRequest.update({
-        where: { id },
+    async setNoFeeding(id: number) {
+      const changed = await prisma.purchaseRequest.updateMany({
+        where: { id, status: "OPEN" },
         data: { status: "NO_FEEDING" },
-        include: ITEMS,
       });
+      return changed.count === 0 ? null : readWithItems(id);
     },
 
     // Item numbers run 1 to n (BR-11). Null when the day is no longer OPEN.

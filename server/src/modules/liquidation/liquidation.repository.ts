@@ -11,6 +11,11 @@ const REPORT_INCLUDE = {
   ...LATEST_SNAPSHOT,
 };
 
+// Only days still LOCKED or NO_FEEDING can join a report (BR-16). A day that
+// was reopened after the totals were read makes the count differ, and the
+// whole submit rolls back (AUD-004).
+const SUBMITTABLE: ("LOCKED" | "NO_FEEDING")[] = ["LOCKED", "NO_FEEDING"];
+
 function asJson(payload: object): Prisma.InputJsonObject {
   return payload;
 }
@@ -99,7 +104,11 @@ export function createLiquidationRepository(prisma: PrismaClient) {
           },
         });
         const marked = await tx.purchaseRequest.updateMany({
-          where: { id: { in: input.prIds }, submittedReportId: null },
+          where: {
+            id: { in: input.prIds },
+            submittedReportId: null,
+            status: { in: SUBMITTABLE },
+          },
           data: { submittedReportId: report.id },
         });
         if (marked.count !== input.prIds.length) {
@@ -137,7 +146,11 @@ export function createLiquidationRepository(prisma: PrismaClient) {
           },
         });
         const marked = await tx.purchaseRequest.updateMany({
-          where: { id: { in: input.prIds }, submittedReportId: null },
+          where: {
+            id: { in: input.prIds },
+            submittedReportId: null,
+            status: { in: SUBMITTABLE },
+          },
           data: { submittedReportId: input.reportId },
         });
         if (marked.count !== input.prIds.length) {

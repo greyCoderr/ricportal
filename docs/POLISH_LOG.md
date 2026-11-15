@@ -784,3 +784,22 @@ AUD-009 Built-in secrets without NODE_ENV. Fixed.
   seed's own guard reads NODE_ENV from the process as before.
 - Runs: env tests 39 of 39 with demo-guard; `server/test/startup.test.ts` timed out once at its 30 s limit
   in the same run (it starts a process with tsx) and passed alone in 18 s. Typecheck and lint clean.
+
+Tests for the other findings were written before any of their fixes and run once, all failing, then
+split into one file per finding so each fix has its own commit. Unit: 18 failing. Db: 19 failing of 21
+(the two passing ones only guard old behaviour). What each run showed is under its finding below.
+
+AUD-004 Lock, unlock, No feeding and Submit without a condition. Fixed.
+- Test first: `server/test/db/audit-004-transitions.db.test.ts`, 5 of 5 seen failing. With two requests at
+  the same moment the race happened in the first round: unlock 200 and submit 201 together, a report
+  holding an OPEN day. Directly on the repositories: `setOpen` reopened a submitted day, `lock` locked a
+  No feeding day, `setNoFeeding` changed a locked day, and `submit` accepted an OPEN day.
+- Fix: `lock`, `setOpen` and `setNoFeeding` are each one conditional UPDATE (expected status, and for
+  unlock `submitted_report_id IS NULL`) and return null when nothing matched; the service answers 409.
+  Submit and resubmit mark only days that are still LOCKED or NO_FEEDING; any other count rolls the
+  transaction back. No explicit row lock was needed: the UPDATE waits for a submit that is marking the
+  row and then sees the mark.
+- Left: a Teacher who unlocks, edits and locks a day again in the few milliseconds between Submit's read
+  and its transaction would get a snapshot from before the edit. It needs three more requests inside
+  that gap; not closed.
+- Runs: the new file, `purchase` and `liquidation` db tests, 67 of 67 (6 concurrent rounds pass).

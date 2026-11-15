@@ -38,6 +38,11 @@ type MenuDayRow = NonNullable<
 const DEFAULT_RATE = "25.00";
 const CONFLICT_MESSAGE = "Updated by someone else. Your change was not saved.";
 const LOCKED_MESSAGE = "This day is locked and can no longer be changed.";
+// Another request changed the day between our read and our write (AUD-004).
+const CHANGED_MESSAGE =
+  "This day was just changed by another request. Please refresh the page.";
+const SUBMITTED_MESSAGE =
+  "This day is part of a submitted report and cannot be unlocked.";
 
 function itemTotal(item: ItemRow) {
   return item.quantity === null || item.unitCost === null
@@ -341,17 +346,17 @@ export function createPurchaseRequestsService(deps: {
         );
       }
       const live = await liveBudget(centerId);
-      return teacherResult(
-        user,
-        date,
-        await repository.lock(pr.id, {
-          enrolledCount: live.enrolledCount,
-          ratePerChild: live.ratePerChild,
-          budget: money(live.budget),
-          lockedAt: now(),
-          lockedBy: user.id,
-        }),
-      );
+      const locked = await repository.lock(pr.id, {
+        enrolledCount: live.enrolledCount,
+        ratePerChild: live.ratePerChild,
+        budget: money(live.budget),
+        lockedAt: now(),
+        lockedBy: user.id,
+      });
+      if (locked === null) {
+        throw new StateInvalidError(CHANGED_MESSAGE);
+      }
+      return teacherResult(user, date, locked);
     },
 
     async unlock(user: AuthUser, date: string) {
@@ -365,11 +370,19 @@ export function createPurchaseRequestsService(deps: {
       }
       // BR-12, BR-16: part of a submitted liquidation.
       if (pr.submittedReportId !== null) {
+        throw new StateInvalidError(SUBMITTED_MESSAGE);
+      }
+      const opened = await repository.setOpen(pr.id);
+      if (opened === null) {
+        // A submit took the day after it was read above.
+        const latest = await repository.find(ownCenterId(user), date);
         throw new StateInvalidError(
-          "This day is part of a submitted report and cannot be unlocked.",
+          latest !== null && latest.submittedReportId !== null
+            ? SUBMITTED_MESSAGE
+            : CHANGED_MESSAGE,
         );
       }
-      return teacherResult(user, date, await repository.setOpen(pr.id));
+      return teacherResult(user, date, opened);
     },
 
     async noFeeding(user: AuthUser, date: string) {
@@ -388,7 +401,11 @@ export function createPurchaseRequestsService(deps: {
           "This day is locked. Unlock it before marking No feeding.",
         );
       }
-      return teacherResult(user, date, await repository.setNoFeeding(pr.id));
+      const marked = await repository.setNoFeeding(pr.id);
+      if (marked === null) {
+        throw new StateInvalidError(CHANGED_MESSAGE);
+      }
+      return teacherResult(user, date, marked);
     },
   };
 }
