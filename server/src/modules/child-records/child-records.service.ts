@@ -88,6 +88,16 @@ export function createChildRecordsService(deps: {
     return row;
   }
 
+  // Entries follow their child: a child of an earlier school year is
+  // read-only, and so are its entries (AUD-014). 422 in that case.
+  async function requireWritable<
+    T extends { studentId: number; student: { centerId: number } },
+  >(user: AuthUser, row: T | null): Promise<T> {
+    const entry = requireEntry(user, row);
+    await students.loadForWrite(user, entry.studentId);
+    return entry;
+  }
+
   return {
     // Teacher only (the route): students.list keeps it to the own center.
     async listChildren(
@@ -130,7 +140,7 @@ export function createChildRecordsService(deps: {
       studentId: number,
       input: z.output<typeof conferenceSchema>,
     ) {
-      await students.loadForRead(user, studentId);
+      await students.loadForWrite(user, studentId);
       return conferenceDto(
         await repository.createConference({
           studentId,
@@ -146,13 +156,13 @@ export function createChildRecordsService(deps: {
       id: number,
       input: z.output<typeof conferencePatchSchema>,
     ) {
-      requireEntry(user, await repository.findConference(id));
+      await requireWritable(user, await repository.findConference(id));
       return conferenceDto(
         await repository.updateConference(id, defined(input)),
       );
     },
     async deleteConference(user: AuthUser, id: number) {
-      requireEntry(user, await repository.findConference(id));
+      await requireWritable(user, await repository.findConference(id));
       await repository.deleteConference(id, now());
     },
 
@@ -165,7 +175,7 @@ export function createChildRecordsService(deps: {
       studentId: number,
       input: z.output<typeof homeVisitSchema>,
     ) {
-      await students.loadForRead(user, studentId);
+      await students.loadForWrite(user, studentId);
       return homeVisitDto(
         await repository.createHomeVisit({
           studentId,
@@ -182,11 +192,11 @@ export function createChildRecordsService(deps: {
       id: number,
       input: z.output<typeof homeVisitPatchSchema>,
     ) {
-      requireEntry(user, await repository.findHomeVisit(id));
+      await requireWritable(user, await repository.findHomeVisit(id));
       return homeVisitDto(await repository.updateHomeVisit(id, defined(input)));
     },
     async deleteHomeVisit(user: AuthUser, id: number) {
-      requireEntry(user, await repository.findHomeVisit(id));
+      await requireWritable(user, await repository.findHomeVisit(id));
       await repository.deleteHomeVisit(id, now());
     },
 
@@ -199,7 +209,7 @@ export function createChildRecordsService(deps: {
       studentId: number,
       input: z.output<typeof progressSchema>,
     ) {
-      await students.loadForRead(user, studentId);
+      await students.loadForWrite(user, studentId);
       return progressDto(
         await repository.createProgress({
           studentId,
@@ -214,11 +224,11 @@ export function createChildRecordsService(deps: {
       id: number,
       input: z.output<typeof progressPatchSchema>,
     ) {
-      requireEntry(user, await repository.findProgress(id));
+      await requireWritable(user, await repository.findProgress(id));
       return progressDto(await repository.updateProgress(id, defined(input)));
     },
     async deleteProgress(user: AuthUser, id: number) {
-      requireEntry(user, await repository.findProgress(id));
+      await requireWritable(user, await repository.findProgress(id));
       await repository.deleteProgress(id, now());
     },
   };

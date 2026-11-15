@@ -859,3 +859,11 @@ AUD-012 Logout only cleared the cookie. Fixed.
 - Fix: logout increments `token_version` (`endSessions`), then clears the cookie. A logout therefore ends
   the user's sessions on every device, as a password change already does.
 - Runs: the new file, `auth` and `demo-flow` db tests, 22 of 22.
+
+AUD-014 Child's Record entries of an earlier school year could be changed. Fixed.
+- Test first: `server/test/db/audit-014-past-year.db.test.ts`, 2 of 2 failing: three entries were added
+  (201) to a child of 2025-2026, and its entries could be edited and deleted (200).
+- Fix in `child-records.service.ts`: adding an entry uses the students service's `loadForWrite`, and
+  edit and delete go through `requireWritable`, which does the same for the entry's child. A child of an
+  earlier school year answers 422 with the existing message; reading stays allowed.
+- Runs: the new file with `students`, `students-extra` and `polish3-teacher` db tests, 38 of 38.
