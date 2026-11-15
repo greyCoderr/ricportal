@@ -822,3 +822,12 @@ AUD-006 Two active Teachers in one center. Fixed.
   other active Teachers in the same statement. The service keeps its earlier check for a clear message
   and answers the same 409 when the repository refuses. No migration, no unique index.
 - Runs: the new file and `accounts` db tests, 19 of 19 (4 rounds each). MariaDB only, not TiDB.
+
+AUD-007 Menu file values that do not fit the database. Fixed.
+- Test first: `parser-limits.test.ts` (7 of 9 failing: no error was reported) and
+  `server/test/db/audit-007-file-name.db.test.ts` (a 260-character file name answered 200 at preview).
+- Fix: the parser reports a menu over 200 characters, a day name over 20, a PR number over 30 and a day
+  number that is not a whole number from 1 to 999 as preview errors, which block the import; the upload
+  route refuses a file name over 255 characters with 400. A sheet name cannot be too long (Excel allows
+  31). The real DSWD fixture still parses with no errors.
+- Runs: menu unit tests 22 of 22; the new db file and `menu` db tests 16 of 16.

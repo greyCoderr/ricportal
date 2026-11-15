@@ -15,6 +15,9 @@ const WRONG_TYPE = () =>
     { field: "file", message: "Choose an Excel file ending in .xlsx." },
   ]);
 
+// The size of the file_name column (AUD-007).
+const MAX_FILE_NAME_LENGTH = 255;
+
 // An .xlsx file is a ZIP archive, which starts with these four bytes.
 const ZIP_SIGNATURE = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 
@@ -41,6 +44,18 @@ const receiveXlsx: RequestHandler = (req, res, next) => {
         !file.buffer.subarray(0, 4).equals(ZIP_SIGNATURE))
     ) {
       next(WRONG_TYPE());
+      return;
+    }
+    if (file !== undefined && file.originalname.length > MAX_FILE_NAME_LENGTH) {
+      next(
+        new ValidationError("Some fields are not valid.", [
+          {
+            field: "file",
+            message:
+              "The file name is too long. Rename the file and try again.",
+          },
+        ]),
+      );
       return;
     }
     next();

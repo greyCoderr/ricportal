@@ -30,6 +30,12 @@ export type ParseResult = {
 };
 
 const MAX_DAYS_PER_SHEET = 100;
+// The sizes of the database columns (AUD-007). A value that does not fit is an
+// error in the preview, so the import can never fail when it is confirmed.
+const MAX_MENU_LENGTH = 200;
+const MAX_DAY_NAME_LENGTH = 20;
+const MAX_PR_NO_LENGTH = 30;
+const MAX_DAY_NO = 999;
 const MS_PER_DAY = 86_400_000;
 const EXCEL_EPOCH_UTC = Date.UTC(1899, 11, 30);
 
@@ -190,6 +196,11 @@ function parseSheet(
   if (prDate === null) {
     errors.push(`${where}: the PR date was not found.`);
   }
+  if (prNo !== null && prNo.length > MAX_PR_NO_LENGTH) {
+    errors.push(
+      `${where}: the PR number is longer than ${String(MAX_PR_NO_LENGTH)} characters.`,
+    );
+  }
 
   const days: ParsedDay[] = [];
   const warnings: string[] = [];
@@ -226,6 +237,22 @@ function parseSheet(
       header.noCol >= 1 ? row.getCell(header.noCol).value : null;
     const dayNo = typeof dayNoValue === "number" ? dayNoValue : days.length + 1;
     const dayName = normalize(cellText(row.getCell(header.dayCol).value));
+    const at = `${where}, row ${String(rowNumber)}`;
+    if (menuName.length > MAX_MENU_LENGTH) {
+      errors.push(
+        `${at}: the menu is longer than ${String(MAX_MENU_LENGTH)} characters.`,
+      );
+    }
+    if (dayName.length > MAX_DAY_NAME_LENGTH) {
+      errors.push(
+        `${at}: the day name is longer than ${String(MAX_DAY_NAME_LENGTH)} characters.`,
+      );
+    }
+    if (!Number.isInteger(dayNo) || dayNo < 1 || dayNo > MAX_DAY_NO) {
+      errors.push(
+        `${at}: the day number must be a whole number from 1 to ${String(MAX_DAY_NO)}.`,
+      );
+    }
 
     const expected = weekdayName(feedingDate);
     if (dayName !== "" && dayName.toUpperCase() !== expected.toUpperCase()) {
