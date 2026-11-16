@@ -176,3 +176,11 @@ describe("parseDatabaseUrl with the production URL form (DEC-018)", () => {
     });
   });
 });
+
+// AUD-015 (docs/AUDIT_REPORT.md).
+describe("transaction limits", () => {
+  it("transactions wait up to 10 s for a connection and may run 20 s (AUD-015)", async () => {
+    const { TRANSACTION_OPTIONS } = await import("./db.js");
+    expect(TRANSACTION_OPTIONS).toEqual({ maxWait: 10_000, timeout: 20_000 });
+  });
+});

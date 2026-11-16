@@ -875,3 +875,25 @@ AUD-021 A moved Teacher still saw the old center's reports. Fixed.
   well as the Teacher's id (BR-02). The old center keeps its reports; its next Teacher and the Admin see
   them through the normal report pages, as before.
 - Runs: the new file with `polish4-teacher-summary` and `polish3-profile` db tests, 38 of 38.
+
+AUD-015 Transaction limits, and the intermittent 404 in "a Parent adds a row". Fixed; cause shown, not proven.
+- Reading: the 404 for a Parent on `POST /api/purchase-requests/:date/items` has two sources, "not
+  assigned" and "no menu". Both Parent logins in that test succeeded and the menu days are inserted
+  directly, so the assignment was missing, and only the week save of the group's `beforeEach` creates
+  it. Its inputs are fixed, so 401 and 422 are ruled out; what remains is a 500 from its transaction.
+  `saveWeek` is an interactive transaction of four statements and had Prisma's default limits: 2 seconds
+  to get a connection, 5 seconds in all.
+- Test first: `server/test/db/audit-015-week-save-wait.db.test.ts`. Another connection holds one row of the
+  week for 6.5 seconds. Seen before the fix: `{ save: 500, add: 404 }`, the same pair as the failure
+  seen on 2026-11-07 (a 500 that the old setup did not check, then the Parent's 404). The other test,
+  that the limits are passed to the two assignment transactions, also failed (no such value).
+- Fix: `TRANSACTION_OPTIONS` in `core/db.ts` (10 s to get a connection, 20 s in all), set as the default of
+  the Prisma client for every transaction and passed explicitly, with a comment, to `saveWeek` and
+  `replaceAssignments`. A transaction that still runs out (P2028) now answers 503 SERVICE_UNAVAILABLE,
+  not 500 (`error-handler-timeout.test.ts`, seen failing with 500).
+- After the fix the same test gives `{ save: 200, add: 201 }`.
+- What this proves: a slow week save produces exactly the failure that was seen. What it does not prove:
+  that this is what happened on 2026-11-07. That run was not recorded and has not happened again.
+- Runs: unit 37 of 37 (`db.test`, both error-handler files); db 33 of 33 (the new file and
+  `assignments-week`). This command took far longer than its tests (it passed the 590 s limit and
+  finished in the background); the laptop appears to pause between commands. Noted for item 5 below.

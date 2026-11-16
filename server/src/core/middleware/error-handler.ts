@@ -1,12 +1,13 @@
 import type { ErrorRequestHandler } from "express";
 import type { Logger } from "pino";
-import { isWriteConflict } from "../db-errors.js";
+import { isWriteConflict, prismaErrorCode } from "../db-errors.js";
 import {
   AppError,
   ConflictError,
   InternalError,
   PayloadTooLargeError,
   RateLimitedError,
+  ServiceUnavailableError,
   ValidationError,
 } from "../errors.js";
 
@@ -40,6 +41,11 @@ function toAppError(error: unknown): AppError | null {
     return new ConflictError(
       "This was just saved by another request. Please refresh and try again.",
     );
+  }
+  // A transaction that could not start or finish in time (AUD-015): the
+  // database is busy, so the page should offer to try again.
+  if (prismaErrorCode(error) === "P2028") {
+    return new ServiceUnavailableError();
   }
   return null;
 }

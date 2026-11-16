@@ -1,4 +1,5 @@
 import { toDbDate } from "../../core/dates.js";
+import { TRANSACTION_OPTIONS } from "../../core/db.js";
 import type { PrismaClient } from "../../generated/prisma/client.js";
 
 export function createAssignmentsRepository(prisma: PrismaClient) {
@@ -71,7 +72,9 @@ export function createAssignmentsRepository(prisma: PrismaClient) {
             })),
           ),
         });
-      });
+        // Explicit limits (AUD-015): the save may wait for a busy database
+        // instead of failing after Prisma's default 5 seconds.
+      }, TRANSACTION_OPTIONS);
     },
 
     listPrStatuses(centerId: number, from: string, to: string) {
@@ -132,7 +135,7 @@ export function createAssignmentsRepository(prisma: PrismaClient) {
           })),
           skipDuplicates: true,
         });
-      });
+      }, TRANSACTION_OPTIONS);
     },
   };
 }
