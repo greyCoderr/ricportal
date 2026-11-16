@@ -356,11 +356,16 @@ export function createAuthService(deps: {
         history,
       ] = await Promise.all([
         repository.countEnrolledStudents(schoolYear, user.centerId),
-        repository.countOwnLiquidation(user.id),
-        repository.countOwnLiquidation(user.id, "SUBMITTED"),
-        repository.countOwnLiquidation(user.id, "NEED_REVISION"),
-        repository.listOwnLiquidation(user.id, skip, query.pageSize),
-        repository.listOwnReportHistory(user.id),
+        repository.countOwnLiquidation(user.id, user.centerId),
+        repository.countOwnLiquidation(user.id, user.centerId, "SUBMITTED"),
+        repository.countOwnLiquidation(user.id, user.centerId, "NEED_REVISION"),
+        repository.listOwnLiquidation(
+          user.id,
+          user.centerId,
+          skip,
+          query.pageSize,
+        ),
+        repository.listOwnReportHistory(user.id, user.centerId),
       ]);
       return {
         summary: {

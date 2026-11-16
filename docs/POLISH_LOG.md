@@ -867,3 +867,11 @@ AUD-014 Child's Record entries of an earlier school year could be changed. Fixed
   edit and delete go through `requireWritable`, which does the same for the entry's child. A child of an
   earlier school year answers 422 with the existing message; reading stays allowed.
 - Runs: the new file with `students`, `students-extra` and `polish3-teacher` db tests, 38 of 38.
+
+AUD-021 A moved Teacher still saw the old center's reports. Fixed.
+- Test first: `server/test/db/audit-021-moved-teacher.db.test.ts`, failing: after the Admin moved the
+  Teacher to another center, the Teacher Profile still counted 1 submitted report of the old center.
+- Fix: the three Teacher Profile queries in `auth.repository.ts` filter by the Teacher's current center as
+  well as the Teacher's id (BR-02). The old center keeps its reports; its next Teacher and the Admin see
+  them through the normal report pages, as before.
+- Runs: the new file with `polish4-teacher-summary` and `polish3-profile` db tests, 38 of 38.

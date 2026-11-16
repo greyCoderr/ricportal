@@ -188,23 +188,32 @@ export function createAuthRepository(prisma: PrismaClient) {
       return prisma.report.count({ where: { centerId } });
     },
 
-    // Plan 4 D9: the Teacher's own liquidation reports.
+    // Plan 4 D9: the Teacher's own liquidation reports, in the center the
+    // Teacher belongs to now. Reports made in an earlier center stay with that
+    // center (BR-02, AUD-021).
     countOwnLiquidation(
       teacherId: number,
+      centerId: number,
       status?: "SUBMITTED" | "NEED_REVISION",
     ) {
       return prisma.report.count({
         where: {
           teacherId,
+          centerId,
           type: "LIQUIDATION",
           ...(status === undefined ? {} : { status }),
         },
       });
     },
 
-    listOwnLiquidation(teacherId: number, skip: number, take: number) {
+    listOwnLiquidation(
+      teacherId: number,
+      centerId: number,
+      skip: number,
+      take: number,
+    ) {
       return prisma.report.findMany({
-        where: { teacherId, type: "LIQUIDATION" },
+        where: { teacherId, centerId, type: "LIQUIDATION" },
         orderBy: [{ submittedAt: "desc" }, { id: "desc" }],
         skip,
         take,
@@ -219,9 +228,9 @@ export function createAuthRepository(prisma: PrismaClient) {
 
     // Every version and review of the Teacher's liquidation reports, for the
     // status activity. Bounded by the Teacher's own reports.
-    listOwnReportHistory(teacherId: number) {
+    listOwnReportHistory(teacherId: number, centerId: number) {
       return prisma.report.findMany({
-        where: { teacherId, type: "LIQUIDATION" },
+        where: { teacherId, centerId, type: "LIQUIDATION" },
         select: {
           id: true,
           submittedAt: true,
