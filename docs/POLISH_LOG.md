@@ -911,3 +911,13 @@ AUD-019 Database errors could put personal data in the log (BR-21). Fixed.
   lines of the stack; the message and meta are dropped. Every other error is logged whole, as before.
 - Cost: a database error is harder to read in the log (no message). The code and the stack lines stay.
 - Runs: all middleware unit tests and the logger tests, 38 of 38.
+
+AUD-022 Column defaults used the machine's time zone. Fixed.
+- Test first: `db-session.test.ts` (no such setting) and `server/test/db/audit-022-utc-session.db.test.ts`,
+  failing: a row that took the column default was 480 minutes ahead of the application's time.
+- Fix: every pooled connection runs `SET time_zone = '+00:00'` when it opens (`initSql` in
+  `buildPoolConfig`). Times written by the application were already UTC and are not changed; no stored
+  value is touched. Rows inserted earlier with raw SQL, if any exist in a local database, keep their old
+  value.
+- Runs: unit 23 of 23; db 31 of 31 (the new file, `health`, `polish3-profile`, `reset`).
+- NOT verified: that TiDB Cloud accepts the same statement on connect (it should; DEC-016).

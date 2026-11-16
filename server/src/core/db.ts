@@ -22,6 +22,7 @@ export type PoolOptions = {
   database: string;
   connectionLimit: number;
   idleTimeout: number;
+  initSql: string;
   ssl?: { rejectUnauthorized: true; minVersion: "TLSv1.2" };
 };
 
@@ -30,6 +31,11 @@ const POOL_SIZE = 5;
 // Seconds. TiDB Cloud drops idle connections after 340 s and long-lived ones
 // after 30 minutes, so idle connections are closed after 4 minutes.
 const IDLE_TIMEOUT_SECONDS = 240;
+// The application writes every time in UTC. A column default such as
+// CURRENT_TIMESTAMP uses the session's time zone, which on a local MariaDB is
+// the machine's (+08:00). Every connection is set to UTC, so a default gives
+// the same time as the application (AUD-022). TiDB Cloud is UTC already.
+const SESSION_TIME_ZONE_SQL = "SET time_zone = '+00:00'";
 
 // Limits for interactive transactions (AUD-015). Prisma's defaults are 2
 // seconds to get a connection and 5 seconds for the whole transaction. On a
@@ -107,6 +113,7 @@ export function buildPoolConfig(connection: DatabaseConnection): PoolOptions {
     database: connection.database,
     connectionLimit: POOL_SIZE,
     idleTimeout: IDLE_TIMEOUT_SECONDS,
+    initSql: SESSION_TIME_ZONE_SQL,
   };
   if (connection.tls) {
     options.ssl = { rejectUnauthorized: true, minVersion: "TLSv1.2" };
