@@ -903,3 +903,11 @@ AUD-016 The global rate limit counted the client's files. Fixed. This is the oth
 - Fix: the global limiter is mounted on `/api` only. docs/DEPLOY.md now says what TRUST_PROXY must be on
   the host and why both limits depend on it. The proxy setting itself cannot be checked before deployment.
 - Runs: `pipeline`, `app` and `spa` unit tests, 26 of 26.
+
+AUD-019 Database errors could put personal data in the log (BR-21). Fixed.
+- Test first: `error-handler-logging.test.ts`, 2 of 3 failing: the log held the child's name and birthdate
+  from the error's message, stack and meta.
+- Fix: for an error whose name starts with "PrismaClient" the log keeps the name, the code and the "at"
+  lines of the stack; the message and meta are dropped. Every other error is logged whole, as before.
+- Cost: a database error is harder to read in the log (no message). The code and the stack lines stay.
+- Runs: all middleware unit tests and the logger tests, 38 of 38.

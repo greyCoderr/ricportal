@@ -50,8 +50,26 @@ function toAppError(error: unknown): AppError | null {
   return null;
 }
 
-// Unknown errors are logged in full but answered with a generic INTERNAL
-// message, so stack traces, SQL and raw messages never reach the client.
+// What goes into the log for an error. A database error's message and meta
+// repeat the values of the failed call, which can be a child's name or
+// birthdate (BR-21, AUD-019), so only its name, code and the code lines of its
+// stack are kept. Every other error is logged whole.
+function loggable(error: unknown): unknown {
+  if (!(error instanceof Error) || !error.name.startsWith("PrismaClient")) {
+    return error;
+  }
+  return {
+    type: error.name,
+    code: prismaErrorCode(error) ?? undefined,
+    stack: (error.stack ?? "")
+      .split("\n")
+      .filter((line) => line.trimStart().startsWith("at "))
+      .join("\n"),
+  };
+}
+
+// Unknown errors are logged but answered with a generic INTERNAL message, so
+// stack traces, SQL and raw messages never reach the client.
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   return (error: unknown, req, res, next) => {
     if (res.headersSent) {
@@ -65,7 +83,7 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
     if (known === null || appError.status >= 500) {
       logger.error(
         {
-          err: error,
+          err: loggable(error),
           requestId: req.requestId,
           method: req.method,
           path: req.path,
