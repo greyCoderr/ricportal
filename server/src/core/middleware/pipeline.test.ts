@@ -197,3 +197,20 @@ describe("compression", () => {
     expect(res.headers["content-encoding"]).toBeUndefined();
   });
 });
+
+// AUD-016 (docs/AUDIT_REPORT.md): the global limit is for the API. Files of the
+// built client (scripts, images) do not use it up.
+describe("global rate limit covers /api only (AUD-016)", () => {
+  it("requests outside /api are never limited and do not count", async () => {
+    const app = appWith({ RATE_LIMIT_ENABLED: true, RATE_LIMIT_MAX: 2 });
+
+    for (let i = 0; i < 6; i += 1) {
+      const res = await request(app).get(`/assets/script-${String(i)}.js`);
+      expect(res.status).toBe(404);
+    }
+    expect((await request(app).get("/api/x")).status).toBe(404);
+    expect((await request(app).get("/api/x")).status).toBe(404);
+    expect((await request(app).get("/api/x")).status).toBe(429);
+    expect((await request(app).get("/assets/logo.png")).status).toBe(404);
+  });
+});

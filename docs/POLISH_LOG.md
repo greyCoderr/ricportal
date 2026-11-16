@@ -897,3 +897,9 @@ AUD-015 Transaction limits, and the intermittent 404 in "a Parent adds a row". F
 - Runs: unit 37 of 37 (`db.test`, both error-handler files); db 33 of 33 (the new file and
   `assignments-week`). This command took far longer than its tests (it passed the 590 s limit and
   finished in the background); the laptop appears to pause between commands. Noted for item 5 below.
+
+AUD-016 The global rate limit counted the client's files. Fixed. This is the other half of J4 (a).
+- Test first, in `pipeline.test.ts`: failing with 429 on a file outside `/api` after two requests.
+- Fix: the global limiter is mounted on `/api` only. docs/DEPLOY.md now says what TRUST_PROXY must be on
+  the host and why both limits depend on it. The proxy setting itself cannot be checked before deployment.
+- Runs: `pipeline`, `app` and `spa` unit tests, 26 of 26.

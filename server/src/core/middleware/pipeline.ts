@@ -25,7 +25,9 @@ export function applyRequestPipeline(app: Express, config: AppConfig): void {
   );
   app.use(compression());
   if (config.RATE_LIMIT_ENABLED) {
-    app.use(createGlobalRateLimit(config));
+    // The API only (AUD-016): the scripts and images of the built client
+    // must not use up a user's requests.
+    app.use("/api", createGlobalRateLimit(config));
   }
   app.use(express.json({ limit: config.BODY_LIMIT }));
   app.use(cookieParser());
