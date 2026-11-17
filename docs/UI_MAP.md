@@ -99,3 +99,44 @@ Every screen that exists now: screen ID, route, role, status (static, wired, pol
 | RIC Teachers | `/teachers` | Admin | polished | Manage Centers button (D3) |
 | Teacher Home | `/` | Teacher | polished | Rows and proportions of 175:1023 (read 2026-11-14, DEC-053): stat cards, Quick Actions, mini calendar, Report Tracking and Admin Feedback; then Recent Reports and Enrolled Students side by side with gray header bands (D7, D8) |
 | Profile | `/profile` | Teacher | polished | Header card, stat cards, Recent Submitted Reports with pages, Recent Status Activity (88:695, D9); Admin and Parent unchanged |
+
+## All screens now (Plan 5 J5, 2026-11-18)
+
+One row per route in `client/src/app/router.tsx`. Figma ids are from docs/figma-inventory.md. State:
+polished (compared with its frame and fixed, docs/FIDELITY_REPORT.md), wired (works, not compared),
+Developer-designed (no client frame: client approval needed), placeholder. J2 (Plan 5) compared the
+pages with frames at 1440 wide; the Admin pages at 390 wide are not checked yet.
+
+| Route | Screen | Role | Figma frame | State |
+| --- | --- | --- | --- | --- |
+| `/login` | Login | Public | 241:1732; phone PARENT LOGIN 393:1102; Admin phone login 380:1149 not used (DEC-037) | polished (J2) |
+| `/signup` | Parent sign-up | Public | none | Developer-designed |
+| `/request-sent` | Request sent | Public | none | Developer-designed |
+| `/change-password` | Change password | Any | none | wired |
+| `/status` | Server status | Public | none | wired |
+| `/` | Admin Dashboard | Admin | 267:9689 | polished (J2: dark green numbers) |
+| `/` | Teacher Home | Teacher | 175:1023 | polished (Round 4, DEC-053) |
+| `/` | My Schedule (Parent calendar) | Parent | 393:1133 | polished (J2: day panels on phones) |
+| `/profile` | Profile | Admin | 267:9887; phone 378:16539 | wired; frames read in Plan 5 J2 step 4 |
+| `/profile` | Profile | Teacher | 88:695 | polished (no change in J2) |
+| `/profile` | Profile | Parent | none | Developer-designed |
+| `/centers` | Centers | Admin | none | wired |
+| `/teachers` | RIC Teachers | Admin | 267:9862; phone 378:16285 | polished (Round 2); J2 differences listed |
+| `/teachers/:id` | RIC Teacher Profile | Admin | from 88:695 | Developer-designed |
+| `/menu-imports` | Menu Imports | Admin | none (the upload panel on 268:11404) | wired |
+| `/admin/students` | Enrolled Students (Admin) | Admin | none | Developer-designed, read-only |
+| `/admin/students/:id` | Child's Record (Admin) | Admin | none | Developer-designed, read-only |
+| `/calendar` | Calendar | Admin | 268:11404; phone 378:15722 | polished (J2: two-column day panels) |
+| `/calendar` | Calendar | Teacher | 166:1553 | polished (J2) |
+| `/reports` | Reports queue | Admin | 268:12661; phone 378:15917 | polished; type cards, tabs and filters wait for J3 (e) and Objective 3 |
+| `/reports` | Report Status | Teacher | 78:284 | polished (J2: heading) |
+| `/reports/:id` | Report detail | Admin, Teacher | none | wired |
+| `/parents` | Parent Requests | Teacher | none | wired |
+| `/students` | Enrolled Students | Teacher | 78:260 | polished (J2) |
+| `/students/new`, `/students/:id/edit` | Add and Edit Student | Teacher | 258:5447 | polished (F3) |
+| `/students/:id` | Student profile | Teacher | none | wired |
+| `/child-records` | Child's Record list | Teacher | 169:3189 | polished |
+| `/child-records/:id` | Child's Record detail | Teacher | 254:4572 (DEC-050) | wired |
+| `/submit-report` | Submit Report | Teacher | 78:268 | placeholder "Coming soon" (Objective 3) |
+| `/admin-feedback` | Admin Feedback | Teacher | 78:276 | polished |
+| `*` | Not found | Any | none | wired |
