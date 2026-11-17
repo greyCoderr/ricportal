@@ -1,11 +1,14 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { manilaToday, mondayOf, addDays } from "@ricportal/shared";
+import { fromDbDate, toDbDate } from "../src/core/dates.js";
 import { hashPassword } from "../src/core/password.js";
 import type { AuthUser } from "../src/core/scope.js";
 import type { PrismaClient } from "../src/generated/prisma/client.js";
 import { createAssignmentsRepository } from "../src/modules/assignments/assignments.repository.js";
 import { createAssignmentsService } from "../src/modules/assignments/assignments.service.js";
+import { createLiquidationRepository } from "../src/modules/liquidation/liquidation.repository.js";
+import { createLiquidationService } from "../src/modules/liquidation/liquidation.service.js";
 import { createMenuRepository } from "../src/modules/menu/menu.repository.js";
 import { createMenuService } from "../src/modules/menu/menu.service.js";
 import { createPurchaseRequestsRepository } from "../src/modules/purchase-requests/purchase-requests.repository.js";
@@ -51,7 +54,41 @@ const CHILDREN: Child[] = [
   ["Peña", "Carlo", "Salazar", "M", "2024-05-20"],
 ];
 
+// A few children of the school year before, so the year cards have rows.
+const EARLIER_CHILDREN: Child[] = [
+  ["Salazar", "Joshua", "Peña", "M", "2021-04-12"],
+  ["Lopez", "Kristine", "Bautista", "F", "2021-09-03"],
+  ["Cruz", "Daniel", null, "M", "2022-01-27"],
+  ["Santiago", "Mae", "Reyes", "F", "2021-11-15"],
+];
+
+// Reports for the school weeks before this one, newest first: one waits for
+// review, one was sent back with feedback, one was approved (J2).
+const REPORT_STATES = ["SUBMITTED", "NEED_REVISION", "APPROVED"] as const;
+const DEMO_FEEDBACK =
+  "Please check the quantity of rice on the third day; it does not match the receipt.";
+const REPORT_ROWS: [string, string, string, string][][] = [
+  [
+    ["Rice", "kg", "2", "38.00"],
+    ["Chicken", "kg", "1", "190.00"],
+  ],
+  [
+    ["Rice", "kg", "2", "38.00"],
+    ["Eggs", "pcs", "18", "8.50"],
+  ],
+  [
+    ["Rice", "kg", "2", "38.00"],
+    ["Pork", "kg", "0.5", "340.00"],
+    ["Ginger", "pcs", "2", "5.00"],
+  ],
+];
+
 const day = (value: string) => new Date(`${value}T00:00:00.000Z`);
+
+function yearBefore(schoolYear: string): string {
+  const start = Number(schoolYear.slice(0, 4));
+  return `${String(start - 1)}-${String(start)}`;
+}
 
 async function clearDemoData(prisma: PrismaClient, centerId: number) {
   const students = { student: { centerId } };
@@ -148,6 +185,23 @@ export async function seedDemo(
         heightCm: "96.5",
         parentGuardianName: "Rosa Dela Cruz",
         enrolledOn: day("2026-06-08"),
+      }),
+    ),
+  });
+  await prisma.student.createMany({
+    data: EARLIER_CHILDREN.map(
+      ([lastName, firstName, middleName, gender, birthdate]) => ({
+        centerId: center.id,
+        schoolYear: yearBefore(schoolYear),
+        lastName,
+        firstName,
+        middleName,
+        gender,
+        birthdate: day(birthdate),
+        weightKg: "15.20",
+        heightCm: "99.0",
+        parentGuardianName: "Rosa Dela Cruz",
+        enrolledOn: day("2025-06-09"),
       }),
     ),
   });
@@ -270,8 +324,52 @@ export async function seedDemo(
     ]);
   }
 
+  // The weeks before this one, through the real lock, submit and review. A week
+  // without a menu is skipped. Each report is submitted on its Friday afternoon.
+  const adminUser: AuthUser = {
+    id: admin.id,
+    role: "ADMIN",
+    centerId: null,
+    mustChangePassword: false,
+  };
+  let reports = 0;
+  for (const [index, state] of REPORT_STATES.entries()) {
+    const from = addDays(monday, -7 * (index + 1));
+    const to = addDays(from, 4);
+    const menuDays = await prisma.menuDay.findMany({
+      where: { feedingDate: { gte: toDbDate(from), lte: toDbDate(to) } },
+      orderBy: { feedingDate: "asc" },
+    });
+    if (menuDays.length === 0) {
+      continue;
+    }
+    for (const [position, menuDay] of menuDays.entries()) {
+      const date = fromDbDate(menuDay.feedingDate);
+      await addRows(date, REPORT_ROWS[position % REPORT_ROWS.length] ?? []);
+      await purchase.lock(teacher, date);
+    }
+    const liquidation = createLiquidationService({
+      repository: createLiquidationRepository(prisma),
+      settings,
+      now: () => new Date(`${to}T08:00:00.000Z`),
+    });
+    const report = await liquidation.submit(teacher, from, to);
+    if (state !== "SUBMITTED") {
+      await liquidation.review(
+        adminUser,
+        report.id,
+        state === "NEED_REVISION"
+          ? { decision: state, feedback: DEMO_FEEDBACK }
+          : { decision: state },
+      );
+    }
+    reports += 1;
+  }
+
   return {
     children: CHILDREN.length,
+    earlierChildren: EARLIER_CHILDREN.length,
     assignedDays: feedingDays.length,
+    reports,
   };
 }

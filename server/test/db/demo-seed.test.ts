@@ -13,18 +13,48 @@ const OPTIONS = { now: NOW, bcryptCost: 4 };
 let prisma: PrismaClient;
 let app: ReturnType<typeof buildApp>;
 
+const CURRENT_YEAR = "2026-2027";
+const EARLIER_YEAR = "2025-2026";
+
 async function counts() {
   return {
     teachers: await prisma.user.count({ where: { role: "TEACHER" } }),
     parents: await prisma.user.count({ where: { role: "PARENT" } }),
-    students: await prisma.student.count(),
+    students: await prisma.student.count({
+      where: { schoolYear: CURRENT_YEAR },
+    }),
+    earlierStudents: await prisma.student.count({
+      where: { schoolYear: EARLIER_YEAR },
+    }),
     menuDays: await prisma.menuDay.count(),
     assignments: await prisma.feedingAssignment.count(),
     purchaseRequests: await prisma.purchaseRequest.count(),
     items: await prisma.purchaseItem.count(),
-    locked: await prisma.purchaseRequest.count({ where: { status: "LOCKED" } }),
+    // Locked days outside a report: the demo's one locked day.
+    locked: await prisma.purchaseRequest.count({
+      where: { status: "LOCKED", submittedReportId: null },
+    }),
+    reports: await prisma.report.count(),
+    reviews: await prisma.reportReview.count(),
+    snapshots: await prisma.liquidationSnapshot.count(),
   };
 }
+
+async function reportStatuses() {
+  const rows = await prisma.report.findMany({
+    orderBy: { periodStart: "asc" },
+  });
+  return rows.map((row) => [
+    row.periodStart.toISOString().slice(0, 10),
+    row.periodEnd.toISOString().slice(0, 10),
+    row.status,
+  ]);
+}
+
+const rehearsalReports = () =>
+  prisma.report.count({
+    where: { periodStart: new Date("2026-11-09T00:00:00Z") },
+  });
 
 beforeAll(async () => {
   prisma = createTestPrisma();
@@ -47,10 +77,18 @@ describe("seedDemo", () => {
     expect(state.teachers).toBe(1);
     expect(state.parents).toBe(4);
     expect(state.students).toBe(18);
+    expect(state.earlierStudents).toBe(4);
     expect(state.menuDays).toBe(84);
     expect(state.assignments).toBeGreaterThan(0);
     expect(state.purchaseRequests).toBeGreaterThanOrEqual(3);
     expect(state.locked).toBe(1);
+    // The three school weeks before this week, newest first: waiting for
+    // review, sent back, approved.
+    expect(await reportStatuses()).toEqual([
+      ["2026-10-19", "2026-10-23", "APPROVED"],
+      ["2026-10-26", "2026-10-30", "NEED_REVISION"],
+      ["2026-11-02", "2026-11-06", "SUBMITTED"],
+    ]);
 
     const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
     expect((await teacher.get("/api/students")).status).toBe(200);
@@ -260,10 +298,9 @@ describe("seedDemo", () => {
 
     await seedDemo(prisma, OPTIONS);
 
+    // Only the seeded reports, reviews and snapshots are left (in counts).
     expect(await counts()).toEqual(before);
-    expect(await prisma.report.count()).toBe(0);
-    expect(await prisma.reportReview.count()).toBe(0);
-    expect(await prisma.liquidationSnapshot.count()).toBe(0);
+    expect(await rehearsalReports()).toBe(0);
     for (const username of ["teacher.bahay", "rehearsal.parent"]) {
       expect(await prisma.user.findUnique({ where: { username } })).toBe(null);
     }
@@ -279,16 +316,87 @@ describe("seedDemo", () => {
   });
 
   it("a submitted report from a rehearsal is cleared too", async () => {
+    const before = await counts();
     const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
     const range = { from: "2026-11-09", to: "2026-11-09" };
     expect(
       (await teacher.post("/api/liquidation/submit").send(range)).status,
     ).toBe(201);
-    expect(await prisma.report.count()).toBe(1);
+    expect(await prisma.report.count()).toBe(before.reports + 1);
 
     await seedDemo(prisma, OPTIONS);
 
-    expect(await prisma.report.count()).toBe(0);
-    expect(await prisma.liquidationSnapshot.count()).toBe(0);
+    expect(await rehearsalReports()).toBe(0);
+    expect(await counts()).toEqual(before);
+  });
+});
+
+// The Developer's dev database is seeded on 2026-11-17: the reports follow the
+// clock, so Report Status and Admin Feedback have one report in each state.
+describe("seedDemo reports and earlier school year (J2)", () => {
+  const LATER = { now: new Date("2026-11-17T02:00:00Z"), bcryptCost: 4 };
+
+  it("makes one report in each state for the three weeks before this one", async () => {
+    await seedDemo(prisma, LATER);
+    expect(await reportStatuses()).toEqual([
+      ["2026-10-26", "2026-10-30", "APPROVED"],
+      ["2026-11-02", "2026-11-06", "NEED_REVISION"],
+      ["2026-11-09", "2026-11-13", "SUBMITTED"],
+    ]);
+    const sibujo = await prisma.center.findUniqueOrThrow({
+      where: { name: "Sibujo" },
+    });
+    expect(
+      await prisma.report.count({ where: { centerId: { not: sibujo.id } } }),
+    ).toBe(0);
+
+    const admin = await loginAs(app, "admin", "Admin2026!");
+    const queue = await admin.get("/api/reports");
+    expect(queue.status).toBe(200);
+    const rows = (queue.body as { data: { total: string }[] }).data;
+    expect(rows).toHaveLength(3);
+    for (const row of rows) {
+      expect(Number(row.total)).toBeGreaterThan(0);
+    }
+  });
+
+  it("the sent-back report has the Admin's feedback for the Teacher (D10)", async () => {
+    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+    const res = await teacher.get("/api/reports/feedback");
+    expect(res.status).toBe(200);
+    const rows = (
+      res.body as {
+        data: {
+          periodStart: string;
+          feedback: string;
+          reportStatus: string;
+        }[];
+      }
+    ).data;
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      periodStart: "2026-11-02",
+      reportStatus: "NEED_REVISION",
+    });
+    expect(rows[0]?.feedback.length).toBeGreaterThan(0);
+  });
+
+  it("the earlier school year has a few students, read-only", async () => {
+    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+    const earlier = await teacher.get(
+      `/api/students?schoolYear=${EARLIER_YEAR}`,
+    );
+    expect(earlier.status).toBe(200);
+    expect((earlier.body as { meta: { total: number } }).meta.total).toBe(4);
+    const current = await teacher.get("/api/students");
+    expect((current.body as { meta: { total: number } }).meta.total).toBe(18);
+  });
+
+  it("re-running gives the same state", async () => {
+    const before = await counts();
+    const statuses = await reportStatuses();
+    await seedDemo(prisma, LATER);
+    expect(await counts()).toEqual(before);
+    expect(await reportStatuses()).toEqual(statuses);
   });
 });

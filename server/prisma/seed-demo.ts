@@ -32,7 +32,7 @@ async function main(): Promise<void> {
       bcryptCost: env.BCRYPT_COST,
     });
     print(
-      `Demo seed done: ${String(result.children)} children, ${String(result.assignedDays)} assigned days.`,
+      `Demo seed done: ${String(result.children)} children (and ${String(result.earlierChildren)} of the year before), ${String(result.assignedDays)} assigned days, ${String(result.reports)} reports.`,
     );
   } catch (error) {
     fail("Demo seed", error);
