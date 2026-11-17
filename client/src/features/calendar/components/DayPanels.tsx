@@ -52,7 +52,15 @@ export function DayPanels({
   purchaseRequest: ReactNode;
 }) {
   return (
-    <div className="mt-6 grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)_14rem] lg:items-start">
+    <div
+      className={`mt-6 grid gap-6 lg:items-start ${
+        // Without the parents panel the Purchase Request takes the wide column,
+        // not the 14rem one the panel would have had.
+        parents === undefined
+          ? "lg:grid-cols-[minmax(0,1fr)_14rem]"
+          : "lg:grid-cols-[14rem_minmax(0,1fr)_14rem]"
+      }`}
+    >
       <section className="flex flex-col items-start lg:order-3 lg:items-end">
         <Tag label={menuHeading(date)} direction="right" />
         <p className="ric-hang mt-2 border border-border bg-tag-tint px-3 py-0.5 text-13 font-medium">

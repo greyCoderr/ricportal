@@ -51,7 +51,7 @@ function CountCard({
       </span>
       <p
         data-card-value
-        className="mt-1 text-40 leading-tight font-semibold tabular-nums"
+        className="mt-1 text-40 leading-tight font-semibold text-accent tabular-nums"
       >
         {value ?? "-"}
       </p>

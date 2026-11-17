@@ -62,6 +62,28 @@ describe("DayPanels", () => {
     );
   });
 
+  it("without a parents panel (the Admin) the Purchase Request is not left in the narrow column", () => {
+    const { container } = render(
+      <DayPanels
+        date="2026-11-13"
+        menuName="Lumpia Medley"
+        purchaseRequest={<p>rows</p>}
+      />,
+    );
+    const grid = container.firstElementChild;
+    expect(grid?.classList).toContain("lg:grid-cols-[minmax(0,1fr)_14rem]");
+    expect(grid?.classList).not.toContain(
+      "lg:grid-cols-[14rem_minmax(0,1fr)_14rem]",
+    );
+  });
+
+  it("with a parents panel the grid has the three columns of the Teacher frame", () => {
+    const { container } = show();
+    expect(container.firstElementChild?.classList).toContain(
+      "lg:grid-cols-[14rem_minmax(0,1fr)_14rem]",
+    );
+  });
+
   it("the parents card is as wide as its names, not a fixed width", () => {
     show();
     const card = screen.getByRole("list").parentElement;

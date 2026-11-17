@@ -152,6 +152,17 @@ describe("AdminDashboardPage (Plan 4 D1 to D5)", () => {
     expect(teachers?.className).toContain("border-b-accent");
   });
 
+  it("Plan 5 J2: every card number is dark green, as in frame 267:9689", async () => {
+    mockApi();
+    renderPage();
+    await screen.findByText("Reports for Revision");
+    const values = document.querySelectorAll("[data-card-value]");
+    expect(values.length).toBe(5);
+    for (const value of values) {
+      expect(value.classList).toContain("text-accent");
+    }
+  });
+
   it("D3: four Quick Actions with Figma's texts and our targets", async () => {
     mockApi();
     renderPage();
