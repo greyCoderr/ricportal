@@ -1,0 +1,81 @@
+# UNVERIFIED (Plan 5 J4 h): this workflow has never run. It cannot run on the
+# Developer's laptop; the first push to GitHub is its first test.
+# No secrets and no deployment. The database is a throwaway service container
+# that exists only for the length of the job.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      # MySQL-compatible MariaDB, as in local development (XAMPP MariaDB, DEC-005).
+      # The server connects with @prisma/adapter-mariadb (DEC-057).
+      database:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: ci-only-password
+          MARIADB_DATABASE: ricportal_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    env:
+      # Throwaway values for the job's own container; not secrets.
+      # The test guard needs a local host and a name ending in _test (DEC-019).
+      DATABASE_URL: mysql://root:ci-only-password@127.0.0.1:3306/ricportal_test
+      NODE_ENV: test
+      TZ: Asia/Manila
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Unit tests
+        run: npx vitest run --project unit --maxWorkers=1
+
+      - name: Database tests
+        run: npx vitest run --project db --maxWorkers=1
+
+      - name: Client tests
+        run: npx vitest run --project client --maxWorkers=1
+
+      - name: Build
+        # The build does not need the database or test settings.
+        env:
+          NODE_ENV: production
+        run: npm run build

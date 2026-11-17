@@ -707,3 +707,23 @@ Decision:
   local MariaDB. They must be run once against TiDB before go-live (DEC-016, by the Developer).
 - docs/OBJ3_PLAN_REVIEW.md lists gaps in the Objective 3 plan. The plan is unchanged.
 
+
+## DEC-057: GitHub Actions workflow (J4 h, brought forward), UNVERIFIED
+
+Context: the Developer moved J4 (h) ahead of J5 on 2026-11-18 (lean order, step 2). No question asked.
+DEC-056 stays reserved for the J2 decisions. Log: docs/POLISH_LOG.md "Developer's lean order".
+Decision:
+- `.github/workflows/ci.yml`, one job on ubuntu-latest, Node 22: `npm ci`, typecheck, lint, format
+  check, the unit, db and client test projects as three separate steps on one worker each, build.
+  Runs on every push and pull request; `permissions: contents: read`; no deployment.
+- The database is a MariaDB 10.11 service container (MySQL-compatible), not the `mysql` image: the
+  server uses `@prisma/adapter-mariadb` and local development uses XAMPP MariaDB (DEC-005), and a
+  MySQL 8.4 container would need `mysql_native_password` turned on with a server option that service
+  containers cannot pass. The db tests reach it at 127.0.0.1 as `ricportal_test`, so the test guard
+  (DEC-019) accepts it; `migrate deploy` runs in the db group's global setup.
+- No secrets: the database password is a throwaway value for the job's own container, and every other
+  setting uses its non-production default (NODE_ENV=test). TZ=Asia/Manila as on the laptop. The build
+  step alone sets NODE_ENV=production so Vite makes a production bundle.
+- UNVERIFIED: it has never run. Its first run is the first push to GitHub; failures there are fixed
+  then. No GitHub setting or secret is needed; Actions must simply be enabled for the repository
+  (the default).
