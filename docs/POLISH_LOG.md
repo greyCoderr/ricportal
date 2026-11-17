@@ -1032,3 +1032,26 @@ The session stopped once here (usage limit; credits not enabled) and was resumed
 After the resume: `npx tsc -b` clean, lint and format of the changed files clean, client scan tests
 8 files 123 of 123 and the auth feature tests 2 files 40 of 40, each on one worker. Committed as
 the Login group. The API on port 3100 (process 20484) had been stopped at the pause.
+
+### Page group 2: Parent calendar (PARENT CALENDAR 393:1133) and the Parent screens without a frame
+
+- Figma calls, 12 of 60 so far: design context and screenshot of 166:1553 (Teacher calendar, read
+  now because the day panels are shared) and 378:15722 (phone calendar of the Admin page).
+- Found by measurement at 390 px: the two arrow tags sat 16 px inside the page and were 44 px high
+  (frame: at the screen edges, 52 px); "Assigned Parents" where the Parent frame says "Parents
+  assigned"; the dish chip and the parents card had no hanging lines and were larger than drawn.
+- Tests first: `DayPanels.test.tsx`, 4 of 5 seen failing (the fifth guards the Teacher's label),
+  then 5 of 5. Calendar, purchase and scan tests: 10 files, 89 of 90 in the first run. The one
+  failure, "shows day numbers only, never a dish name" in `MiniCalendar.test.tsx`, took 22.8 s (a
+  timeout, on a file this change does not touch) and passed alone, 6 of 6. Not retried silently:
+  recorded here. Same pattern as the stalls of J1d item 5.
+- Changed: `DayPanels.tsx` (tags, `parentsLabel`, chip, card), `MySchedulePage.tsx` (the label),
+  `index.css` (`.ric-hang`).
+- Browser, built app on port 3100, parent1 with 11/13/2026 selected, 390 px wide: tags at x 0 and
+  at the right edge, 52 px high; card 162 px wide; no sideways scroll. Read by eye once.
+- Kept on purpose, listed in docs/FIDELITY_REPORT.md: 55 px rows (the other phone frame), the month
+  title size (one font), the total inside the card.
+- No frame, so "client approval needed": sign-up, request sent, row editing, Parent Profile, change
+  password, the Parent desktop layout, the phone drawer.
+- A first capture showed "No menu" for today: the screenshot was taken before the data arrived
+  (script wait too short). With a longer wait the dish and the dots show. Not an app fault.

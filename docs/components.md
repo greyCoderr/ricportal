@@ -215,5 +215,7 @@ docs/feedback/figma-teacher-home.png). Round 4 calls: 4 of 40.
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 393:1102 | Phone login: ground #570707, sizes, positions |
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 393:1133 | Parent calendar (sparse answer: positions and sizes only) |
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 241:1732 | Desktop login: sizes, positions, colors |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 166:1553 | Teacher calendar (sparse answer): calendar 1270 x 874, panels, Purchase Request card 762 wide, Assign Parents panel |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 378:15722 | Phone calendar of the Admin page: cells 55.7 x 55, month 37 px, upload card |
 
-Plan 5 calls so far: 8 of 60.
+Plan 5 calls so far: 12 of 60.

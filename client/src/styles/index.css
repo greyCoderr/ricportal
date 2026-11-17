@@ -282,6 +282,30 @@
   clip-path: polygon(24px 0, 100% 0, 100% 100%, 24px 100%, 0 50%);
 }
 
+/* The dish chip and the parents card hang from their tag by two short lines
+   (393:1764, 393:1765, 393:1817, 393:1818). The 8 px gap above is the mt-2. */
+.ric-hang {
+  position: relative;
+}
+
+.ric-hang::before,
+.ric-hang::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  width: 1px;
+  height: 8px;
+  background-color: var(--color-border);
+}
+
+.ric-hang::before {
+  left: 6px;
+}
+
+.ric-hang::after {
+  right: 6px;
+}
+
 /* From 1024 px the panels sit either side of the Purchase Request and point at
    it (166:1553). The padding keeps the text off the point. */
 @media (min-width: 1024px) {

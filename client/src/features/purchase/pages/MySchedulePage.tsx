@@ -57,6 +57,7 @@ export function MySchedulePage() {
         date={selected}
         menuName={day?.menuName ?? null}
         parents={day?.parents ?? []}
+        parentsLabel="Parents assigned"
         purchaseRequest={
           day?.assigned === true ? (
             <ParentDayScreen date={selected} />

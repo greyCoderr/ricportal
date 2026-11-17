@@ -13,10 +13,10 @@ function Tag({
 }) {
   return (
     <p
-      className={`bg-tag py-3 text-13 font-bold tracking-label text-primary-contrast ${
+      className={`bg-tag py-4 text-13 font-bold tracking-label text-primary-contrast lg:py-3 ${
         direction === "right"
-          ? "ric-tag-right pr-8 pl-4"
-          : "ric-tag-left pr-4 pl-8"
+          ? "ric-tag-right -ml-4 pr-8 pl-4 lg:ml-0"
+          : "ric-tag-left -mr-4 pr-4 pl-8 lg:mr-0"
       }`}
     >
       {label}
@@ -30,11 +30,14 @@ export function menuHeading(date: string, today = manilaToday()): string {
 
 // The panels under the calendar (Figma 166:1553, 393:1133): the dish on an arrow
 // tag, the numbered parents on a pink card, and the Purchase Request. They stack
-// under 1024 px in the Parent frame's order.
+// under 1024 px in the Parent frame's order, where the tags reach the screen edge
+// (the page's 16 px padding is taken back) and are 52 px high. The dish and the
+// card hang from their tags by two short lines (.ric-hang).
 export function DayPanels({
   date,
   menuName,
   parents,
+  parentsLabel = "Assigned Parents",
   parentsAction,
   purchaseRequest,
 }: {
@@ -42,6 +45,8 @@ export function DayPanels({
   menuName: string | null;
   // Left out when the viewer has no list to show (the Admin).
   parents?: Parents | undefined;
+  // The Parent frame says "Parents assigned"; the Teacher frame "Assigned Parents".
+  parentsLabel?: string;
   parentsAction?: ReactNode;
   purchaseRequest: ReactNode;
 }) {
@@ -49,7 +54,7 @@ export function DayPanels({
     <div className="mt-6 grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)_12rem] lg:items-start">
       <section className="flex flex-col items-start lg:order-3 lg:items-end">
         <Tag label={menuHeading(date)} direction="right" />
-        <p className="mt-2 border border-border bg-tag-tint px-3 py-1 text-15 font-medium">
+        <p className="ric-hang mt-2 border border-border bg-tag-tint px-3 py-0.5 text-13 font-medium">
           {menuName === null ? "No menu" : formatMenuName(menuName)}
         </p>
       </section>
@@ -69,8 +74,8 @@ export function DayPanels({
 
       {parents !== undefined && (
         <section className="flex flex-col items-end lg:order-1 lg:items-start">
-          <Tag label="Assigned Parents" direction="left" />
-          <div className="mt-2 w-full max-w-60 border border-border bg-tag-tint p-3 shadow-panel">
+          <Tag label={parentsLabel} direction="left" />
+          <div className="ric-hang mt-2 w-fit max-w-60 min-w-40 border border-border bg-tag-tint p-3 shadow-panel">
             {parents.length === 0 ? (
               <p className="text-13">No parents assigned yet.</p>
             ) : (

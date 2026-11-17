@@ -24,6 +24,8 @@ that pass WCAG AA (DEC-023), no unbuilt features (bell, two-factor, sessions).
 | --- | --- | --- | --- | --- | --- |
 | Login | All | 241:1732 | 1440x900 | 9 | yes |
 | Login | All (phones) | 393:1102 | 390x844 | 10 | yes, 2 kept |
+| Calendar | Parent | 393:1133 | 390x844 | 9 | 5 fixed, 4 kept |
+| Sign-up, Request sent, day rows, Profile, Change password | Parent | none | | no frame | client approval needed |
 
 ## Login, desktop: 241:1732 (1280 x 1020)
 
@@ -75,3 +77,45 @@ Kept on purpose: the title's red #D32F2F on #570707 has a contrast of 2.9:1, und
 title needs; the lighter red of the selected menu item (#FF8282, 6.2:1) is used. "RICPORTAL" keeps
 Figma's red because it is the logotype (same reasoning as the sidebar wordmark, DEC-037). Field
 errors on the dark ground use the same light red, and the keyboard focus ring is white there.
+
+## Parent calendar: PARENT CALENDAR 393:1133 (375 x 943)
+
+Frame numbers times 1.04 against ours at 390 px wide, logged in as a Parent with one of their own
+days selected. The Figma answer for this frame was positions and sizes only (too large for code).
+
+| Element | Figma (scaled) | Ours before | Ours after | Fixed |
+| --- | --- | --- | --- | --- |
+| "Today's Menu" tag | starts at the screen's left edge, 54 px high, #A40000 | 16 px in, 44 px high | at the edge (x 0), 52 px high | yes |
+| Parents tag | ends at the screen's right edge, 50 px high | 16 px in, 44 px high | at the edge, 52 px high | yes |
+| Parents tag text | "Parents assigned" | "Assigned Parents" | "Parents assigned" for the Parent; the Teacher keeps "Assigned Parents" (166:1553) | yes |
+| Dish chip | 12 px text, 20 px high, hangs from the tag by two short lines | 15 px, 33 px high, no lines | 13 px, 26 px high, two lines | yes |
+| Parents card | 158 px wide, hangs by two lines, right edge 16 px in | 240 px wide, no lines | as wide as its names (162 px here), two lines | yes |
+| Order of the panels | menu, Purchase Request, total, parents | the same | the same | no change needed |
+| Calendar rows | 44 px high, 8 px day numbers | 62 px, 13 px numbers | unchanged | kept: the other phone calendar frame (378:15722) draws 55 px rows and 13 px numbers, which ours follow |
+| Month title | about 30 px, condensed extra bold | Montserrat ExtraBold 24 px | unchanged | kept: the app has one font (Montserrat), which is wider; 30 px does not fit "SEPTEMBER" with the arrows and the year at 360 px |
+| Total | under the card, at its right | inside the card, at its right | unchanged | kept: our card also holds the add row and the status, so the total stays with the rows |
+| Purchase Request title and headers | 12 px | 15 px title, 12 px headers | unchanged | kept: within 3 px; our smallest table text is 12 px |
+
+Ours has, and the frame lacks (all decided earlier, not differences to fix): the black top bar with
+the menu (from 378:15722, DEC-037), the page title with one line of help, a dot on feeding days and
+the ring on the selected day (the frame shows no way to pick a day), the status pill, and the
+"New ingredient" row (D3: Parents add rows).
+
+## Parent screens without a Figma frame: client approval needed
+
+The Parent page of the Figma file (393:1101) holds only PARENT LOGIN and PARENT CALENDAR. These
+screens keep the Developer-designed specs and were not changed in this stage:
+
+| Screen | Route | Spec |
+| --- | --- | --- |
+| Parent sign-up | `/signup` | docs/ui-specs/parent-screens.md (S-P1-02) |
+| Request sent | `/request-sent` | docs/ui-specs/parent-screens.md (S-P1-07) |
+| Editing rows on an assigned day | inside the Purchase Request card | docs/ui-specs/parent-screens.md (S-P5-04), D3 |
+| Parent Profile, Edit Profile, Login History | `/profile` | DEC-049 (laid out like the Admin frame) |
+| Change password | `/change-password` | Developer-designed from tokens |
+| The Parent calendar on a desktop (sidebar, three panels in a row) | `/` | follows the Teacher frame 166:1553 |
+| The phone menu drawer | every page | docs/ui-specs/shell.md (DEC-037) |
+
+Sign-up, Request sent and Change password keep their white ground on phones; only Login has a
+phone frame, so only Login got the dark red ground. The client should say whether those three
+should follow it.
