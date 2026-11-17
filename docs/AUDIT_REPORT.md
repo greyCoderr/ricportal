@@ -8,6 +8,14 @@ docs/blueprint/03-blueprint.md, docs/phases/*.md, docs/SPRINT_SHORTCUTS.md and d
 
 - Critical: 0. High: 3 (AUD-001 to AUD-003, fixed in J1b on 2026-11-14, each with a test seen failing
   first). Medium: 19. Low: 20. The medium and low findings are in docs/BACKLOG.md under their ids.
+- Stage J1d (2026-11-15 to 2026-11-17) fixed 14 of the 19 medium findings, the ones about security or
+  data integrity, each with a test seen failing first and its own commit: AUD-004, 005, 006, 007, 008,
+  009, 010, 012, 014, 015, 016, 019, 021 and 022 (AUD-005 and AUD-006 share the 409 mapping). Not fixed, on
+  purpose: AUD-011 (the shared default password is the client's decision), AUD-013 (clearing optional
+  fields: a form behaviour that needs the shared schemas and the client forms), AUD-017 (a PDF font, which
+  is a new asset), AUD-018 (paging) and AUD-020 (more tests; J1d added 21 files of them). Details are in
+  docs/POLISH_LOG.md under "J1d". The table rows below describe the code as it was audited, before
+  these fixes.
 - No way was found for one role or center to read or change another center's data by id, and no PATCH
   accepts a field it should not (section 3).
 - Nothing in the code handles concurrent requests on purpose, and no test sends two requests at once.

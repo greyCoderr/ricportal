@@ -2,6 +2,24 @@
 
 Every endpoint that exists now: method and path, role, request fields, response and error codes.
 
+## Answers that apply to every endpoint (Plan 5 J1d, 2026-11-17)
+
+- 409 CONFLICT "This was just saved by another request. Please refresh and try again.": the request lost
+  to another request that wrote the same thing at the same moment (a doubled click, two tabs). Nothing of
+  the losing request was saved (AUD-005).
+- 409 STATE_INVALID "This day was just changed by another request. Please refresh the page.": lock,
+  unlock or No feeding found the day in another state than a moment before (AUD-004).
+- 503 SERVICE_UNAVAILABLE: also when a database transaction could not start within 10 seconds or finish
+  within 20 (AUD-015). Safe to try again.
+- 429 RATE_LIMITED on `POST /api/auth/login` only: more than 30 failed logins from one client address in
+  15 minutes, with the same text and `Retry-After` as a locked account (BR-19, AUD-010). The global limit
+  counts requests under `/api` only (AUD-016).
+- 422 on adding, editing or deleting a Child's Record entry of a child from an earlier school year
+  (AUD-014).
+- 400 on `POST /api/menu/imports/preview` for a file name over 255 characters; the preview's `errors` now
+  include a menu over 200 characters, a day name over 20, a PR number over 30 and a day number that is not
+  a whole number from 1 to 999 (AUD-007).
+
 ## Endpoints
 
 ### GET /api/health
@@ -74,7 +92,7 @@ Session: httpOnly cookie `rp_session` (HS256, 8 hours, SameSite=Lax, Secure from
 | POST /api/auth/login | Public | 200 with the user. 401 "Invalid username or password" (wrong password and unknown user alike). 403 with the status message for PENDING, DECLINED or DISABLED, after correct credentials only. 429 "Too many attempts. Try again in 15 minutes." with `Retry-After` in seconds: every attempt while locked, right or wrong password, and the same for unknown usernames (BR-19, DEC-026). Each attempt is counted before its password is checked, so of several attempts sent at the same moment only as many as are left are checked and the others get this 429 (AUD-001) |
 | POST /api/auth/parent-signup | Public | 201 `{ centerName }`, creates a PENDING Parent. 409 duplicate username, 422 inactive center |
 | GET /api/public/centers | Public | Active centers: id and name only |
-| POST /api/auth/logout | Any | Clears the cookie |
+| POST /api/auth/logout | Any | Clears the cookie and increments `token_version`, so the session token stops working on every device (AUD-012) |
 | GET /api/auth/me | Any | Current user and center |
 | POST /api/auth/change-password | Any | Current and new password; increments `token_version` and sets a fresh cookie. 400 with field `currentPassword` when it is wrong; 400 with field `newPassword` when the new password equals the current one or the default password (BR-05, AUD-002) |
 | GET /api/auth/profile | Any role | Own profile: id, role, username, fullName, mobile, centerId, centerName, status. 403 during a forced password change (D11) |

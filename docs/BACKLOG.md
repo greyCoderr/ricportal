@@ -28,7 +28,7 @@ Deferred ideas: item, who asked, reason, and the phase it might belong to.
 - Watch for the intermittent 404 in `assignments-week.db.test.ts` (POLISH_LOG, F6). The setup now prints the real cause if it returns. Most likely cause: docs/AUDIT_REPORT.md section 4 and AUD-015. Asked by: Claude. Phase: 8.
 - FullCalendar's icon font is a data: URL, which the font-src 'self' policy blocks, giving one console error on calendar pages. Harmless: the toolbar with those icons is replaced. Remove the error in hardening. Asked by: Claude. Phase: 8.
 - `.playwright-mcp/` is not in .gitignore. Add it if the Playwright tool stays in use. Asked by: Claude. Phase: 8.
-- Apply the global rate limit to /api only, not to the built client's files. Today every image and script counts toward the 5000 requests in 15 minutes, and the browser audit reached it (POLISH_LOG). Add a stricter limiter for login. Asked by: Developer. Phase: 8.
+- DONE in J1d (AUD-016, AUD-010), 2026-11-17: Apply the global rate limit to /api only, not to the built client's files. Today every image and script counts toward the 5000 requests in 15 minutes, and the browser audit reached it (POLISH_LOG). Add a stricter limiter for login. Asked by: Developer. Phase: 8.
 - Make the upgrade-insecure-requests policy production-only. It comes from the Helmet defaults in `core/middleware/pipeline.ts`, and it can stop scripts and images loading over plain http on the local network, such as from a phone (not tested). localhost is not affected. Asked by: Developer. Phase: 8.
 - Reduce the 759 kB main script with code splitting. Asked by: Developer. Phase: 8.
 - Allow or remove FullCalendar's inlined icon font. The Content Security Policy blocks its data: URL, which logs one console error on calendar pages. No icon uses it, because the toolbar is off. Found in the Round 2 browser check; not caused by it. Asked by: nobody yet. Phase: 8.
@@ -39,27 +39,32 @@ The three high findings (AUD-001 to AUD-003) are fixed. These are the medium and
 proposed fix for each are in the report. "Plan" names the Plan 5 stage that could take the item; the stages
 were written before the audit, so the Developer decides which ones really go in.
 
+Stage J1d fixed 14 of them (marked in the last column). Still open from the medium ones: AUD-011, AUD-013,
+AUD-017, AUD-018 and AUD-020. Smaller items left by the fixes: a sign-up limit (AUD-042); the same-password
+check in the shared form schema (AUD-002); run the row-lock and time-zone tests once against TiDB
+(AUD-003, AUD-006, AUD-022); the Objective 3 plan review (docs/OBJ3_PLAN_REVIEW.md).
+
 | Id | Severity | Item | Size | Plan |
 | --- | --- | --- | --- | --- |
-| AUD-004 | Medium | Lock, unlock, no-feeding and submit change the status without a condition; unlock at the same moment as submit can leave an editable day in a submitted report | M | Phase 8 |
-| AUD-005 | Medium | Double click on the week save can answer 500; map Prisma P2002 and P2034 to 409 | S | J4 |
-| AUD-006 | Medium | Double click on sign-up, Add Teacher, Add Student, Add Center answers 500; one active Teacher per center is checked only in code | S | J4 |
-| AUD-007 | Medium | Menu import: long menu, sheet or PR text, or a fractional day number, passes the preview and fails on confirm with 500 | S | J3 (a) |
-| AUD-008 | Medium | Liquidation submit turns every error into 409 and logs nothing | S | Phase 8 |
-| AUD-009 | Medium | Built-in JWT secret and passwords are used whenever NODE_ENV is not production. Must be closed before any deployment | S | Before deployment |
-| AUD-010 | Medium | No login limit per IP (BR-19, P1-T07) | S | J4 (a) |
+| AUD-004 | Medium | Lock, unlock, no-feeding and submit change the status without a condition; unlock at the same moment as submit can leave an editable day in a submitted report | M | Fixed in J1d, 2026-11-17 |
+| AUD-005 | Medium | Double click on the week save can answer 500; map Prisma P2002 and P2034 to 409 | S | Fixed in J1d, 2026-11-17 |
+| AUD-006 | Medium | Double click on sign-up, Add Teacher, Add Student, Add Center answers 500; one active Teacher per center is checked only in code | S | Fixed in J1d, 2026-11-17 |
+| AUD-007 | Medium | Menu import: long menu, sheet or PR text, or a fractional day number, passes the preview and fails on confirm with 500 | S | Fixed in J1d, 2026-11-17 |
+| AUD-008 | Medium | Liquidation submit turns every error into 409 and logs nothing | S | Fixed in J1d, 2026-11-17 |
+| AUD-009 | Medium | Built-in JWT secret and passwords are used whenever NODE_ENV is not production. Must be closed before any deployment | S | Fixed in J1d, 2026-11-17 |
+| AUD-010 | Medium | No login limit per IP (BR-19, P1-T07) | S | Fixed in J1d, 2026-11-17 |
 | AUD-011 | Medium | The shared default password (D6): ask the client to accept it or choose a one-time password | M | OPEN_QUESTIONS (J5) |
-| AUD-012 | Medium | Logout does not end the session token on the server | S | J4 |
+| AUD-012 | Medium | Logout does not end the session token on the server | S | Fixed in J1d, 2026-11-17 |
 | AUD-013 | Medium | Optional fields cannot be emptied once set (middle name, religion, conference time, remarks, barangay, mobile) | M | Phase 8 |
-| AUD-014 | Medium | Child's Record entries can be changed for a child of an earlier school year | S | J3 (c) |
-| AUD-015 | Medium | Prisma's default transaction limits (2 s, 5 s) give 500 on a slow database | S | J4 |
-| AUD-016 | Medium | Rate limit counts static files; TRUST_PROXY must match the host | S | J4 (a) |
+| AUD-014 | Medium | Child's Record entries can be changed for a child of an earlier school year | S | Fixed in J1d, 2026-11-17 |
+| AUD-015 | Medium | Prisma's default transaction limits (2 s, 5 s) give 500 on a slow database | S | Fixed in J1d, 2026-11-17 |
+| AUD-016 | Medium | Rate limit counts static files; TRUST_PROXY must match the host | S | Fixed in J1d, 2026-11-17 |
 | AUD-017 | Medium | PDF text outside the built-in font prints wrong; embed a Unicode font | M | J6 |
 | AUD-018 | Medium | Entry lists and the Admin age summary are not paged | M | Phase 8 |
-| AUD-019 | Medium | Unexpected Prisma errors can put personal data in the log | S | J4 |
+| AUD-019 | Medium | Unexpected Prisma errors can put personal data in the log | S | Fixed in J1d, 2026-11-17 |
 | AUD-020 | Medium | No concurrent tests for lock, submit and week save; several rules have no test that names them | M | Phase 8 |
-| AUD-021 | Medium | A moved Teacher still sees the old center's reports on the Profile | S | Phase 8 |
-| AUD-022 | Medium | Rows inserted with raw SQL get local time (confirmed); set the session time zone to UTC | S | J4 |
+| AUD-021 | Medium | A moved Teacher still sees the old center's reports on the Profile | S | Fixed in J1d, 2026-11-17 |
+| AUD-022 | Medium | Rows inserted with raw SQL get local time (confirmed); set the session time zone to UTC | S | Fixed in J1d, 2026-11-17 |
 | AUD-023 | Low | Unknown-username throttle is in memory and can be flushed | S | J4 (a) |
 | AUD-024 | Low | Anyone can keep an account locked (BR-19 by design); tell the client | S | OPEN_QUESTIONS (J5) |
 | AUD-025 | Low | Sign-up shows that a username exists | S | Accept |

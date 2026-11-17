@@ -29,3 +29,22 @@ after the lock (AUD-003).
 
 No migration.
 
+## v0.9.9-demo (2026-11-17)
+
+Added: a limit on failed logins per client address (30 in 15 minutes); docs/OBJ3_PLAN_REVIEW.md.
+
+Changed: the server refuses to start without NODE_ENV unless every secret is set, and uses the built-in
+local values only with NODE_ENV development or test (see `.env.example`); logout ends the session on the
+server, on every device; the global rate limit covers `/api` only; database connections use UTC;
+transactions may wait 10 s for a connection and run 20 s.
+
+Fixed, from the audit: unlock and submit at the same moment can no longer leave an open day in a
+submitted report (AUD-004); a doubled request answers 409 instead of 500 (AUD-005); two active Teachers in
+one center (AUD-006); menu file values that do not fit are preview errors (AUD-007); liquidation submit no
+longer hides errors as 409 (AUD-008); Child's Record entries of an earlier school year are read-only
+(AUD-014); a busy database answers 503, and the week save waits instead of failing (AUD-015); database
+errors are logged without their values (AUD-019); a moved Teacher sees only the current center's reports
+on the Profile (AUD-021).
+
+No migration.
+

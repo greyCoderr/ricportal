@@ -921,3 +921,79 @@ AUD-022 Column defaults used the machine's time zone. Fixed.
   value.
 - Runs: unit 23 of 23; db 31 of 31 (the new file, `health`, `polish3-profile`, `reset`).
 - NOT verified: that TiDB Cloud accepts the same statement on connect (it should; DEC-016).
+
+Not fixed in J1d, and why: AUD-011 (the shared default password is the client's decision, D6); AUD-013
+(optional fields cannot be emptied: a form behaviour across the shared schemas and three client forms,
+not a security or integrity fault); AUD-017 (PDF font: a new asset); AUD-018 (paging); AUD-020 (more
+tests: J1d added 21 test files, but lock, unlock and submit are the only state changes with a concurrent
+test).
+
+### Checks after all J1d fixes (2026-11-16 and 2026-11-17, one command at a time, one worker)
+
+- `npm run typecheck`, full lint, full format check: clean.
+- unit: 31 files, 331 of 331 (300 before J1d).
+- db batch 1 (19 files, all `audit-*` files with accounts, assignments-week, auth, dashboard, demo-flow,
+  demo-seed): 119 of 119. One notice: "Timeout terminating forks worker" for
+  `audit-005-conflicts.db.test.ts` (the worker process was slow to stop after its tests passed). The run
+  reported a duration of 39,841 s: the laptop slept during it.
+- db batch 2 (8 files): 416 of 416 in 223 s.
+- `npm run build`: succeeds.
+- Not run: the client test project (no client file changed in J1 or J1d); `npm run check` as one command
+  (DEC-035); any browser or built-app check. `npm start` was not started, so the new NODE_ENV rule was
+  not tried against the Developer's real `.env`.
+
+### Item 5: db batch 3, three runs in a row, nothing retried silently
+
+Same eight files each time (polish3-teacher, polish4-teacher-summary, profile, purchase, reset, students,
+students-extra, teacher-pages), 108 tests, verbose reporter, full output kept in the session's
+scratchpad as `batch3-run1.txt`, `batch3-run2.txt`, `batch3-run3.txt`.
+
+| Run | Start | Result | Duration | The failure |
+| --- | --- | --- | --- | --- |
+| 1 | 2026-11-17 10:31 | 8 files passed, 108 of 108 | 276 s (tests 67%, import 32%) | none |
+| 2 | 10:36 | 1 file failed, 107 of 108 | 660 s (tests 60%, import 39%) | `profile.db.test.ts` > "admin.t reads their own profile": "Hook timed out in 60000ms" in `beforeEach` (line 32: reset, build the app, seed). The next tests of the file passed but took 37 s, 7 s, 6 s and 16 s; the whole file took 165 s (4 s in run 1), and `reset.test.ts` after it 20 s (0.9 s in run 1) |
+| 3 | 10:50 | 1 file failed, 107 of 108 | 615 s (import 52%, tests 47%) | `teacher-pages.db.test.ts` > "the Admin still sees every center": "Test timed out in 15000ms" (it ran 27 s). Other tests of the same file took 11 to 17 s; one in `polish3-teacher` took 24 s and passed |
+
+What this shows:
+- The failure is real and comes back: 2 of 3 runs here, and the two runs on 2026-11-14.
+- It is always a timeout, never a wrong value. No assertion failed in any of the five failing or passing
+  runs. Each time it is a different test in a different file: the purchase state machine (2026-11-14),
+  the profile setup hook, the Admin's report list.
+- The time is lost everywhere at once for a few minutes: many tests in a row are 10 to 100 times slower,
+  and in run 3 more than half of the run was spent loading modules, which uses no database at all. A
+  lock left by another test would stop one statement and end in a lock error, not slow every test and
+  the imports.
+- So the tests fail when the laptop (or its MariaDB) stalls for a while. Why it stalls is NOT found. I
+  could not look at the running processes or memory (the check was refused by the permission mode, and I
+  did not work around it). Known facts that fit: the clock jumped by many hours inside single commands
+  on 2026-11-14, 15, 16 and 17 (sleep), an earlier run was stopped for low memory (DEC-035), and batch 2
+  took 223 s today against 137 s on 2026-11-14.
+- I cannot rule out that J1 or J1d made the tests slower (run 1 took 276 s; the same batch took 175 s on
+  2026-11-14 before J1d). Login now makes two small writes, and each new connection sets its time zone.
+  Neither explains a stall of minutes.
+- Not changed: no timeout was raised and no test was retried or weakened. If the Developer wants the runs
+  stable on this laptop, the options are a longer `testTimeout` for the db project (15 s now) or running
+  with the lid open and nothing else running; that is the Developer's choice.
+
+### Item 6: docs/OBJ3_PLAN_REVIEW.md
+
+One pass over docs/OBJ3_PLAN.md as an attacker and as a tester; the plan is unchanged. 20 gaps (G-01 to
+G-20), 11 risky assumptions (R-01 to R-11), 31 tests the plan does not name. To decide before any
+Objective 3 code: whether the host keeps files at all (R-01), one file per report against several phone
+photos (R-02), no limit on how much a Teacher can store (G-01), no way to remove a wrong upload (G-13),
+and the estimate, made before the Figma frames were read (R-03).
+
+### J1d summary
+
+Fixed, one commit each, each with a test seen failing first: AUD-009, 004, 005, 006, 007, 008, 010, 012,
+014, 021, 015, 016, 019, 022. Tag v0.9.9-demo on the commit that holds this summary. Not pushed.
+Decisions: DEC-055. Documents: AUDIT_REPORT (status), BACKLOG (rows marked), API (new answers), DEPLOY
+(settings for the host), CHANGELOG, INDEX, PHASE_LOG, `.env.example`.
+
+NOT verified:
+- `npm start` and the seeds with the Developer's real `.env` (not read). They need `NODE_ENV=development`.
+- Anything on TiDB Cloud: the row locks (AUD-003, AUD-006), the session time zone (AUD-022), P2034.
+- TRUST_PROXY on a real host, which both rate limits depend on.
+- The cause of the stalls behind the batch 3 timeouts.
+- The client: no client test and no browser was run; the pages only receive new 409, 422, 429 and 503
+  answers through the existing error display.

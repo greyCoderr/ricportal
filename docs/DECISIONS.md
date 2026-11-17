@@ -677,3 +677,33 @@ Decision:
   assertion in the test setup stays.
 - docs/OBJ3_PLAN.md is a proposal. Its open questions and estimate wait for the Developer.
 
+## DEC-055: Stage J1d, fixes for the medium findings on security and data integrity
+
+Context: the Developer asked for a short extra stage after J1 (2026-11-15). No question asked. Log:
+docs/POLISH_LOG.md "J1d".
+Decision:
+- AUD-009: NODE_ENV has no default. Missing or empty is treated exactly as production, so six settings
+  are required (the three the Developer named, plus COOKIE_SECURE, SESSION_HOURS and ADMIN_USERNAME, which
+  production already required). Any other word is refused. Only `.env.example` was changed; no `.env`
+  file was read or written.
+- Which medium findings count as "security or data integrity": AUD-004 to 010, 012, 014, 015, 016, 019,
+  021, 022. Left in the backlog: AUD-011 (client decision), AUD-013 (form behaviour), AUD-017 (PDF font),
+  AUD-018 (paging), AUD-020 (tests).
+- AUD-004: no explicit lock. Each state change is one conditional UPDATE; submit marks only days still
+  LOCKED or NO_FEEDING. The loser of a race gets 409.
+- AUD-005: Prisma P2002 and P2034, and the driver's deadlock 1213, answer 409 CONFLICT for every route.
+- AUD-006: the one-active-Teacher rule is enforced under a row lock on the center, not by a unique
+  index (no migration).
+- AUD-010: 30 failed logins per client address in 15 minutes, a constant in `config/limits.ts`, on when
+  RATE_LIMIT_ENABLED is true. AUD-016: the global limit covers `/api` only. Both are parts of J4 (a) done
+  early; J4 (a) has nothing left except a sign-up limit if wanted (AUD-042).
+- AUD-012: logout increments `token_version`, so it ends the user's sessions on every device.
+- AUD-014: Child's Record entries of an earlier school year answer 422 for add, edit and delete.
+- AUD-015: transactions get 10 s to obtain a connection and 20 s in all, as the client default and
+  explicitly on the week save. P2028 answers 503.
+- AUD-019: for database errors the log keeps name, code and stack lines only.
+- AUD-022: every connection runs `SET time_zone = '+00:00'`.
+- Row locks (`SELECT ... FOR UPDATE`, AUD-003 and AUD-006) and the session time zone ran only on the
+  local MariaDB. They must be run once against TiDB before go-live (DEC-016, by the Developer).
+- docs/OBJ3_PLAN_REVIEW.md lists gaps in the Objective 3 plan. The plan is unchanged.
+
