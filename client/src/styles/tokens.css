@@ -47,6 +47,8 @@
   --color-calendar-bar: #90db99;
   --color-tag: #a40000;
   --color-tag-tint: #ff000026;
+  /* The ground of the phone login (Figma 393:1102) */
+  --color-login-ground: #570707;
 
   /* Aliases (DEC-028) */
   --color-skeleton: var(--color-header);
@@ -96,11 +98,32 @@
      frame, so the height follows the width, with 44 px as the floor. */
   --login-field-h: clamp(44px, 3.9vw, 56px);
   --login-field-text: 16px;
+  /* Login texts (Plan 5 J2). Phones: the sizes of PARENT LOGIN 393:1102. */
+  --login-emblem: 97px;
+  --login-brand: 20px;
+  --login-line: 14px;
+  --login-title: 24px;
+  --login-sub: 11px;
+  --login-label: 14px;
+  --login-action: 13px;
+  --login-alt: 13px;
+  /* One unit of Login 241:1732 (1280 x 1020): 1 px in a 1280 x 800 window, up to
+     1.12 px on a larger one (the cap of the field height, 56 of 50) and smaller
+     on a smaller one, so the page still fits. */
+  --login-u: clamp(0.75px, min(0.078125vw, 0.125vh), 1.12px);
 }
 
 @media (min-width: 1024px) {
   :root {
     --sidebar-w: 290px;
+    --login-emblem: calc(115 * var(--login-u));
+    --login-brand: calc(42 * var(--login-u));
+    --login-line: calc(24 * var(--login-u));
+    --login-title: calc(48 * var(--login-u));
+    --login-sub: calc(18 * var(--login-u));
+    --login-label: calc(20 * var(--login-u));
+    --login-action: calc(16 * var(--login-u));
+    --login-alt: calc(18 * var(--login-u));
   }
 }
 

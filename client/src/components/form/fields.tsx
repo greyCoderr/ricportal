@@ -116,8 +116,13 @@ export function PasswordField({
   hint,
   required,
   autoComplete = "current-password",
+  placeholder,
   fieldSize,
-}: FieldProps & { autoComplete?: string; fieldSize?: InputSize }) {
+}: FieldProps & {
+  autoComplete?: string;
+  placeholder?: string;
+  fieldSize?: InputSize;
+}) {
   const [shown, setShown] = useState(false);
   return (
     <FormField
@@ -133,6 +138,7 @@ export function PasswordField({
             {...bind(form, name)}
             type={shown ? "text" : "password"}
             autoComplete={autoComplete}
+            placeholder={placeholder}
             fieldSize={fieldSize}
             className="pr-12"
           />

@@ -205,3 +205,15 @@ docs/feedback/figma-teacher-home.png). Round 4 calls: 4 of 40.
 | --- | --- | --- | --- | --- |
 | 2026-11-14 | D7 | `get_metadata` | 175:1023 | Teacher Home cards, order, positions and sizes |
 | 2026-11-14 | D7 | `get_screenshot` | 175:1023 | Teacher Home look (DEC-053) |
+
+## Plan 5 Figma calls (limit 60)
+
+| Date | Stage | Tool | Node | Purpose |
+| --- | --- | --- | --- | --- |
+| 2026-11-17 | J2 | `create_session` | file | Session for the fidelity audit |
+| 2026-11-17 | J2 | `get_metadata` | 393:1101 | Parent page: only PARENT LOGIN 393:1102 and PARENT CALENDAR 393:1133 |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 393:1102 | Phone login: ground #570707, sizes, positions |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 393:1133 | Parent calendar (sparse answer: positions and sizes only) |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 241:1732 | Desktop login: sizes, positions, colors |
+
+Plan 5 calls so far: 8 of 60.

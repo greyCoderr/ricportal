@@ -997,3 +997,38 @@ NOT verified:
 - The cause of the stalls behind the batch 3 timeouts.
 - The client: no client test and no browser was run; the pages only receive new 409, 422, 429 and 503
   answers through the existing error display.
+
+## J2 Fidelity audit by frames and Parent pass (started Tue 2026-11-17, Fable 5.2)
+
+Branch demo-polish-5 confirmed with git status and git log (HEAD 23cda11, tag v0.9.9-demo). The
+Developer's `.claude/settings.json` and the untracked fixture were already there and stay out.
+The Playwright MCP server timed out on connect; browser checks use Playwright from the npx cache
+(`_npx/e41f203b7505f1fb`) with a scratchpad script, as before. Figma connected.
+
+### Page group 1: Login (241:1732 desktop, PARENT LOGIN 393:1102 phones)
+
+- Figma calls, 8 of 60: `create_session`; `get_metadata` 393:1101 (the Parent page has only two
+  frames: PARENT LOGIN 393:1102 and PARENT CALENDAR 393:1133; no sign-up, request sent, day or
+  profile frame); design context and screenshot of 393:1102, 393:1133 (sparse answer) and 241:1732.
+  Screenshots are in docs/feedback/figma/.
+- Found: on phones our login was white with red waves where the frame is dark red (#570707) with
+  white text; on a desktop the Round 2 density shrank every Login text and button below the frame
+  (title 37 px where the frame scaled to 1440 gives 54, buttons 34 px high where it gives 56).
+- Tests first: `client/test/plan5-login.test.ts` (7) and one new test in `auth.test.tsx`, all 8 seen
+  failing, then passing with the client scan tests: 9 files, 138 of 138 on one worker (that run was
+  before the last two small changes: the `--login-u` cap of 1.12 px with its test line, and the
+  Regular weight of "Sign up").
+- Changed: `tokens.css` (`--color-login-ground`, `--login-*` sizes, `--login-u`), `index.css`
+  (`.ric-login` rules), `LoginPage.tsx`, `fields.tsx` (PasswordField takes a placeholder), new asset
+  `client/src/assets/login-phone-art.svg` (5 KB, from the frame), `tokens.test.ts` and
+  `contrast.test.ts` (the new token and two contrast pairs), `client/tsconfig.app.json` and
+  `tsconfig.node.json` (the new node-side test file listed, as the others are).
+- Browser, built app on port 3100: measured at 390x844, 360x640, 1280x720, 1366x768 and 1440x900.
+  At 1440 the emblem is 129, "RICPORTAL" 47 px, title 54 px, fields and buttons 536 x 56, as the
+  frame scaled; no page scroll at the three desktop sizes. Read by eye at 390 and 1440. Numbers are
+  in docs/FIDELITY_REPORT.md.
+
+The session stopped once here (usage limit; credits not enabled) and was resumed the same day.
+After the resume: `npx tsc -b` clean, lint and format of the changed files clean, client scan tests
+8 files 123 of 123 and the auth feature tests 2 files 40 of 40, each on one worker. Committed as
+the Login group. The API on port 3100 (process 20484) had been stopped at the pause.

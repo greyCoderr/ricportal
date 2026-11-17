@@ -10,6 +10,56 @@
   }
 }
 
+/* Login (Figma 241:1732 on a desktop, PARENT LOGIN 393:1102 on phones; Plan 5
+   J2). The sizes are tokens; these rules reach the label and the controls that
+   the UI kit draws. */
+.ric-login label {
+  font-size: var(--login-label);
+  font-weight: 600;
+}
+
+.ric-login input:not([aria-invalid]) {
+  border-color: var(--color-border);
+}
+
+.ric-login input::placeholder {
+  font-size: var(--text-13);
+  font-weight: 600;
+}
+
+.ric-login-action {
+  height: var(--login-field-h);
+  font-size: var(--login-action);
+  font-weight: 600;
+}
+
+/* "Sign up" is Regular and a little larger than "Log in" in both frames. */
+.ric-login a.ric-login-action {
+  font-size: var(--login-alt);
+  font-weight: 400;
+}
+
+/* Phones: the dark red ground with white text. The fields stay white, so only
+   what sits on the ground changes color. */
+@media (max-width: 1023px) {
+  .ric-login {
+    background-color: var(--color-login-ground);
+    color: var(--color-primary-contrast);
+  }
+
+  .ric-login label {
+    color: var(--color-primary-contrast);
+  }
+
+  .ric-login form > div:not([role]) > p {
+    color: var(--color-nav-selected);
+  }
+
+  .ric-login :focus-visible {
+    outline-color: var(--color-primary-contrast);
+  }
+}
+
 /* A native dialog centered in the content area, right of the sidebar (D4). The
    backdrop still covers the screen. --sidebar-w is 0 under 1024 px. */
 .ric-modal {

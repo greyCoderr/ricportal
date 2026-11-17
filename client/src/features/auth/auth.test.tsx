@@ -161,6 +161,29 @@ describe("LoginPage", () => {
     }
   });
 
+  it("Plan 5 J2: placeholders in capitals and the hooks of the Figma login styles", async () => {
+    mockApi({ "/api/auth/me": UNAUTHENTICATED });
+    renderApp("/login");
+    const heading = await screen.findByRole("heading", {
+      name: "Welcome Back",
+    });
+    expect(screen.getByLabelText("Username").getAttribute("placeholder")).toBe(
+      "ENTER YOUR USERNAME",
+    );
+    expect(screen.getByLabelText("Password").getAttribute("placeholder")).toBe(
+      "ENTER YOUR PASSWORD",
+    );
+    expect(document.querySelector(".ric-login")).not.toBeNull();
+    expect(heading.closest(".ric-login")).not.toBeNull();
+    expect(heading.classList).toContain("text-(length:--login-title)");
+    expect(screen.getByRole("button", { name: "Log in" }).classList).toContain(
+      "ric-login-action",
+    );
+    expect(screen.getByRole("link", { name: "Sign up" }).classList).toContain(
+      "ric-login-action",
+    );
+  });
+
   it("shows required messages without calling the server", async () => {
     mockApi({ "/api/auth/me": UNAUTHENTICATED });
     renderApp("/login");
