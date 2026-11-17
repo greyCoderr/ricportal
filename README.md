@@ -54,8 +54,32 @@ Database tests use only the `ricportal_test` database (DEC-019):
 
 The `tidb:deploy`, `tidb:seed` and `tidb:check` scripts in `server/package.json` read `.env.tidb`. Only the Developer runs them (DEC-016).
 
-Production build and start are added in P0-T15.
+On a laptop with little memory, run one test project at a time on one worker, for example
+`npx vitest run --project db --maxWorkers=1` (DEC-035).
+
+## Demo data
+
+`npm run db:seed:demo` rebuilds fake demo data in the local database from `.env`: 18 children of the
+current school year and 4 of the year before, assigned days, Purchase Requests and three reviewed
+liquidation reports. It refuses to run against anything but a local database.
+
+## Build and start
+
+`npm run build` builds `shared`, the server and the client; `npm start` serves `/api` and the built
+client from one Node process (reads `.env` if it exists).
+
+## Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and pull request: install, typecheck, lint, format check,
+the unit, db (MariaDB service container) and client tests, build. It needs no secret and deploys
+nothing. UNVERIFIED until its first run on GitHub (DEC-057).
+
+## Documentation
+
+Start at `docs/INDEX.md`. API: `docs/API.md`; data model: `docs/DATA_MODEL.md`; screens:
+`docs/UI_MAP.md`; changes from Annex A: `docs/ANNEX_A_CHANGES.md`; questions for the clients:
+`docs/OPEN_QUESTIONS.md`.
 
 ## Deploy
 
-Postponed until before the defense. A draft checklist will be in `docs/DEPLOY.md` (P0-T15).
+Postponed until before the defense. The draft checklist is `docs/DEPLOY.md`.
