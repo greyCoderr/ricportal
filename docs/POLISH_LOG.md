@@ -1090,3 +1090,119 @@ the Login group. The API on port 3100 (process 20484) had been stopped at the pa
 - Capture notes: two captures showed loading skeletons or missing images because the laptop was
   slow; they were taken again with longer waits. The script now loads the home page once after
   login before the first capture.
+
+### Page group 4: Admin pages and Teacher Profile (code committed; report sections still to write)
+
+- Figma calls, 30 of 60 so far: design context and screenshot of 88:695 (Teacher Profile),
+  267:9689 (Admin dashboard), 268:12661 (Admin Reports); screenshot only of 267:9862 (RIC Teachers;
+  its content is one flat image, measured in Round 3). Saved in docs/feedback/figma/.
+- Teacher Profile (88:695): matches the frame's layout (header card, four report cards, Recent
+  Submitted Reports, Recent Status Activity). No change.
+- Changed, each with a test seen failing first, NOT committed:
+  - `DayPanels.tsx`: without a parents panel (the Admin's calendar) the grid has two columns, so the
+    Purchase Request is no longer squeezed into the 14rem column (measured before: 172 px wide at
+    1440). `DayPanels.test.tsx`: 1 new test failed, then the calendar folder 5 files 43 of 43.
+  - `AdminDashboardPage.tsx`: the five card numbers are dark green (`text-accent`) as in 267:9689.
+    1 new test failed, then the file 11 of 11.
+- Compared, not changed yet (to be written in docs/FIDELITY_REPORT.md): Admin Calendar 268:11404
+  (the upload panel sits beside the calendar from the top, Plan 4 D6, kept); Admin Reports
+  268:12661 (its four type cards, five tabs, Month and Teacher filters and the side filter panel are
+  Objective 3 or J3 (e) items; ours has three status cards and the filter panel below the list at
+  1440, Round 1 decision); RIC Teachers 267:9862 (close; differences: title size, the blue-green
+  Add New Teacher is red in ours, the info note under the table is missing).
+
+**Stopped here (2026-11-17): the system stopped the API on port 3100 because memory was critically
+low.** Per DEC-035 and the system notice it was not restarted, and no heavy command was run after
+it. Port 3100 is free. Model at the stop: Opus 5.5 (the plan's model for J2).
+
+To resume J2:
+1. `npx tsc -b`, lint and format of `client/src/features/calendar` and
+   `client/src/features/dashboard`, then commit the four changed files and the four screenshots.
+2. Rebuild the client, start the API on 3100, measure the Admin calendar panels and the dashboard
+   numbers at 1440x900, and the four Admin pages at 390x844 (captured once before the stop, not
+   read).
+3. Write the Admin sections of docs/FIDELITY_REPORT.md (Calendar, Dashboard, Reports, RIC Teachers,
+   Teacher Profile, Admin Profile 267:9887 and 378:16539, Admin Students without a frame).
+4. Remaining frames not read: 267:9887 (Admin Profile), the phone frames 378:15917 (Reports),
+   378:16285 (RIC Teachers), 378:16539 (Profile).
+5. DEC-056 for the J2 decisions (login tokens and the dark phone ground, day panel changes, kept
+   differences), docs/tokens.md rows for `--color-login-ground` and `--login-*`, UI_MAP, then the
+   J2 summary.
+
+### J2 resumed (Tue 2026-11-17, Opus 5.5)
+
+- Step 1 done: `npx tsc -b` clean; eslint and prettier clean on the four changed files;
+  `DayPanels.test.tsx` and `AdminDashboardPage.test.tsx` 2 files, 19 of 19 on one worker.
+  Committed by file name with the four Figma screenshots: "fix(admin): the Admin calendar day
+  panels use two columns and the dashboard numbers are dark green ..." (no attribution line,
+  checked with `git log -1 --format=%B`).
+- Step 2, demo seed (NOT COMMITTED, NOT run on the dev database yet):
+  - `server/prisma/demo-seed.ts`: 4 children of the school year before the current one (fake
+    names, enrolled 2025-06-09), and one liquidation report for each of the three Monday to
+    Friday weeks before this week, made through the real services (rows added, every menu day
+    locked, submit, Admin review): newest SUBMITTED, then NEED_REVISION with a fixed Admin
+    feedback text, then APPROVED. A week without a menu is skipped. Each report's submit time is
+    its Friday 08:00 UTC. Still cleared and rebuilt on each run; the guard is unchanged.
+    `seed-demo.ts` prints the new counts.
+  - `server/test/db/demo-seed.test.ts`: `counts()` now also counts earlier-year students,
+    reports, reviews and snapshots, and "locked" means locked days outside a report (the demo's
+    one locked day; a NEED_REVISION report reopens its days). The two tests that expected 0
+    reports after a re-seed now expect the seeded state back and no rehearsal report (2026-11-09):
+    the requirement changed, the check is as strict. New block "seedDemo reports and earlier
+    school year (J2)" at the clock 2026-11-17: the three statuses by period, Admin queue of 3 with
+    totals above 0, the Teacher's feedback row (D10), 4 earlier-year and 18 current students, and
+    re-running gives the same state.
+  - Tests first: 4 failed for the right reason (no reports, no earlier-year students). After the
+    code: 9 of 11, then my own wrong expectation fixed (I assumed the fixture menu starts on
+    2026-10-26; it has the week of 2026-10-19 too, so three reports come out at the test clock as
+    well). Last run: 9 of 11. "creates the demo state" timed out at 15 s (it ran in 5.9 s in the
+    first run), and "re-running restores the state" then saw different counts, most likely
+    because the timed-out seed was still writing when the next test began. Not retried.
+
+**Stopped here (2026-11-17): free memory low.** After that test run Windows had 464 MB, then
+420 MB, free of 3858 MB. The largest processes were claude.exe 278 MB, Code.exe 170 MB, Chrome
+(about 500 MB over several processes), SnippingTool 83 MB, and an unknown node.exe 56 MB
+(PID 14036, not started here, left alone). No server was started in this session; port 3100
+was not used.
+
+To resume J2:
+1. With more free memory (close Chrome, the Snipping Tool, and VS Code if not needed), run
+   `npx vitest run --project db --maxWorkers=1 server/test/db/demo-seed.test.ts` once. If
+   "creates the demo state" still takes more than 15 s with enough memory, give the seed tests a
+   longer timeout (the seed now locks 15 more days and submits 3 reports).
+2. tsc, eslint and prettier on the three changed files, commit them, then run
+   `npm run db:seed:demo` once on the dev database.
+3. Then steps 3 to 5 of the Developer's J2 order (Admin pages in the browser at 1440x900 and
+   390x844, the frames 267:9887, 378:15917, 378:16285, 378:16539, Report Status and Admin
+   Feedback with the seeded data, FIDELITY_REPORT, DEC-056, tokens, UI_MAP, J2 summary).
+
+### Developer's lean order (Wed 2026-11-18, Opus 5.5, 3.8 GB laptop: no browser, changed files only)
+
+Step 1, seed (done). Free memory at the start of the step: about 1 GB.
+- `npx vitest run --project db --maxWorkers=1 server/test/db/demo-seed.test.ts` once, alone:
+  1 file, 11 of 11 in 34 s. No test timed out, so the timeouts were NOT changed (the earlier
+  timeout was the low-memory run).
+- eslint and prettier on the three seed files: clean. Committed by file name: "feat(seed): the
+  demo seed adds earlier-year children and three reviewed liquidation reports (J2)".
+- `npm run db:seed:demo` once: "18 children (and 4 of the year before), 14 assigned days,
+  3 reports."
+
+Step 2, GitHub Actions workflow (done, UNVERIFIED). `.github/workflows/ci.yml`: install, typecheck,
+lint, format check, unit, db and client tests as separate steps (one worker each) with a MariaDB 10.11
+service container, build; Node 22; no secrets; no deployment. Prettier clean on the file. It has
+never run (it cannot run here). Reasons in DEC-057. No GitHub setting or secret is needed.
+
+Step 3, J5 documentation (done; text only, no tests needed). Five commits:
+- docs/API.md: an endpoint index of all 79 routes, generated from `MATRIX` in the permission matrix
+  test and counted against the routers (79 both); the stale "planned endpoints" heading renamed.
+- docs/DATA_MODEL.md: a whole-schema Mermaid erDiagram (18 tables, keys, relations, unique keys).
+- docs/UI_MAP.md: one table of every route with role, Figma frame and state.
+- docs/blueprint/03-blueprint.md: A-14 (Parents edit the description too), A-16 (built read-only),
+  A-18 (Teacher home follows 175:1023, no separate Today's Feeding card), BR-19 (per-address limit,
+  logout). docs/BUSINESS_RULES.md: eight register rows for DEC-051, 053, 054, 055. There is no DEC
+  list inside the blueprint; the register is the list of rule changes by decision.
+- docs/CHANGELOG.md (unreleased section after v0.9.8-demo) and README (demo data, build and start,
+  CI, documentation; the stale P0-T15 lines removed).
+- New: docs/ANNEX_A_CHANGES.md, docs/PAPER_CHANGES.md (PC-01 to PC-18), docs/OPEN_QUESTIONS.md
+  (OQ-01 to OQ-27, each with its default), listed in docs/INDEX.md.
+- Not done: the final ERD and DFD (Phase 8, as the plan says).
