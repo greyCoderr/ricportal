@@ -20,6 +20,96 @@ Every endpoint that exists now: method and path, role, request fields, response 
   include a menu over 200 characters, a day name over 20, a PR number over 30 and a day number that is not
   a whole number from 1 to 999 (AUD-007).
 
+## Endpoint index (Plan 5 J5, 2026-11-18)
+
+All 79 endpoints, generated from `MATRIX` in `server/test/db/permissions.db.test.ts` and counted
+against the routers in `server/src/modules/*/*.routes.ts` (79 there too). The matrix test fails when a
+route is missing from it, so this list is complete as of commit "ci: GitHub Actions workflow". Every
+role-guarded route also answers 403 during a forced password change. Center scope: a Teacher or Parent
+asking for a row of another center gets 404. Details are in the sections below, by sprint.
+
+| Method | Path | Who may call it |
+| --- | --- | --- |
+| GET | `/api/health` | Public (no login) |
+| POST | `/api/auth/login` | Public (no login) |
+| POST | `/api/auth/parent-signup` | Public (no login) |
+| GET | `/api/public/centers` | Public (no login) |
+| POST | `/api/auth/logout` | Any logged-in user |
+| GET | `/api/auth/me` | Any logged-in user |
+| POST | `/api/auth/change-password` | Any logged-in user |
+| GET | `/api/auth/profile` | Admin, Teacher, Parent |
+| PATCH | `/api/auth/profile` | Admin, Teacher, Parent |
+| GET | `/api/auth/profile/activity` | Admin, Teacher, Parent |
+| GET | `/api/auth/logins` | Admin, Teacher, Parent |
+| GET | `/api/auth/profile/teacher-summary` | Teacher |
+| GET | `/api/centers` | Admin |
+| POST | `/api/centers` | Admin |
+| PATCH | `/api/centers/:id` | Admin |
+| GET | `/api/dashboard/summary` | Admin |
+| GET | `/api/reports/feedback` | Teacher |
+| GET | `/api/child-records` | Teacher |
+| GET | `/api/teachers` | Admin |
+| POST | `/api/teachers` | Admin |
+| GET | `/api/teachers/:id` | Admin |
+| PATCH | `/api/teachers/:id` | Admin |
+| POST | `/api/teachers/:id/reset-password` | Admin |
+| GET | `/api/parents` | Teacher |
+| POST | `/api/parents/:id/approve` | Teacher |
+| POST | `/api/parents/:id/decline` | Teacher |
+| POST | `/api/parents/:id/disable` | Teacher |
+| POST | `/api/parents/:id/enable` | Teacher |
+| POST | `/api/parents/:id/reset-password` | Teacher |
+| GET | `/api/students` | Admin, Teacher |
+| GET | `/api/students/summary` | Admin, Teacher |
+| POST | `/api/students` | Teacher |
+| GET | `/api/students/:id` | Admin, Teacher |
+| PATCH | `/api/students/:id` | Teacher |
+| POST | `/api/students/:id/archive` | Teacher |
+| POST | `/api/students/:id/restore` | Teacher |
+| GET | `/api/students/:id/conferences` | Admin, Teacher |
+| POST | `/api/students/:id/conferences` | Teacher |
+| GET | `/api/students/:id/home-visits` | Admin, Teacher |
+| POST | `/api/students/:id/home-visits` | Teacher |
+| GET | `/api/students/:id/progress` | Admin, Teacher |
+| POST | `/api/students/:id/progress` | Teacher |
+| PATCH | `/api/conferences/:id` | Teacher |
+| DELETE | `/api/conferences/:id` | Teacher |
+| PATCH | `/api/home-visits/:id` | Teacher |
+| DELETE | `/api/home-visits/:id` | Teacher |
+| PATCH | `/api/progress/:id` | Teacher |
+| DELETE | `/api/progress/:id` | Teacher |
+| GET | `/api/enrollment-form.pdf` | Admin, Teacher |
+| POST | `/api/menu/imports/preview` | Admin |
+| POST | `/api/menu/imports/confirm` | Admin |
+| GET | `/api/menu/batches` | Admin |
+| GET | `/api/calendar` | Admin, Teacher |
+| GET | `/api/parents/approved` | Teacher |
+| GET | `/api/assignments` | Teacher |
+| GET | `/api/assignments/week` | Teacher |
+| PUT | `/api/assignments/week` | Teacher |
+| PUT | `/api/assignments/:date` | Teacher |
+| GET | `/api/parent-schedule` | Parent |
+| GET | `/api/purchase-requests/:date` | Admin, Teacher, Parent |
+| POST | `/api/purchase-requests/:date/open` | Teacher |
+| POST | `/api/purchase-requests/:date/items` | Teacher, Parent |
+| POST | `/api/purchase-requests/:date/lock` | Teacher |
+| POST | `/api/purchase-requests/:date/unlock` | Teacher |
+| POST | `/api/purchase-requests/:date/no-feeding` | Teacher |
+| PATCH | `/api/purchase-items/:id` | Teacher, Parent |
+| DELETE | `/api/purchase-items/:id` | Teacher, Parent |
+| GET | `/api/liquidation/preview` | Teacher |
+| POST | `/api/liquidation/submit` | Teacher |
+| GET | `/api/liquidation/pdf/purchase-request` | Admin, Teacher |
+| GET | `/api/liquidation/pdf/summary` | Admin, Teacher |
+| GET | `/api/liquidation/pdf/transmittal` | Admin, Teacher |
+| GET | `/api/reports` | Admin, Teacher |
+| GET | `/api/reports/:id` | Admin, Teacher |
+| GET | `/api/reports/:id/snapshot` | Admin, Teacher |
+| POST | `/api/reports/:id/review` | Admin |
+| GET | `/api/reports/:id/pdf/purchase-request` | Admin, Teacher |
+| GET | `/api/reports/:id/pdf/summary` | Admin, Teacher |
+| GET | `/api/reports/:id/pdf/transmittal` | Admin, Teacher |
+
 ## Endpoints
 
 ### GET /api/health
@@ -50,7 +140,7 @@ The response never contains the database name, host, version, user, URL, uptime 
 
 Other errors: 429 RATE_LIMITED. Any other method, such as POST, returns 404 NOT_FOUND.
 
-## Notes for planned endpoints (not built yet)
+## Notes on login and Purchase Request answers (built in Phases 1 and 5)
 
 - `POST /api/auth/login` (Phase 1, DEC-026): while an account is locked, every attempt returns 429 RATE_LIMITED with "Too many attempts. Try again in 15 minutes." and a `Retry-After` header (remaining seconds), right or wrong password. The login rate limiter returns the same status, message and header, also for unknown usernames. Pending, declined and disabled messages only after correct credentials.
 - `GET /api/purchase-requests/:date` (Phase 5, DEC-026): the Parent response leaves out `budget`, `enrolledCount` and `ratePerChild`. Teacher and Admin responses include them.

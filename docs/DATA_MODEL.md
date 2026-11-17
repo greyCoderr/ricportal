@@ -4,6 +4,172 @@ Tables and columns that exist now, with a Mermaid erDiagram of the current schem
 
 Source of truth: `server/prisma/schema.prisma`. Migrations: `server/prisma/migrations` (created with `prisma migrate dev`, never by hand).
 
+## Whole schema (Plan 5 J5, 2026-11-18)
+
+Drawn from `server/prisma/schema.prisma` after the last migration
+(`20261108073559_polish3_login_events`). 18 tables. Only keys and the columns the rules depend on are
+shown; every table also has `created_at` and most have `updated_at`. Dates of the calendar are DATE,
+money is DECIMAL, ids are INT. Soft delete (BR-22) is `deleted_at` on the three Child's Record tables.
+This is the working diagram, not the final ERD of Phase 8.
+
+```mermaid
+erDiagram
+  centers ||--o{ users : "has"
+  centers ||--o{ students : "enrolls"
+  centers ||--o{ feeding_assignments : "has"
+  centers ||--o{ week_team_members : "has"
+  centers ||--o{ purchase_requests : "has"
+  centers ||--o{ reports : "has"
+  users ||--o{ login_events : "logs in"
+  users ||--o| parent_profiles : "Parent extra"
+  users ||--o{ feeding_assignments : "assigned Parent"
+  users ||--o{ week_team_members : "team Parent"
+  users ||--o{ reports : "Teacher submits"
+  students ||--o{ conference_notes : "has"
+  students ||--o{ home_visits : "has"
+  students ||--o{ child_progress : "has"
+  menu_batches ||--o{ menu_days : "imports"
+  menu_days ||--o{ purchase_requests : "menu of the day"
+  purchase_requests ||--o{ purchase_items : "rows"
+  reports |o--o{ purchase_requests : "submitted days"
+  reports ||--o{ report_reviews : "reviews"
+  reports ||--o{ liquidation_snapshots : "versions"
+
+  settings {
+    varchar key PK
+    text value
+  }
+  centers {
+    int id PK
+    varchar name UK
+    boolean is_active
+  }
+  users {
+    int id PK
+    enum role "ADMIN TEACHER PARENT"
+    varchar username UK
+    int center_id FK
+    enum status "ACTIVE PENDING DECLINED DISABLED"
+    boolean must_change_password
+    int failed_login_count
+    datetime locked_until
+    int token_version
+  }
+  login_events {
+    int id PK
+    int user_id FK
+    datetime created_at
+  }
+  parent_profiles {
+    int user_id PK, FK
+    varchar child_name
+  }
+  students {
+    int id PK
+    int center_id FK
+    varchar school_year
+    varchar last_name
+    varchar first_name
+    date birthdate
+    decimal weight_kg
+    decimal height_cm
+    enum status "ACTIVE ARCHIVED"
+    text profile_extra
+  }
+  conference_notes {
+    int id PK
+    int student_id FK
+    date note_date
+    datetime deleted_at
+  }
+  home_visits {
+    int id PK
+    int student_id FK
+    date visit_date
+    datetime deleted_at
+  }
+  child_progress {
+    int id PK
+    int student_id FK
+    date note_date
+    datetime deleted_at
+  }
+  menu_batches {
+    int id PK
+    varchar pr_no
+    date period_start
+    date period_end
+    int uploaded_by
+  }
+  menu_days {
+    int id PK
+    int batch_id FK
+    date feeding_date
+    varchar menu_name
+  }
+  feeding_assignments {
+    int id PK
+    int center_id FK
+    date feeding_date
+    int parent_id FK
+  }
+  week_team_members {
+    int id PK
+    int center_id FK
+    date week_start
+    int parent_id FK
+  }
+  purchase_requests {
+    int id PK
+    int center_id FK
+    date feeding_date
+    int menu_day_id FK
+    enum status "OPEN LOCKED NO_FEEDING"
+    decimal rate_per_child
+    decimal budget
+    int submitted_report_id FK
+  }
+  purchase_items {
+    int id PK
+    int purchase_request_id FK
+    int item_no
+    decimal quantity
+    decimal unit_cost
+    int created_by
+    int version
+  }
+  reports {
+    int id PK
+    int center_id FK
+    int teacher_id FK
+    enum type "LIQUIDATION ENROLLMENT ACCOMPLISHMENT"
+    date period_start
+    date period_end
+    enum status "SUBMITTED NEED_REVISION APPROVED"
+    int current_version
+  }
+  report_reviews {
+    int id PK
+    int report_id FK
+    int version_no
+    enum decision "APPROVED NEED_REVISION"
+    text feedback
+  }
+  liquidation_snapshots {
+    int id PK
+    int report_id FK
+    int version_no
+    json payload
+  }
+```
+
+Unique keys besides the primary keys: `centers.name`, `users.username` (stored in lowercase),
+`students (center_id, school_year, last_name, first_name, birthdate)`,
+`feeding_assignments (center_id, feeding_date, parent_id)`,
+`week_team_members (center_id, week_start, parent_id)`, `purchase_requests (center_id, feeding_date)`,
+`liquidation_snapshots (report_id, version_no)`. A Purchase Request that does not exist yet is shown
+as NOT_OPENED by the API; it is not a stored status.
+
 ## settings
 
 Key and value pairs (blueprint 4.5). No relationships and no foreign keys.
