@@ -1055,3 +1055,38 @@ the Login group. The API on port 3100 (process 20484) had been stopped at the pa
   password, the Parent desktop layout, the phone drawer.
 - A first capture showed "No menu" for today: the screenshot was taken before the data arrived
   (script wait too short). With a longer wait the dish and the dots show. Not an app fault.
+
+### Page group 3: Teacher pages (Calendar, Enrolled Students, Add Student, Child's Record, Report Status, Admin Feedback)
+
+- Figma calls, 24 of 60 so far: design context and screenshot of 268:11404 (Admin calendar, read
+  here because it decides whether the day panels may change: it has none), 78:260, 169:3189,
+  258:5447, 78:284 and 78:276. Screenshots in docs/feedback/figma/. Three answers were too large
+  and were saved to files by the tool; they were read with a script, not in full.
+- Fixed, each with a test seen failing first:
+  - Calendar (166:1553): the Purchase Request card keeps the frame's width (585 px at 1440, frame
+    561), the arrow tags are 43 px high (36 before), and a dated menu heading stays on one line.
+    `DayPanels.test.tsx` 6 of 6.
+  - Enrolled Students (78:260): Add Student is green, the search box has the magnifier and is 271 px
+    wide (frame 267), the location line has the pin, the edit icon is green and the archive icon
+    gray. `StudentsPage.test.tsx`: 4 new tests failed, then 7 of 7.
+  - Report Status (78:284): the Teacher's list heading is "Recent Submitted Reports". New
+    `ReportsPage.test.tsx`: 1 of 2 failed, then 2 of 2 (the other guards the Admin's heading).
+- My own mistakes on the way, corrected: the first version of the four Students tests failed for
+  the wrong reason (my test row lacked `schoolYear`, `gender` and `enrolledOn`); the icon color test
+  found two buttons because the table and the phone cards both render them, so it now checks all
+  of them; the first green on the edit icon lost to the button's own text class in the built CSS
+  (seen in the browser: still black), so the class is now marked important and the browser shows
+  rgb(2, 91, 2).
+- Browser, built app on port 3100, teacher.sibujo at 1440x900 (and Students at 390x844): the
+  numbers above; no sideways scroll.
+- Not changed, with the reason in docs/FIDELITY_REPORT.md: the calendar's full width and month
+  title, the centered Assign Parents dialog, the Liquidation overlay, the Add Student form, the
+  Child's Record cards (one item left for the Developer: the frame's narrower cards).
+- NOT verified: Report Status and Admin Feedback with real rows (the local database has no
+  reports; both were compared in their empty state only); the year cards under Enrolled Students
+  (one school year in the local data).
+- Not read: 78:268 (Coming soon), 254:4572 (DEC-050), 175:1023 (measured on 2026-11-14, DEC-053),
+  the two Admin login frames (DEC-037).
+- Capture notes: two captures showed loading skeletons or missing images because the laptop was
+  slow; they were taken again with longer waits. The script now loads the home page once after
+  login before the first capture.

@@ -26,6 +26,13 @@ that pass WCAG AA (DEC-023), no unbuilt features (bell, two-factor, sessions).
 | Login | All (phones) | 393:1102 | 390x844 | 10 | yes, 2 kept |
 | Calendar | Parent | 393:1133 | 390x844 | 9 | 5 fixed, 4 kept |
 | Sign-up, Request sent, day rows, Profile, Change password | Parent | none | | no frame | client approval needed |
+| Calendar | Teacher | 166:1553 | 1440x900 | 10 | 3 fixed, 6 kept, 1 none needed |
+| Enrolled Students | Teacher | 78:260 | 1440x900 | 10 | 5 fixed, 4 kept, 1 not verified |
+| Add Student | Teacher | 258:5447 | 1440x900 | 6 | all kept (decisions) |
+| Child's Record | Teacher | 169:3189 | 1440x900 | 3 | 2 kept, 1 for the Developer |
+| Report Status | Teacher | 78:284 | 1440x900, empty state | 4 | 1 fixed, 2 kept, 1 not verified |
+| Admin Feedback | Teacher | 78:276 | 1440x900, empty state | picture only | not changed (Objective 3) |
+| Home | Teacher | 175:1023 | | measured 2026-11-14 (DEC-053) | not read again |
 
 ## Login, desktop: 241:1732 (1280 x 1020)
 
@@ -119,3 +126,103 @@ screens keep the Developer-designed specs and were not changed in this stage:
 Sign-up, Request sent and Change password keep their white ground on phones; only Login has a
 phone frame, so only Login got the dark red ground. The client should say whether those three
 should follow it.
+
+## About the desktop text sizes (applies to every Teacher and Admin page)
+
+The desktop frames are 1920 px wide. At 1440 px the frame's numbers are multiplied by 0.736 (our
+content area is 1200 px wide, the frame's is 1630). Our page titles, table text and buttons are
+still smaller than that: a 36 px Figma title scaled is 27 px and ours is 20.5 px; 24 px table text
+scaled is 18 px and ours is 12 to 13 px. This is the compact density of Round 2 (DEC-044, DEC-047,
+docs/tokens.md), chosen so that dashboards and the calendar fit a 1366x768 screen without
+scrolling. It is kept, and it is not repeated as a difference in the tables below. The Login page
+is the exception (fixed above) because it has no sidebar and its own 1280 px frame.
+
+## Teacher calendar: RIC calendar 166:1553 (1920 x 1080, drawn 3091 px tall)
+
+Ours at 1440x900 as teacher.sibujo with 11/13/2026 selected. Figma x positions are mapped to ours
+as 240 + (x - 290) x 0.736.
+
+| Element | Figma (scaled) | Ours before | Ours after | Fixed |
+| --- | --- | --- | --- | --- |
+| Purchase Request card | 561 px wide, in the middle (762 of 1630) | 806 px, the whole middle column | 585 px, centered | yes |
+| Arrow tags | 52 to 61 px high | 36 px | 43 px (the same padding as on phones) | yes, partly: the compact density keeps them under the frame's height |
+| A dated menu heading in the tag | one line | "Menu for 11/13/2026" broke into two lines | one line | yes (found while measuring; the frame only shows "Today’s Menu") |
+| Panel order | parents left, Purchase Request, menu right | the same | the same | no change needed |
+| Calendar width | 935 px, with 132 px free on each side | 1163 px, the full content width | unchanged | kept: our cells show the dish names (the frame's cells are empty), and they need the width for two lines |
+| Month title | about 97 px tall | 55 px | unchanged | kept: Plan 3 D5, the whole month must fit one screen |
+| "Assign Parents +" | a red box at the top right | a red button at the top right | unchanged | no change needed |
+| Assign Parents panel | docked at the right, 420 px wide, over the calendar | a centered dialog with two steps | unchanged | kept: Plan 2 D4 (dialogs are centered in the content area) and Plan 1 D4 (Step 2) |
+| Liquidation table and Submit under the panels | drawn on the page | a one-line summary that opens the Liquidation Forms overlay | unchanged | kept: Plan 1 D5 (DEC-038) |
+| Total | under the card | inside the card | unchanged | kept: the card also holds the add row, the budget line and the lock buttons |
+
+## Enrolled Students: 78:260 (1920 x 1754)
+
+| Element | Figma (scaled) | Ours before | Ours after | Fixed |
+| --- | --- | --- | --- | --- |
+| Add Student | dark green #025B02, white text | red | green (the `accent` button) | yes |
+| Search box | 267 px wide with a magnifier at the left | 222 px, no icon | 271 px, magnifier | yes |
+| Location line | a pin, then the place | no pin | pin, then the place and the active count | yes |
+| Edit icon | green | black | green | yes |
+| Archive icon | gray | black | gray | yes |
+| Search placeholder | "Search student name or ID..." | "Search student name" | unchanged | kept: the search reads names only; searching by ID is not built |
+| Dates | "March 21, 2026" | 06/08/2026 | unchanged | kept: numeric dates (D7, DEC-039) |
+| Status filter above the table | none | a Status select | unchanged | kept: ours needs it to show archived children (BR-04) |
+| Student names | plain text | links to the record | unchanged | kept: the link is how the record opens |
+| Year cards under the table | "Student List for 2025" with View All | built in F3; not visible here because the local data has one school year | unchanged | NOT verified in the browser |
+
+## Add Student: add enroll 258:5447 (1920 x 2291)
+
+Compared at 1440x900, top of the form, by eye and by the section and label texts. The page was
+built from this frame in F3 and nothing was changed now.
+
+| Element | Figma | Ours | Fixed |
+| --- | --- | --- | --- |
+| Sections, numbering and labels (I. Identifying Information, 1 to 17) | as drawn | the same texts and order | no change needed |
+| Barangay, Municipality, Province, Region | drop-down lists | text fields, three of them prefilled | kept: there is no list of places to choose from (DEC-039) |
+| Required marks | on most fields | only on the fields the server requires | kept: the marks follow the validation rules |
+| Date fields | YYYY-MM-DD | MM/DD/YYYY | kept: D7 |
+| Family table | nine columns in one row | cards under 1536 px, a table from there | kept: the columns are 75 px wide at 1440 px (F6) |
+| Weight, Height, Parent or guardian, Date enrolled | not in the frame | a row of four fields | kept: Annex A needs them (docs/ui-specs/student-form.md) |
+| Title | none (only "Please fill out...") | "Add a student" above that line | kept: every page has a title for screen readers |
+
+The second frame with this name, 254:4572 (the form with narrative and home visit parts), was not
+read again: DEC-050 records that it is not a page we build.
+
+## Child's Record: 169:3189 (1920 x 1202)
+
+| Element | Figma (scaled) | Ours | Fixed |
+| --- | --- | --- | --- |
+| Cards | two columns, 456 px each, 110 px between them, uneven side margins (70 and 85 px) | two columns, 576 px each, 12 px between | not changed: the frame's margins are uneven, so ours keep the page's grid. For the Developer to decide |
+| Card lines | name, Student ID, Age and Sex, "Grade: Kindergarten" | name, Student ID, Age and Sex, then the three record counts | kept: no grade is stored; the counts are D10 (DEC-050) |
+| Active pill, "View record >" | as drawn | the same | no change needed |
+| Search | none | a search box | kept: 18 or more cards need one |
+
+## Report Status: 78:284 (1920 x 1257)
+
+Compared in the EMPTY state only: the local database has no submitted report.
+
+| Element | Figma | Ours before | Ours after | Fixed |
+| --- | --- | --- | --- | --- |
+| List heading | "Recent Submitted Reports" | "All Reports List" (the Admin frame's words) | "Recent Submitted Reports" for the Teacher | yes |
+| Search, Report Type and Year above the list | three controls | a Status filter in a side panel | unchanged | kept until Objective 3: there is one report type today |
+| Selected Report Details at the right | a card with steps, feedback and two buttons | built in F5, shown when a row is chosen | unchanged | NOT verified: no row to choose |
+| Recent Status Activity under the list | a timeline | on the Teacher Profile instead (Plan 4 D9) | unchanged | kept: DEC-052 |
+
+## Admin Feedback (Teacher): RIC 4 78:276 (1920 x 1534)
+
+The frame's content is one pasted picture (263:9488), so no sizes or colors can be read from it.
+Compared by eye in the EMPTY state only. The picture shows four cards, a filter row, Feedback
+Records, Selected Feedback Details, a Feedback Guide and Recent Feedback Activity, with report ids
+and the statuses "Approved with Remarks" and "Resolved", which BR-07 does not have. Ours shows the
+cards, the records and the selected details of F5 (DEC-041). Not changed: Objective 3 rebuilds this
+page (docs/OBJ3_PLAN.md), and the picture needs the client's word on the two extra statuses.
+NOT verified with real rows.
+
+## Not read in this stage, and why
+
+| Frame | Why |
+| --- | --- |
+| submit report 78:268 | The page is "Coming soon" until Objective 3 (D10) |
+| Child's record 254:4572 | Not a page we build (DEC-050) |
+| RIC dashboard 175:1023 (Teacher Home) | Read and measured three days ago, 2026-11-14, with numbers (DEC-053); the page has not changed since |
+| Admin Login 272:16383, Admin phone login 380:1149 | DEC-037: every role uses Login 241:1732 and, on phones, PARENT LOGIN 393:1102 |

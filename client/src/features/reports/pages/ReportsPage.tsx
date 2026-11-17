@@ -204,7 +204,9 @@ export function ReportsPage() {
         }`}
       >
         <section className="min-w-0 rounded-control border border-border-subtle p-3">
-          <h2 className="mb-2 text-15 font-semibold">All Reports List</h2>
+          <h2 className="mb-2 text-15 font-semibold">
+            {isAdmin ? "All Reports List" : "Recent Submitted Reports"}
+          </h2>
           <QueryBoundary
             query={reports}
             errorTitle="Could not load the reports."

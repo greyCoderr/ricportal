@@ -52,6 +52,16 @@ describe("DayPanels", () => {
     expect(card?.classList).toContain("ric-hang");
   });
 
+  it("on a desktop the Purchase Request card keeps the frame's width (762 of 1920) and the tags their height", () => {
+    show();
+    const card = screen.getByRole("region", { name: "Purchase Request" });
+    expect(card.classList).toContain("lg:max-w-[47.5rem]");
+    expect(card.classList).toContain("lg:justify-self-center");
+    expect(screen.getByText("Assigned Parents").classList).not.toContain(
+      "lg:py-3",
+    );
+  });
+
   it("the parents card is as wide as its names, not a fixed width", () => {
     show();
     const card = screen.getByRole("list").parentElement;

@@ -217,5 +217,11 @@ docs/feedback/figma-teacher-home.png). Round 4 calls: 4 of 40.
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 241:1732 | Desktop login: sizes, positions, colors |
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 166:1553 | Teacher calendar (sparse answer): calendar 1270 x 874, panels, Purchase Request card 762 wide, Assign Parents panel |
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 378:15722 | Phone calendar of the Admin page: cells 55.7 x 55, month 37 px, upload card |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 268:11404 | Admin calendar (sparse answer): calendar 955 x 699, banner, upload panel 575 x 495; no day panels |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 78:260 | Enrolled Students: green Add Student, search 356 x 67, table text 24 px, year cards |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 169:3189 | Child's Record: cards 620 x 143 in two columns |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 258:5447 | Add Student: sections and labels |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 78:284 | Report Status: Recent Submitted Reports, Selected Report Details, Recent Status Activity |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 78:276 | Admin Feedback (Teacher): the content is one pasted picture, 263:9488 |
 
-Plan 5 calls so far: 12 of 60.
+Plan 5 calls so far: 24 of 60.

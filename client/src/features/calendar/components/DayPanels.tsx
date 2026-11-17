@@ -13,7 +13,7 @@ function Tag({
 }) {
   return (
     <p
-      className={`bg-tag py-4 text-13 font-bold tracking-label text-primary-contrast lg:py-3 ${
+      className={`bg-tag py-4 text-13 font-bold tracking-label whitespace-nowrap text-primary-contrast ${
         direction === "right"
           ? "ric-tag-right -ml-4 pr-8 pl-4 lg:ml-0"
           : "ric-tag-left -mr-4 pr-4 pl-8 lg:mr-0"
@@ -32,7 +32,8 @@ export function menuHeading(date: string, today = manilaToday()): string {
 // tag, the numbered parents on a pink card, and the Purchase Request. They stack
 // under 1024 px in the Parent frame's order, where the tags reach the screen edge
 // (the page's 16 px padding is taken back) and are 52 px high. The dish and the
-// card hang from their tags by two short lines (.ric-hang).
+// card hang from their tags by two short lines (.ric-hang). On a desktop the
+// Purchase Request card keeps the Teacher frame's width, 762 of 1920 px.
 export function DayPanels({
   date,
   menuName,
@@ -51,7 +52,7 @@ export function DayPanels({
   purchaseRequest: ReactNode;
 }) {
   return (
-    <div className="mt-6 grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)_12rem] lg:items-start">
+    <div className="mt-6 grid gap-6 lg:grid-cols-[14rem_minmax(0,1fr)_14rem] lg:items-start">
       <section className="flex flex-col items-start lg:order-3 lg:items-end">
         <Tag label={menuHeading(date)} direction="right" />
         <p className="ric-hang mt-2 border border-border bg-tag-tint px-3 py-0.5 text-13 font-medium">
@@ -61,7 +62,7 @@ export function DayPanels({
 
       <section
         aria-labelledby="purchase-request-title"
-        className="min-w-0 rounded-card border border-border-subtle bg-surface p-3 shadow-panel lg:order-2 lg:p-4"
+        className="min-w-0 rounded-card border border-border-subtle bg-surface p-3 shadow-panel lg:order-2 lg:w-full lg:max-w-[47.5rem] lg:justify-self-center lg:p-4"
       >
         <h2
           id="purchase-request-title"

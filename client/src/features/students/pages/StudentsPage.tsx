@@ -11,6 +11,7 @@ import {
   DateInput,
   EmptyState,
   FormField,
+  Icon,
   IconButton,
   Input,
   Modal,
@@ -125,6 +126,7 @@ function RowActions({
     <div className="flex justify-end gap-1">
       <IconButton
         icon="pencil"
+        className="text-accent!"
         label={`Edit ${student.displayName}`}
         onClick={() => {
           void navigate(`/students/${String(student.id)}/edit`);
@@ -132,6 +134,7 @@ function RowActions({
       />
       <IconButton
         icon={student.status === "ACTIVE" ? "trash-2" : "refresh-cw"}
+        className="text-text-muted!"
         label={`${student.status === "ACTIVE" ? "Archive" : "Restore"} ${student.displayName}`}
         onClick={onArchive}
       />
@@ -284,7 +287,8 @@ export function StudentsPage() {
           <h1 className="text-24 font-semibold tracking-label text-accent lg:text-40">
             Enrolled Students
           </h1>
-          <p className="text-13 tracking-label text-text-secondary">
+          <p className="flex items-center gap-1 text-13 tracking-label text-text-secondary">
+            <Icon name="map-pin" size={16} />
             {center}, Libmanan, Camarines Sur
             {summary.data === undefined
               ? ""
@@ -292,22 +296,29 @@ export function StudentsPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <div className="w-full sm:w-72">
+          <div className="w-full sm:w-[22rem]">
             <FormField label="Search" hideLabel>
               {(field) => (
-                <Input
-                  {...field}
-                  placeholder="Search student name"
-                  value={search}
-                  onChange={(event) => {
-                    setSearch(event.target.value);
-                    setPage(1);
-                  }}
-                />
+                <div className="relative">
+                  <Input
+                    {...field}
+                    className="pl-10"
+                    placeholder="Search student name"
+                    value={search}
+                    onChange={(event) => {
+                      setSearch(event.target.value);
+                      setPage(1);
+                    }}
+                  />
+                  <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-text-muted">
+                    <Icon name="search" size={18} />
+                  </span>
+                </div>
               )}
             </FormField>
           </div>
           <Button
+            variant="accent"
             icon="plus"
             onClick={() => {
               void navigate("/students/new");
