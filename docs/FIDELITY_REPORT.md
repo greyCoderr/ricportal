@@ -218,6 +218,29 @@ cards, the records and the selected details of F5 (DEC-041). Not changed: Object
 page (docs/OBJ3_PLAN.md), and the picture needs the client's word on the two extra statuses.
 NOT verified with real rows.
 
+## Admin pages (page group 4, written 2026-11-18 from the measurements logged on 2026-11-17)
+
+Frames read on 2026-11-17 (design context and screenshot in docs/feedback/figma/). The two fixes
+below were measured in the browser before the change only; the "after" state has NOT been seen in a
+browser (no browser on this laptop in the lean order): needs Developer visual check.
+
+| Page, frame | Element | Figma | Ours before | Ours after | Fixed |
+| --- | --- | --- | --- | --- | --- |
+| Admin calendar 268:11404 | Day panels | none in the frame | Purchase Request squeezed into the 14rem column (172 px at 1440) | two columns when there is no parents panel | yes, unit test; needs Developer visual check |
+| Admin calendar 268:11404 | Upload panel | beside the calendar from the top | the same (Plan 4 D6) | unchanged | kept |
+| Admin Dashboard 267:9689 | Card numbers | dark green | body text color | `text-accent` | yes, unit test; needs Developer visual check |
+| Admin Reports 268:12661 | Four type cards, five tabs, Month and Teacher filters, side filter panel | shown | three status cards; filter panel below the list at 1440 (Round 1) | unchanged | kept: types are Objective 3; filters are J3 (e) |
+| RIC Teachers 267:9862 | Title size, Add New Teacher color, info note under the table | larger title, blue-green button, a note | smaller title, red button, no note | unchanged | NOT fixed yet (the frame is one flat image, measured in Round 3) |
+| Teacher Profile 88:695 | Layout | header card, four report cards, Recent Submitted Reports, Recent Status Activity | the same | unchanged | matches |
+| Admin Enrolled Students | no frame | | Developer-designed (Round 4 D4) | | client approval needed |
+
+### Frames NOT read (2026-11-18)
+
+Admin Profile 267:9887, Reports phone 378:15917, RIC Teachers phone 378:16285 and Profile phone
+378:16539. The first call (`get_design_context` on 267:9887) gave no answer for 30 minutes and was
+stopped by the tool; then free memory was 442 MB, under the Developer's 500 MB line, so no further
+Figma call or code change was made. The Admin pages at 390 wide are not compared.
+
 ## Not read in this stage, and why
 
 | Frame | Why |

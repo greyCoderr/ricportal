@@ -224,4 +224,11 @@ docs/feedback/figma-teacher-home.png). Round 4 calls: 4 of 40.
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 78:284 | Report Status: Recent Submitted Reports, Selected Report Details, Recent Status Activity |
 | 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 78:276 | Admin Feedback (Teacher): the content is one pasted picture, 263:9488 |
 
-Plan 5 calls so far: 24 of 60.
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 88:695 | Teacher Profile: matches |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 267:9689 | Admin dashboard: dark green card numbers |
+| 2026-11-17 | J2 | `get_design_context`, `get_screenshot` | 268:12661 | Admin Reports: type cards, tabs, filters (Objective 3, J3 e) |
+| 2026-11-17 | J2 | `get_screenshot` | 267:9862 | RIC Teachers (one flat image) |
+| 2026-11-18 | J2 | `create_session` | file | Session for the remaining Admin frames |
+| 2026-11-18 | J2 | `get_design_context` | 267:9887 | No answer for 30 minutes; stopped by the tool. Counted |
+
+Plan 5 calls so far: 33 of 60 (the log of 2026-11-17 said 30 after page group 4; the table counts 31 then).

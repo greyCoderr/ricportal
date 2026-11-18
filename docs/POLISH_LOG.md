@@ -1206,3 +1206,25 @@ Step 3, J5 documentation (done; text only, no tests needed). Five commits:
 - New: docs/ANNEX_A_CHANGES.md, docs/PAPER_CHANGES.md (PC-01 to PC-18), docs/OPEN_QUESTIONS.md
   (OQ-01 to OQ-27, each with its default), listed in docs/INDEX.md.
 - Not done: the final ERD and DFD (Phase 8, as the plan says).
+
+Step 4, J2 without a browser (STOPPED at the start).
+- Free memory before the step: 831 MB. `create_session` on the working copy, then
+  `get_design_context` on Admin Profile 267:9887: no answer for 30 minutes, the tool stopped it.
+  Not retried. Free memory right after: 442 MB, under the 500 MB line, so text-only work from here.
+- Text-only work done: docs/FIDELITY_REPORT.md section "Admin pages" written from the 2026-11-17
+  measurements (the two Admin fixes marked "needs Developer visual check"); docs/components.md Figma
+  call table brought up to date (33 of 60; the earlier "30" was a miscount, the table gives 31).
+
+**Stopped here (2026-11-18): free memory 442 MB, under the Developer's 500 MB line.** No server,
+browser or test is running from this session.
+
+What remains, in order, when the Developer says memory is free:
+1. Step 4: read 267:9887, 378:15917, 378:16285 and 378:16539 once each (design context plus one
+   screenshot; 8 calls, which brings Plan 5 to 41 of 60), save the screenshots in
+   docs/feedback/figma/, write layout notes, make the differences with tokens and existing
+   components, list each in docs/FIDELITY_REPORT.md as "needs Developer visual check"; RIC Teachers
+   267:9862 differences (title size, button color, info note) are already known and can be made then.
+   Then DEC-056 (J2 decisions), docs/tokens.md rows for `--color-login-ground` and `--login-*`.
+2. Step 5, J3 server logic first, tests first and seen failing, one test file at a time, one commit
+   per item: (a) replace-on-import, (b) Admin System settings from the Admin Profile, (c) previous
+   school year filter read-only, (d) budget progress bar, (e) Admin Reports filters.
