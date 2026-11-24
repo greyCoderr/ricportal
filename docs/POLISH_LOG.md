@@ -1242,3 +1242,7 @@ What remains, in order, when the Developer says memory is free:
   a whole seed get 60 s each; no assertion removed or weakened.
 - NOT verified when the patch was written (no database there): typecheck, lint, the db test file.
   Prettier clean on both files.
+- Developer's run (2026-11-24): 14 of 15, 118 s, no timeout. The failure was in the test: the shared
+  re-seed check "no report starting 2026-11-09" also ran at the later clock, where the seeded
+  SUBMITTED report starts on that date. Counts and report states matched. The check now runs only
+  at the test clock.

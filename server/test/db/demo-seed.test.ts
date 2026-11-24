@@ -70,7 +70,12 @@ async function reseedRestores(options = OPTIONS) {
   await seedDemo(prisma, options);
   expect(await counts()).toEqual(seeded);
   expect(await reportStatuses()).toEqual(seededReports);
-  expect(await rehearsalReports()).toBe(0);
+  // At the test clock no seeded report starts on 2026-11-09, so a report
+  // there is a rehearsal leftover. At the later clock the seeded SUBMITTED
+  // report starts on that date, and the two checks above cover it.
+  if (options === OPTIONS) {
+    expect(await rehearsalReports()).toBe(0);
+  }
 }
 
 beforeAll(async () => {
