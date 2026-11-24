@@ -1228,3 +1228,17 @@ What remains, in order, when the Developer says memory is free:
 2. Step 5, J3 server logic first, tests first and seen failing, one test file at a time, one commit
    per item: (a) replace-on-import, (b) Admin System settings from the Admin Profile, (c) previous
    school year filter read-only, (d) budget progress bar, (e) Admin Reports filters.
+
+### P1 (patch, 2026-11-24): demo seed test split and re-run hardening
+
+- Seed data unchanged (commit 2d7f117 already has the 4 earlier-year children and the three reports).
+- `server/prisma/demo-seed.ts`: the demo Parent usernames are removed wherever they are before they
+  are created again, so a demo Parent moved to another center no longer makes a re-run fail.
+- `server/test/db/demo-seed.test.ts`: the first seed of each block runs in its `beforeAll` (60 s hook)
+  and its counts and report states are kept; every re-seed test compares with them, so a test no
+  longer depends on the one before it (the 2026-11-17 failure). The read-only checks no longer seed.
+  "re-seeding works after a whole rehearsal" is split into three tests (added Teacher, joined
+  Parent, report cycle). New tests: a re-run with no changes, and a moved demo Parent. Tests that run
+  a whole seed get 60 s each; no assertion removed or weakened.
+- NOT verified when the patch was written (no database there): typecheck, lint, the db test file.
+  Prettier clean on both files.

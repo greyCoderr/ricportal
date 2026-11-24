@@ -9,6 +9,11 @@ import { createTestPrisma, resetDatabase } from "./test-database.js";
 
 const NOW = new Date("2026-11-10T02:00:00Z");
 const OPTIONS = { now: NOW, bcryptCost: 4 };
+// One demo seed locks 16 days and submits and reviews 3 reports. It ran in 6 s
+// with free memory but went past 15 s when the laptop was low (POLISH_LOG,
+// 2026-11-17). Only the tests that run a whole seed get this; the first seed of
+// each block runs in its beforeAll (60 s hook timeout).
+const RESEED_TIMEOUT = 60_000;
 
 let prisma: PrismaClient;
 let app: ReturnType<typeof buildApp>;
@@ -56,6 +61,18 @@ const rehearsalReports = () =>
     where: { periodStart: new Date("2026-11-09T00:00:00Z") },
   });
 
+// What the first seed made; every re-seed below must bring exactly this back,
+// whatever the tests before it did.
+let seeded: Awaited<ReturnType<typeof counts>>;
+let seededReports: Awaited<ReturnType<typeof reportStatuses>>;
+
+async function reseedRestores(options = OPTIONS) {
+  await seedDemo(prisma, options);
+  expect(await counts()).toEqual(seeded);
+  expect(await reportStatuses()).toEqual(seededReports);
+  expect(await rehearsalReports()).toBe(0);
+}
+
 beforeAll(async () => {
   prisma = createTestPrisma();
   await resetDatabase(prisma);
@@ -71,9 +88,15 @@ afterAll(async () => {
 });
 
 describe("seedDemo", () => {
-  it("creates the demo state: accounts, 18 children, the menu, a locked day", async () => {
+  // The first seed (with the menu import) runs here, not inside a 15 s test.
+  beforeAll(async () => {
     await seedDemo(prisma, OPTIONS);
-    const state = await counts();
+    seeded = await counts();
+    seededReports = await reportStatuses();
+  });
+
+  it("creates the demo state: accounts, 18 children, the menu, a locked day", async () => {
+    const state = seeded;
     expect(state.teachers).toBe(1);
     expect(state.parents).toBe(4);
     expect(state.students).toBe(18);
@@ -84,7 +107,7 @@ describe("seedDemo", () => {
     expect(state.locked).toBe(1);
     // The three school weeks before this week, newest first: waiting for
     // review, sent back, approved.
-    expect(await reportStatuses()).toEqual([
+    expect(seededReports).toEqual([
       ["2026-10-19", "2026-10-23", "APPROVED"],
       ["2026-10-26", "2026-10-30", "NEED_REVISION"],
       ["2026-11-02", "2026-11-06", "SUBMITTED"],
@@ -154,181 +177,241 @@ describe("seedDemo", () => {
     expect(items.items.some((item) => item.unitCost === null)).toBe(true);
   });
 
-  it("re-running restores the state and unlocks the demo accounts", async () => {
-    const before = await counts();
+  it(
+    "running it again with no changes gives the same state",
+    async () => {
+      await reseedRestores();
+    },
+    RESEED_TIMEOUT,
+  );
 
-    // Things a rehearsal leaves behind.
-    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
-    await teacher.post("/api/students").send({
-      lastName: "Rehearsal",
-      firstName: "Child",
-      gender: "M",
-      birthdate: "2023-01-15",
-      weightKg: "14.00",
-      heightCm: "95.0",
-      parentGuardianName: "Someone Else",
-    });
-    const sibujo = await prisma.center.findUniqueOrThrow({
-      where: { name: "Sibujo" },
-    });
-    await request(app).post("/api/auth/parent-signup").send({
-      fullName: "Rehearsal Parent",
-      username: "rehearsal.parent",
-      mobile: "09171234567",
-      centerId: sibujo.id,
-      password: "Parent2026pw",
-      confirmPassword: "Parent2026pw",
-    });
-    for (let i = 0; i < 6; i += 1) {
+  it(
+    "re-running restores the state and unlocks the demo accounts",
+    async () => {
+      // Things a rehearsal leaves behind.
+      const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+      await teacher.post("/api/students").send({
+        lastName: "Rehearsal",
+        firstName: "Child",
+        gender: "M",
+        birthdate: "2023-01-15",
+        weightKg: "14.00",
+        heightCm: "95.0",
+        parentGuardianName: "Someone Else",
+      });
+      const sibujo = await prisma.center.findUniqueOrThrow({
+        where: { name: "Sibujo" },
+      });
+      await request(app).post("/api/auth/parent-signup").send({
+        fullName: "Rehearsal Parent",
+        username: "rehearsal.parent",
+        mobile: "09171234567",
+        centerId: sibujo.id,
+        password: "Parent2026pw",
+        confirmPassword: "Parent2026pw",
+      });
+      for (let i = 0; i < 6; i += 1) {
+        await request(app)
+          .post("/api/auth/login")
+          .send({ username: "parent2", password: "Wrong2026pw" });
+      }
       await request(app)
         .post("/api/auth/login")
-        .send({ username: "parent2", password: "Wrong2026pw" });
-    }
-    await request(app)
-      .post("/api/auth/login")
-      .send({ username: "admin", password: "Wrong2026pw" });
-    await teacher.post("/api/purchase-requests/2026-11-09/unlock");
+        .send({ username: "admin", password: "Wrong2026pw" });
+      await teacher.post("/api/purchase-requests/2026-11-09/unlock");
 
-    await seedDemo(prisma, OPTIONS);
+      await reseedRestores();
 
-    expect(await counts()).toEqual(before);
-    await loginAs(app, "parent2", "Demo2026!");
-    const admin = await prisma.user.findUniqueOrThrow({
-      where: { username: "admin" },
-    });
-    expect(admin.failedLoginCount).toBe(0);
-    expect(admin.lockedUntil).toBe(null);
-    expect(
-      await prisma.user.findUnique({ where: { username: "rehearsal.parent" } }),
-    ).toBe(null);
-  });
+      await loginAs(app, "parent2", "Demo2026!");
+      const admin = await prisma.user.findUniqueOrThrow({
+        where: { username: "admin" },
+      });
+      expect(admin.failedLoginCount).toBe(0);
+      expect(admin.lockedUntil).toBe(null);
+      expect(
+        await prisma.user.findUnique({
+          where: { username: "rehearsal.parent" },
+        }),
+      ).toBe(null);
+    },
+    RESEED_TIMEOUT,
+  );
 
-  it("re-seeding works after a whole rehearsal of the click path", async () => {
-    const before = await counts();
-    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
-    const admin = await loginAs(app, "admin", "Admin2026!");
-    const sibujo = await prisma.center.findUniqueOrThrow({
-      where: { name: "Sibujo" },
-    });
-    const bahay = await prisma.center.findUniqueOrThrow({
-      where: { name: "Bahay" },
-    });
+  // The old "whole rehearsal of the click path" test, in three parts.
+  it(
+    "rehearsal 1: the Teacher the Admin added is removed",
+    async () => {
+      const admin = await loginAs(app, "admin", "Admin2026!");
+      const bahay = await prisma.center.findUniqueOrThrow({
+        where: { name: "Bahay" },
+      });
+      const added = await admin.post("/api/teachers").send({
+        fullName: "Liza Ramos",
+        username: "teacher.bahay",
+        centerId: bahay.id,
+      });
+      expect(added.status).toBe(201);
+      const bahayTeacher = await loginAs(
+        app,
+        "teacher.bahay",
+        TEST_DEFAULT_PASSWORD,
+      );
+      expect(
+        (
+          await bahayTeacher.post("/api/auth/change-password").send({
+            currentPassword: TEST_DEFAULT_PASSWORD,
+            newPassword: "Bahay2026pw",
+            confirmPassword: "Bahay2026pw",
+          })
+        ).status,
+      ).toBe(200);
 
-    // The Admin adds a teacher, who changes the default password.
-    const added = await admin.post("/api/teachers").send({
-      fullName: "Liza Ramos",
-      username: "teacher.bahay",
-      centerId: bahay.id,
-    });
-    expect(added.status).toBe(201);
-    const bahayTeacher = await loginAs(
-      app,
-      "teacher.bahay",
-      TEST_DEFAULT_PASSWORD,
-    );
-    expect(
-      (
-        await bahayTeacher.post("/api/auth/change-password").send({
-          currentPassword: TEST_DEFAULT_PASSWORD,
-          newPassword: "Bahay2026pw",
-          confirmPassword: "Bahay2026pw",
-        })
-      ).status,
-    ).toBe(200);
+      await reseedRestores();
 
-    // A new parent joins the week's team and adds a row.
-    await request(app).post("/api/auth/parent-signup").send({
-      fullName: "Rehearsal Parent",
-      username: "rehearsal.parent",
-      mobile: "09171234567",
-      centerId: sibujo.id,
-      password: "Parent2026pw",
-      confirmPassword: "Parent2026pw",
-    });
-    const joined = await prisma.user.findUniqueOrThrow({
-      where: { username: "rehearsal.parent" },
-    });
-    expect(
-      (await teacher.post(`/api/parents/${String(joined.id)}/approve`)).status,
-    ).toBe(200);
-    expect(
-      (
-        await teacher.put("/api/assignments/week").send({
-          week: "2026-11-09",
-          teamParentIds: [joined.id],
-          days: [{ date: "2026-11-10", parentIds: [joined.id] }],
-        })
-      ).status,
-    ).toBe(200);
-    const parent = await loginAs(app, "rehearsal.parent", "Parent2026pw");
-    expect(
-      (
-        await parent
-          .post("/api/purchase-requests/2026-11-10/items")
-          .send({ description: "Calamansi" })
-      ).status,
-    ).toBe(201);
+      expect(
+        await prisma.user.findUnique({ where: { username: "teacher.bahay" } }),
+      ).toBe(null);
+    },
+    RESEED_TIMEOUT,
+  );
 
-    // The whole report cycle: submit, send back, resubmit, approve.
-    const range = { from: "2026-11-09", to: "2026-11-09" };
-    const submitted = await teacher.post("/api/liquidation/submit").send(range);
-    expect(submitted.status).toBe(201);
-    const id = (submitted.body as { data: { id: number } }).data.id;
-    expect(
-      (
-        await admin.post(`/api/reports/${String(id)}/review`).send({
-          decision: "NEED_REVISION",
-          feedback: "Please check the rice.",
-        })
-      ).status,
-    ).toBe(200);
-    expect(
-      (await teacher.post("/api/purchase-requests/2026-11-09/lock")).status,
-    ).toBe(200);
-    expect(
-      (await teacher.post("/api/liquidation/submit").send(range)).status,
-    ).toBe(201);
-    expect(
-      (
-        await admin
-          .post(`/api/reports/${String(id)}/review`)
-          .send({ decision: "APPROVED" })
-      ).status,
-    ).toBe(200);
+  it(
+    "rehearsal 2: a Parent who joined the team and added a row is removed",
+    async () => {
+      const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+      const sibujo = await prisma.center.findUniqueOrThrow({
+        where: { name: "Sibujo" },
+      });
+      await request(app).post("/api/auth/parent-signup").send({
+        fullName: "Rehearsal Parent",
+        username: "rehearsal.parent",
+        mobile: "09171234567",
+        centerId: sibujo.id,
+        password: "Parent2026pw",
+        confirmPassword: "Parent2026pw",
+      });
+      const joined = await prisma.user.findUniqueOrThrow({
+        where: { username: "rehearsal.parent" },
+      });
+      expect(
+        (await teacher.post(`/api/parents/${String(joined.id)}/approve`))
+          .status,
+      ).toBe(200);
+      expect(
+        (
+          await teacher.put("/api/assignments/week").send({
+            week: "2026-11-09",
+            teamParentIds: [joined.id],
+            days: [{ date: "2026-11-10", parentIds: [joined.id] }],
+          })
+        ).status,
+      ).toBe(200);
+      const parent = await loginAs(app, "rehearsal.parent", "Parent2026pw");
+      expect(
+        (
+          await parent
+            .post("/api/purchase-requests/2026-11-10/items")
+            .send({ description: "Calamansi" })
+        ).status,
+      ).toBe(201);
 
-    await seedDemo(prisma, OPTIONS);
+      await reseedRestores();
 
-    // Only the seeded reports, reviews and snapshots are left (in counts).
-    expect(await counts()).toEqual(before);
-    expect(await rehearsalReports()).toBe(0);
-    for (const username of ["teacher.bahay", "rehearsal.parent"]) {
-      expect(await prisma.user.findUnique({ where: { username } })).toBe(null);
-    }
-    // Every demo account works again, and the locked day is locked again.
-    for (const username of ["teacher.sibujo", "parent1", "parent4"]) {
-      await loginAs(app, username, "Demo2026!");
-    }
-    const fresh = await loginAs(app, "teacher.sibujo", "Demo2026!");
-    const day = await fresh.get("/api/purchase-requests/2026-11-09");
-    expect((day.body as { data: { status: string } }).data.status).toBe(
-      "LOCKED",
-    );
-  });
+      expect(
+        await prisma.user.findUnique({
+          where: { username: "rehearsal.parent" },
+        }),
+      ).toBe(null);
+      // Every demo account works again, and the locked day is locked again.
+      for (const username of ["teacher.sibujo", "parent1", "parent4"]) {
+        await loginAs(app, username, "Demo2026!");
+      }
+      const fresh = await loginAs(app, "teacher.sibujo", "Demo2026!");
+      const day = await fresh.get("/api/purchase-requests/2026-11-09");
+      expect((day.body as { data: { status: string } }).data.status).toBe(
+        "LOCKED",
+      );
+    },
+    RESEED_TIMEOUT,
+  );
 
-  it("a submitted report from a rehearsal is cleared too", async () => {
-    const before = await counts();
-    const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
-    const range = { from: "2026-11-09", to: "2026-11-09" };
-    expect(
-      (await teacher.post("/api/liquidation/submit").send(range)).status,
-    ).toBe(201);
-    expect(await prisma.report.count()).toBe(before.reports + 1);
+  it(
+    "rehearsal 3: a whole report cycle leaves only the seeded reports",
+    async () => {
+      const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+      const admin = await loginAs(app, "admin", "Admin2026!");
+      // Submit, send back, resubmit, approve.
+      const range = { from: "2026-11-09", to: "2026-11-09" };
+      const submitted = await teacher
+        .post("/api/liquidation/submit")
+        .send(range);
+      expect(submitted.status).toBe(201);
+      const id = (submitted.body as { data: { id: number } }).data.id;
+      expect(
+        (
+          await admin.post(`/api/reports/${String(id)}/review`).send({
+            decision: "NEED_REVISION",
+            feedback: "Please check the rice.",
+          })
+        ).status,
+      ).toBe(200);
+      expect(
+        (await teacher.post("/api/purchase-requests/2026-11-09/lock")).status,
+      ).toBe(200);
+      expect(
+        (await teacher.post("/api/liquidation/submit").send(range)).status,
+      ).toBe(201);
+      expect(
+        (
+          await admin
+            .post(`/api/reports/${String(id)}/review`)
+            .send({ decision: "APPROVED" })
+        ).status,
+      ).toBe(200);
+      expect(await rehearsalReports()).toBe(1);
 
-    await seedDemo(prisma, OPTIONS);
+      await reseedRestores();
+    },
+    RESEED_TIMEOUT,
+  );
 
-    expect(await rehearsalReports()).toBe(0);
-    expect(await counts()).toEqual(before);
-  });
+  it(
+    "a submitted report from a rehearsal is cleared too",
+    async () => {
+      const teacher = await loginAs(app, "teacher.sibujo", "Demo2026!");
+      const range = { from: "2026-11-09", to: "2026-11-09" };
+      expect(
+        (await teacher.post("/api/liquidation/submit").send(range)).status,
+      ).toBe(201);
+      expect(await prisma.report.count()).toBe(seeded.reports + 1);
+
+      await reseedRestores();
+    },
+    RESEED_TIMEOUT,
+  );
+
+  it(
+    "a demo Parent moved to another center does not block a re-run",
+    async () => {
+      const bahay = await prisma.center.findUniqueOrThrow({
+        where: { name: "Bahay" },
+      });
+      await prisma.user.update({
+        where: { username: "parent3" },
+        data: { centerId: bahay.id },
+      });
+
+      await reseedRestores();
+
+      const parent3 = await prisma.user.findUniqueOrThrow({
+        where: { username: "parent3" },
+        include: { center: true },
+      });
+      expect(parent3.center?.name).toBe("Sibujo");
+      await loginAs(app, "parent3", "Demo2026!");
+    },
+    RESEED_TIMEOUT,
+  );
 });
 
 // The Developer's dev database is seeded on 2026-11-17: the reports follow the
@@ -336,8 +419,13 @@ describe("seedDemo", () => {
 describe("seedDemo reports and earlier school year (J2)", () => {
   const LATER = { now: new Date("2026-11-17T02:00:00Z"), bcryptCost: 4 };
 
-  it("makes one report in each state for the three weeks before this one", async () => {
+  beforeAll(async () => {
     await seedDemo(prisma, LATER);
+    seeded = await counts();
+    seededReports = await reportStatuses();
+  });
+
+  it("makes one report in each state for the three weeks before this one", async () => {
     expect(await reportStatuses()).toEqual([
       ["2026-10-26", "2026-10-30", "APPROVED"],
       ["2026-11-02", "2026-11-06", "NEED_REVISION"],
@@ -392,11 +480,11 @@ describe("seedDemo reports and earlier school year (J2)", () => {
     expect((current.body as { meta: { total: number } }).meta.total).toBe(18);
   });
 
-  it("re-running gives the same state", async () => {
-    const before = await counts();
-    const statuses = await reportStatuses();
-    await seedDemo(prisma, LATER);
-    expect(await counts()).toEqual(before);
-    expect(await reportStatuses()).toEqual(statuses);
-  });
+  it(
+    "re-running gives the same state",
+    async () => {
+      await reseedRestores(LATER);
+    },
+    RESEED_TIMEOUT,
+  );
 });

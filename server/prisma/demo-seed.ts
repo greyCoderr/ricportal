@@ -105,6 +105,14 @@ async function clearDemoData(prisma: PrismaClient, centerId: number) {
   await prisma.liquidationSnapshot.deleteMany({ where: report });
   await prisma.report.deleteMany({ where: { centerId } });
   await prisma.user.deleteMany({ where: { centerId, role: "PARENT" } });
+  // A demo Parent moved to another center by a rehearsal would make the
+  // re-create below fail on the username, so those usernames go wherever they are.
+  await prisma.user.deleteMany({
+    where: {
+      role: "PARENT",
+      username: { in: PARENTS.map((parent) => parent.username) },
+    },
+  });
   await prisma.user.deleteMany({
     where: { centerId, role: "TEACHER", username: { not: TEACHER.username } },
   });
